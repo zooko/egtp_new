@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __author__   = 'EGFABT'
-__revision__ = "$Id: test_keyutils.py,v 1.1 2002/11/28 00:49:56 myers_carpenter Exp $"
+__revision__ = "$Id: test_keyutils.py,v 1.2 2003/02/03 03:42:50 zooko Exp $"
 
 import unittest
 
@@ -43,18 +43,6 @@ class KeyUtilTestCase(unittest.TestCase):
     def test_publicKeyForVerifyingTokenSignaturesIsWellFormed_mustRejectPrivateKey(self):
         assert not keyutil.publicKeyForVerifyingTokenSignaturesIsWellFormed(_sample_RSA_private_key_for_signing_tokens_message)
 
-    def test_publicKeyForVerifyingTokenSignaturesIsWellFormed_mustRejectBadUsage(self):
-        print 'XXX write test_publicKeyForVerifyingTokenSignaturesIsWellFormed_mustRejectBadUsage'
-
-    def test_publicKeyForVerifyingTokenSignaturesIsWellFormed_mustRejectIllFormed(self):
-        print 'XXX unwritten test!'
-
-    def test_publicKeyForVerifyingTokenSignaturesIsWellFormed_mustRejectIllFormed_2(self):
-        print 'XXX unwritten test!'
-
-    def test_publicKeyForVerifyingTokenSignaturesIsWellFormed_mustRejectIllFormed_3(self):
-        print 'XXX unwritten test!'
-
     def test_publicRSAKeyForVerifyingTokenSignaturesIsWellFormed(self):
         assert keyutil.publicRSAKeyForVerifyingTokenSignaturesIsWellFormed(_sample_RSA_public_key_for_verifying_token_signatures_string)
 
@@ -73,21 +61,6 @@ class KeyUtilTestCase(unittest.TestCase):
     def test_keyIsWellFormed_mustRejectIllFormed(self):
         assert not keyutil.keyIsWellFormed("")
 
-    def test_keyIsWellFormed_mustRejectIllFormed_2(self):
-        print 'XXX unwritten test!'
-
-    def test_keyIsWellFormed_mustRejectIllFormed_3(self):
-        print 'XXX unwritten test!'
-
-    def test_keyIsWellFormed_mustRejectIllFormed_4(self):
-        print 'XXX unwritten test!'
-
-    def test_keyIsWellFormed_mustRejectIllFormed_5(self):
-        print 'XXX unwritten test!'
-
-    def test_keyIsWellFormed_mustRejectIllFormed_5(self):
-        print 'XXX unwritten test!'
-     
     def test_makePublicRSAKeyForVerifyingTokenSignatures(self):
         kMV = modval.new(sampleModulus, sampleExponent)
 
