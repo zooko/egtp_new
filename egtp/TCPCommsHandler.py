@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPCommsHandler.py,v 1.12 2003/01/05 23:30:03 myers_carpenter Exp $"
+__revision__ = "$Id: TCPCommsHandler.py,v 1.13 2003/01/09 15:18:18 zooko Exp $"
 
 # standard modules
 import UserDict, asyncore, os, socket, string, struct, threading, time
@@ -334,6 +334,11 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         self._conncache._cleanup_nice()
 
     def forget_comm_strategy(self, counterparty_id, commstrat=None):
+        """
+        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        """
+        assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
+
         curcs = self._cid_to_cs.get(counterparty_id)
         if (curcs is None) or (commstrat and not curcs.same(commstrat)):
             # We aren't using `commstrat', so there is nothing to forget.
