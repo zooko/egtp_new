@@ -32,3 +32,26 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
+From TCPConnection.py:
+        # `_key' is what we use to index this object in the TCPConnCache.  If we know the
+        # counterparty id, then `_key' gets set to the counterparty id by the higher-level code
+        # (by direct access to the `_key' member), else `_key' is set to a random unique id by
+        # the higher-level code (in the constructor).
+        self._key = key
+
+What is a counterparty id? 
+
+
+From TCPConnection.py
+The send flow seems to be.
+We use a commsHandler to send_msg.. (Again what is a counterparty id?) 
+This calls send:
+        tcpc.send(msg, fast_fail_handler)
+
+I am not sure how the DoQ is involved here, but it must be because the send command can only be 
+called from the DoQ...so how does that work? 
+
+Anyway, DoQ calls send... it checks to make sure the message isn't to big... 
+and then it checks to make sure its open and it isn't throttled, if not it sends... 
+
+Ok, but what if it is throttled... what happens?
