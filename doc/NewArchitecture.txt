@@ -1,0 +1,52 @@
+Introduction to the EGTP version 2 Architecture:
+
+document version 0.0.0
+
+I. Background Material
+
+I will not assume that you have read the following, but I do recommend them.
+
+A. General Crypto Protocol Design
+
+ * Ross J. Anderson. Why cryptosystems fail. Communications of the ACM, 
+37(11):32--40, November 1994. 
+http://citeseer.nj.nec.com/anderson94why.html
+
+ * Abadi, M. and Needham, R. 1996. Prudent engineering practice for 
+cryptographic protocols. IEEE Trans. Softw. Eng. 22, 1 (Jan.), 6-15. 
+http://citeseer.nj.nec.com/abadi95prudent.html
+
+ * Ross J. Anderson, Roger M. Needham, "Programming Satan's Computer", in 
+Computer Science Today, Springer LNCS v 1000 pp 426--441 
+http://citeseer.nj.nec.com/22376.html
+
+B. Replay Attacks/Active Attacks
+
+ * P. Syverson. A taxonomy of replay attacks. In Computer Security Foundations 
+Workshop VII. IEEE Computer Society Press, 1994.
+http://citeseer.nj.nec.com/syverson94taxonomy.html 
+
+[Zooko: write argument that EGTPv2 addresses all classes from this taxonomy.  
+See if Paul Syverson will review it for you. --Zooko]
+
+ * "Strategies Against Replay Attacks" 1997 Tuomas Aura
+http://citeseer.nj.nec.com/aura97strategies.html
+
+ * Li Gong. Variations on the Themes of Message Freshness and Replay or, the 
+Difficulty of Devising Formal Methods to Analyze Cryptographic Protocols. In 
+Proceedings of the Computer Security Foundations Workshop VI, pages 131--136. 
+IEEE Computer Society Press, Los Alamitos, California, 1993.
+http://citeseer.nj.nec.com/gong93variations.html
+
+C. Fail-Stop/Constructive Approaches
+
+ * Li Gong and Paul Syverson. Fail-stop protocols: An approach to designing 
+secure protocols. In R. K. Iyer, M. Morganti, Fuchs W. K, and V. Gligor, 
+editors, Dependable Computing for Critical Applications 5, pages 79--100. IEEE 
+Computer Society, 1998.
+http://citeseer.nj.nec.com/gong95failstop.html
+
+D. EGTPv1
+
+ * Zooko and Art. Introduction to the EGTP version 1 Architecture
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/egtp/egtp_new/doc/Architecture.txt?rev=HEAD&content-type=text/vnd.viewcvs-markup
