@@ -7,7 +7,7 @@ We now use Python's Distutils for this package.
 pybsddb3 is required for building egtp.  If you use the version of python
 that came with your Linux distrbution you can get packages by:
 
-Debain - 'apt-get install python-bsddb3'
+Debian - 'apt-get install python-bsddb3'
 
 Redhat - You can get an RPM at
 http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html

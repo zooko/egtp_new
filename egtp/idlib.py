@@ -11,7 +11,7 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 # $Source: /home/zooko/playground/egtp_new/rescue-party/gw/../egtp_new/egtp_new/egtp/idlib.py,v $
 
 # Python Standard Library modules
@@ -274,6 +274,7 @@ is_ascii_id = is_mojosixbitencoded_id
 def is_binary_id(str, thingtype=None, SIZE_OF_UNIQS=EGTPConstants.SIZE_OF_UNIQS):
     """
     @deprecated in favor of "is_id()" for naming reasons
+    """
     try:
         return len(str) == SIZE_OF_UNIQS
     except:

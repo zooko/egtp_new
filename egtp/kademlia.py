@@ -10,7 +10,7 @@
 Use a Kademlia routing system to communicate to other EGTP nodes.
 """
 
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 # $Source: /home/zooko/playground/egtp_new/rescue-party/gw/../egtp_new/egtp_new/egtp/kademlia.py,v $
 
 True = 1 == 1
@@ -26,6 +26,7 @@ import CommStrat
 import idlib
 
 class KademNode:
+    pass
     # Art: fill this in.  ;-)
    
 
