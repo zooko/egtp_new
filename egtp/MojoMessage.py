@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.9 2002/12/02 19:58:48 myers_carpenter Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.10 2003/01/20 19:31:42 zooko Exp $"
 
 # standard modules
 import string
@@ -399,11 +399,9 @@ def __internal_checkMsgBody(msgdict):
             'mojo message': OptionMarker(templ),
             })
 
-def __internal_checkMojoVersion(msgdict, minVer=MIN_MOJO_VER, nextVer=NEXT_MOJO_VER):
+def __internal_checkMojoVersion(msgdict):
     """
     @param msgString: the string containing the message in canonical form
-    @param minVer: we don't accept messages of less than this version number
-    @param nextVer: we don't accept messages of a this version number or greater
 
     @raise: IncompatibleVersionError if `eDict' is of an incompatible version of the Mojo 
         protocol
@@ -412,9 +410,8 @@ def __internal_checkMojoVersion(msgdict, minVer=MIN_MOJO_VER, nextVer=NEXT_MOJO_
     """
     vN = __internal_getMojoVersion(msgdict)
 
-    if (vN < minVer) or (vN >= nextVer):
+    if vN not in ("0.9991", "0,9991",):
         raise IncompatibleVersionError
-
 
 def __internal_getMojoVersion(msgdict):
     """
@@ -425,7 +422,4 @@ def __internal_getMojoVersion(msgdict):
     if protStr[0:6] != "Mojo v":
         raise BadFormatError, "not a Mojo protocol message"
 
-    verNum = string.atof(protStr[6:])
-    # print "protStr[6:] " + protStr[6:] + ", verNum " + `verNum` # DEBUGPRINT
-
-    return verNum
+    return protStr[6:]
