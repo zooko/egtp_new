@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: TristeroTest.py,v 1.1 2002/08/27 20:01:39 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroTest.py,v 1.2 2002/10/26 12:43:36 zooko Exp $'
 
 # standard Python modules
 import threading, types
@@ -22,8 +22,6 @@ from timeutil import timer
 # from humread import hr # XXX for when we switch to base32 encoding...
 
 # (old) MN modules
-from confutils import confman
-import idlib
 from interfaces import *
 
 # EGTP modules
@@ -34,9 +32,6 @@ import NodeMappingVerifier
 
 true = 1
 false = 0
-
-confman['MAX_VERBOSITY'] = 0
-config.MAX_VERBOSITY = 0
 
 # a discovery man which uses only local data;  In a real app you need distributed discovery in the form of MetaTrackers, Tristero, Plex, Alpine, or something.
 class LocalDiscoveryMan(IDiscoveryManager):

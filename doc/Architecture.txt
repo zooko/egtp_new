@@ -1,5 +1,50 @@
 Introduction to the EGTP Architecture:
 
+
+I. General Stuff
+
+A. nodeIds 
+
+nodeIds (formerly known as "broker Ids") are universally unique 20-byte 
+identifiers.  They are formed by taking the SHA1 hash of the public key of 
+the Node, along with some extra fixed strings for cryptographic/engineering 
+reasons.  When you are talking about the nodeId of a peer, you call it a 
+"peerId" (formerly known as "counterparty Id").
+
+B. Relay
+
+Relay is an important feature of EGTP, but it is best understood as a layer on 
+*top* of the TCP part of EGTP.  Ignore relay on your first pass through, and 
+then once you understand EGTP-over-TCP you can understand relay as follows:
+
+To relay a message M to a recipient B through a relayer R, you simply make a 
+message M2, which says "recipient: B, message: M" and you send M2 to R.
+
+Now that you understand that much, you can look at CommStrat.Relay (implements 
+the sending of relayed messages), RelayServerHandlers (implements the relay 
+service) (whoops -- that file is missing from egtp -- find it in mnet), and 
+RelayListener (implements receiving relayed messages).
+
+C. Threading and Event Queue
+
+Almost everything has to be invoked from the DoQ.  The exceptions are that 
+TCPConnection interacts with the low-level sockets via a separate thread 
+called "the asyncore thread".  There are liberal precondition assertions to 
+help you notice right away if you make a call from the wrong thread.
+
+D. Throttling and Other Delays
+
+If a TCPConnection can't send a message, because the connection isn't open 
+yet, or the outgoing buffer is full, or something, then it just holds the 
+message in its own buffer and tries again when the asyncore notifies it to 
+proceed.  Throttling simply artificially enforces this situation: when 
+throttled, the TCPConnection will not try to send any data until unthrottled.  
+
+
+II. Classes
+
+A. CommStrat
+
 There is a class named "CommStrat".  It is a generalization of an address.  
 Subclasses of it include CommStrat.TCP (which handles both the case that you 
 have an IP address and port num, and the case that you have an open TCP 
@@ -16,6 +61,7 @@ doesn't, so the current version first checks if they have a send method and if
 so calls it, and if not it invokes the right "CommsHandler" object 
 (TCPCommsHandler I think) and asks it to send.
 
+B. TCPCommsHandler
 
 TCPCommsHandler is mostly responsible for managing when to open and close 
 connections.  It tries to be very clever about keeping connections open if it 
@@ -23,6 +69,8 @@ expects to use them again.  It's complicated.  We don't know for sure that the
 behavior is good enough to justify the performance, but on the other hand it 
 is the product of three years of evolution, and it works, so please don't 
 break it unless you need to.
+
+C. TCPConnection
 
 TCPConnection is responsible for: a) twiddling the socket objects and managing 
 buffers of incoming and outgoing data.  Closing the connection.  This is the 
@@ -32,26 +80,3 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
-From TCPConnection.py:
-        # `_key' is what we use to index this object in the TCPConnCache.  If we know the
-        # counterparty id, then `_key' gets set to the counterparty id by the higher-level code
-        # (by direct access to the `_key' member), else `_key' is set to a random unique id by
-        # the higher-level code (in the constructor).
-        self._key = key
-
-What is a counterparty id? 
-
-
-From TCPConnection.py
-The send flow seems to be.
-We use a commsHandler to send_msg.. (Again what is a counterparty id?) 
-This calls send:
-        tcpc.send(msg, fast_fail_handler)
-
-I am not sure how the DoQ is involved here, but it must be because the send command can only be 
-called from the DoQ...so how does that work? 
-
-Anyway, DoQ calls send... it checks to make sure the message isn't to big... 
-and then it checks to make sure its open and it isn't throttled, if not it sends... 
-
-Ok, but what if it is throttled... what happens?
