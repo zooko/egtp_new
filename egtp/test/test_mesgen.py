@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __author__   = 'EGFABT'
-__revision__ = "$Id: test_mesgen.py,v 1.2 2002/12/19 16:47:56 myers_carpenter Exp $"
+__revision__ = "$Id: test_mesgen.py,v 1.3 2002/12/31 06:05:00 myers_carpenter Exp $"
 
 import unittest, tempfile, os, shutil, time
 
@@ -134,7 +134,7 @@ class MesgenTestCase(unittest.TestCase):
     def testError(self):
         mesgenobj = self._createMessageMaker()
         x = mesgenobj.generate_message(mesgenobj.get_id(), 'spam')
-        def tryToRaiseError():
+        def tryToRaiseError(mesgenobj=mesgenobj, x=x):
             mesgenobj.parse(x + 'uh')
         self.failUnlessRaises(mesgen.Error, tryToRaiseError)
 
