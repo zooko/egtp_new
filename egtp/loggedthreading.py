@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: loggedthreading.py,v 1.4 2003/02/02 22:21:13 myers_carpenter Exp $"
+__revision__ = "$Id: loggedthreading.py,v 1.5 2003/02/04 03:40:23 zooko Exp $"
 
 # standard modules
 from threading import *
@@ -24,7 +24,7 @@ class LoggedThread(Thread):
     """
     A descendent of threading.Thread() that overrides the run() method
     to log all thread terminating exceptions using debugprint rather
-    than normal mojolog as the threading module does.
+    than normal stderr as the threading module does.
     NOTE: this won't be useful if you override the run() method.
     """
     def run(self):
