@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.14 2003/02/02 22:21:12 myers_carpenter Exp $"
+__revision__ = "$Id: Conversation.py,v 1.15 2003/02/04 03:15:48 zooko Exp $"
 
 # Python standard library modules
 import threading
@@ -86,7 +86,7 @@ class ConversationManager:
 
         # maps message id's of messages who's responses have timed out to (recipient_id, conversation type, time of timeout, post timeout callback function, notes [only if post timeout callback function])
         # Reminder: this indirectly holds references to the original outgoing message body as well as the metainfo used to send it.  That is often large.
-        self.__posttimeout_callback_functions = Cache.LRUCache(maxsize=512)
+        self._posttimeout_callback_functions = Cache.LRUCache(maxsize=128)
 
         # maps message id to (binary counterparty_id, message type, response status)
         # where status is HANDLED or EXPECTING_RESPONSE
@@ -101,19 +101,16 @@ class ConversationManager:
         # freshness proofs, but this code ensures that when we ship a new, replay-attack-proof
         # version which _does_ verify freshness proofs, then older apps which are running _this_
         # version of our software will be able to interoperate with it.
-        self._map_cid_to_freshness_proof = Cache.LRUCache(maxsize=512)
+        self._map_cid_to_freshness_proof = Cache.LRUCache(maxsize=128)
 
         self._in_message_num = 0L   # used only in debugging
 
     def shutdown(self):
         debugprint("self._map_inmsgid_to_info: %s\n", args=(self._map_inmsgid_to_info,), v=6, vs="debug")
         self.__callback_functions = {}
-        # TODO: del this No other ref to this --icepick 2002-02-01
-        # self._posttimeout_callback_functions.clear()
+        self._posttimeout_callback_functions.clear()
         self._map_inmsgid_to_info = {}
         self._map_cid_to_freshness_proof.clear()
-        if hasattr(self, '_MTM'):
-            del self._MTM  # break our circular reference
 
     def initiate_and_return_first_message(self, counterparty_id, conversationtype, firstmsgbody, outcome_func, timeout = 300, notes = None, mymetainfo=None, post_timeout_outcome_func=None):
         """
@@ -165,7 +162,7 @@ class ConversationManager:
             post_timeout_notes = None
         else:
             post_timeout_notes = notes
-        self.__posttimeout_callback_functions[msgId] = (recipient_id, conversationtype, time(), post_timeout_callback_function, post_timeout_notes,)
+        self._posttimeout_callback_functions[msgId] = (recipient_id, conversationtype, time(), post_timeout_callback_function, post_timeout_notes,)
         if DoQ.doq.is_currently_doq():
             callback_function(failure_reason=failure_reason, notes=notes)
         else:
@@ -309,10 +306,10 @@ class ConversationManager:
                 del self.__callback_functions[reference]
                 DoQ.doq.remove_task(timeoutcheckerschedtime)
             else:
-                # If it wasn't in the `__callback_functions' dict, it might be in the `__posttimeout_callback_functions' dict.
-                recipient_id, conversationtype, msgtimeout, post_timeout_callback_function, post_timeout_notes = self.__posttimeout_callback_functions.get(reference, (None, None, None, None, None,))
+                # If it wasn't in the `__callback_functions' dict, it might be in the `_posttimeout_callback_functions' dict.
+                recipient_id, conversationtype, msgtimeout, post_timeout_callback_function, post_timeout_notes = self._posttimeout_callback_functions.get(reference, (None, None, None, None, None,))
                 if recipient_id is not None:
-                    del self.__posttimeout_callback_functions[reference]  # proactively clean up this cache
+                    del self._posttimeout_callback_functions[reference]  # proactively clean up this cache
                 if not idlib.equal(recipient_id, counterparty_id):
                     return std.NO_RESPONSE
                 # log the late response
