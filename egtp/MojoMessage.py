@@ -399,7 +399,6 @@ def __internal_checkMsgBody(msgdict):
         return
     checkTemplate(msgdict.get('message body'), {
             'mojo message': OptionMarker(templ),
-            'mojo header': OptionMarker(OurMessages.MOJO_HEADER_TEMPL)
             })
 
 def __internal_checkMojoVersion(msgdict, minVer=MIN_MOJO_VER, nextVer=NEXT_MOJO_VER):

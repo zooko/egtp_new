@@ -163,31 +163,3 @@ templs['list relay servers'] = templs['list relay servers v2']
 #     'connection strategies': ListMarker(CRYPTO_COMM_STRAT_TEMPL),
 #     'services': OptionMarker(ListMarker(ANY))})
 
-MOJO_HEADER_OFFER_TEMPL = {'mojo offer': NON_NEGATIVE_INTEGER}
-
-MOJO_HEADER_CREDREJ_TEMPL = {
-    'result': "failure",
-    'reason': "credit limit reached",
-    'price of this service': INTEGER,
-    'your credit limit': INTEGER,
-    'amount you owe me': INTEGER,
-    'min acceptable': INTEGER
-    }
-
-MOJO_HEADER_RESP_TEMPL = {
-    'amount of offer claimed': NON_NEGATIVE_INTEGER
-    }
-
-MOJO_HEADER_RESP_GENERIC_REJECTION_TEMPL = {
-    'result': "failure",
-    'reason': ANY
-    }
-
-# As a matter of fact, mojo offers are currently only valid in initiating messages and the rest are currently only valid in response messages,
-# but for convenience, we make a generic template that allows both, here...
-MOJO_HEADER_TEMPL = [
-    MOJO_HEADER_OFFER_TEMPL,
-    MOJO_HEADER_RESP_GENERIC_REJECTION_TEMPL,
-    MOJO_HEADER_CREDREJ_TEMPL,
-    MOJO_HEADER_RESP_TEMPL
-    ]

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.9 2002/09/29 16:36:23 zooko Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.10 2002/09/29 17:12:31 zooko Exp $'
 
 true = 1
 false = 0
@@ -548,7 +548,7 @@ class MojoTransactionManager:
     def serialize(self):
         return mencode.mencode({'session keeper': self._mesgen._session_keeper.serialize()})
 
-    def respond_with(self, prevmsgId, msgbody, mojoheader=None, hint=HINT_NO_HINT):
+    def respond_with(self, prevmsgId, msgbody, hint=HINT_NO_HINT):
         """
         You must ensure that you call `respond_with()' using a given `prevmsgId', no more than
         one time in the history of the universe.  Also you must not call `response_with()' using
@@ -559,8 +559,6 @@ class MojoTransactionManager:
 
         @param prevmsgId: the id of the message to which this is a response
         @param msgbody: the body of the response
-        @param mojoheader: is an optional 'mojo header' to send with this response.  It should not be used
-            by normal callers as it is parsed and interpreted by MojoTransaction internally on the receiving end.
 
         @precondition: `msgbody' is just the innermost message body, not having a "mojo header" or "mojo message" subdict.: (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))): "msgbody: %s" % hr(msgbody)
 
@@ -587,8 +585,6 @@ class MojoTransactionManager:
         body = {}
         if msgbody is not None:
             body['mojo message'] = msgbody
-        if mojoheader:
-            body['mojo header'] = mojoheader
 
         self._cm.send_response(prevmsgId, body, mymetainfo=mymetainfo, hint=hint)
 
@@ -798,10 +794,8 @@ class MojoTransactionManager:
             post_timeout_outcome_func = wrapped_post_timeout_outcome_func_collect_timings
         ### END DYNAMIC TIMERS code
 
-        mojoheaderdict={}
-
         bodydict={
-            'mojo header': mojoheaderdict,
+            'mojo header': {'mojo offer': 0}, # This is just for backwards compatibility with <= v0.6.0.74-UNSTABLE or so.  It can go away as soon as most people have upgraded past that version.  --Zooko 2002-09-29
             'mojo message': firstmsgbody,
             }
 
@@ -862,23 +856,12 @@ class MojoTransactionManager:
         debugprint("MTM: msgId: %s :: %s with %s, completed\n", args=(widget._firstmsgId, conversationtype, widget.get_counterparty_id(),), v=2, vs="Conversation")
 
         if outcome is not None:
-            mojoheader=outcome.get('mojo header', {})
             mojomessage=outcome.get('mojo message')
-
-            if mojoheader.get('result') != "failure":
-                # This is a successful happy response message
-
-                # call the callback with the response message
-                if outer_outcome_func:
-                    return apply(outer_outcome_func, (), {'widget': widget, 'outcome': mojomessage, 'failure_reason': None})
-                else:
-                    return None
+            # call the callback with the response message
+            if outer_outcome_func:
+                return apply(outer_outcome_func, (), {'widget': widget, 'outcome': mojomessage, 'failure_reason': None})
             else:
-                # this is some other undefined failure response.
-                if outer_outcome_func:
-                    return apply(outer_outcome_func, (), {'widget': widget, 'outcome': outcome, 'failure_reason': mojoheader.get('failure_reason', "failure reported in mojoheader")})
-                else:
-                    return None
+                return None
 
     def send_message_with_lookup(self, counterparty_id, msg, timeout=300, hint=HINT_NO_HINT, commstratseqno=None):
         """
