@@ -8,7 +8,7 @@ try:
 except:
     raise SystemExit, """\
 Could not load the distutils modules. Have you installed them?
-(on Debian you need to 'apt-get install python2.2-dev')
+(on Debian you need to 'apt-get install python-dev')
 """
 
 class download(Command):
@@ -44,7 +44,7 @@ class download(Command):
         except ImportError:
             raise SystemExit, """\
 The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.  
-(on Debian unstable you can do 'apt-get install python2.2-bsddb3'
+(on Debian unstable you can do 'apt-get install python-bsddb3'
  for RedHat see http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html)
 """
 

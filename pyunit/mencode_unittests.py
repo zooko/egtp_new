@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode_unittests.py,v 1.5 2002/11/10 22:50:18 artimage Exp $'
+__cvsid = '$Id: mencode_unittests.py,v 1.6 2002/11/14 22:07:05 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -113,7 +113,10 @@ class Testy(unittest.TestCase):
             pass
 
     def test_decode_unknown_type_in_dict(self):
-        # I strongly disagree with this feature.  It violates canonicity (which, as we all know, open up security holes), as well as being potentially confusing to debuggers and to mencode maintainers, and it is currently not needed.  --Zooko 2001-06-03
+        # I strongly disagree with this feature.  It violates canonicity
+        # (which, as we all know, open up security holes), as well as being
+        # potentially confusing to debuggers and to mencode maintainers, and
+        # it is currently not needed.  --Zooko 2001-06-03
         assert mdecode('(4:dict(7:garbage)(3:int1:4)(4:null)(3:int1:5))') == {None: 5}
         assert mdecode('(4:dict(4:null)(3:int1:5)(3:int1:4)(7:garbage))') == {None: 5}
 
