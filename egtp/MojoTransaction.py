@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.12 2002/10/28 03:17:04 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.13 2002/11/04 13:44:54 artimage Exp $'
 
 true = 1
 false = 0
@@ -35,6 +35,8 @@ from pyutil.debugprint import debugprint, debugstream
 from pyutil import Cache
 from pyutil import DoQ
 from pyutil import timeutil
+
+from humanreadable import hr
 
 # EGTP modules
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
@@ -159,7 +161,7 @@ class MojoTransactionManager:
         """
         @param lookupman: an object which implements the ILookupManager interface;  MojoTransaction uses the lookupman to get fresh EGTP addresses for counterparty_id's (i.e. to find out the current IP address or current relay server of a given public key ID).
         @param discoveryman: an object which implements the IDiscoveryManager interface;  MojoTransaction passes this to RelayListener, which uses the discoveryman to find relay servers.
-        @param datadir: directory to story data files created and used by this object
+        @param datadir: directory to store data files created and used by this object
         
         @param dontbind: `true' if and only if you don't want to bind and listen to a port
         @param neverpoll: `true' if you don't want to poll relayers
