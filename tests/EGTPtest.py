@@ -6,31 +6,31 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: EGTPtest.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPtest.py,v 1.2 2002/07/26 19:41:21 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types
 
 # pyutil modules
-import DoQ
-import config
-from debugprint import debugprint
-from humanreadable import hr
-from timeutil import timer
+from pyutil import DoQ
+from pyutil import config
+from pyutil.debugprint import debugprint
+from pyutil.humanreadable import hr
+from pyutil.timeutil import timer
 
 # libbase32 modules
 # from humread import hr # XXX for when we switch to base32 encoding...
 
 # (old) MN modules
-from confutils import confman
-import idlib
+from egtp.confutils import confman
+from egtp import idlib
 
 # EGTP modules
-import CommStrat
-import Node
-import NodeLookupMan
-from TristeroLookup import TristeroLookup
-from interfaces import *
+from egtp import CommStrat
+from egtp import Node
+from egtp import NodeLookupMan
+from egtp.TristeroLookup import TristeroLookup
+from egtp.interfaces import *
 
 true = 1
 false = 0

@@ -15,9 +15,7 @@ class build_ext(distutils.command.build_ext.build_ext):
     user_options      = \
         distutils.command.build_ext.build_ext.user_options + \
         [('cryptopp-dir=', 'C', 
-          "Directory to look for cryptopp library" ),
-         ('cryptopp-version=', 'v', 
-          "What version of the cryptopp library we are linking to" )]
+          "Directory to look for cryptopp library" ),]
 
     def __init__(self, dist):
         self.dist = dist
@@ -26,7 +24,6 @@ class build_ext(distutils.command.build_ext.build_ext):
 
     def initialize_options(self):
         self.cryptopp_dir = None
-        self.cryptopp_version = None
         
         return distutils.command.build_ext.build_ext.initialize_options(self)
     
@@ -49,14 +46,16 @@ class build_ext(distutils.command.build_ext.build_ext):
             g['LDSHARED'] = 'g++ -shared'
         sysconfig._init_posix = my_init_posix
 
-        if os.environ.has_key('CRYPTOPP_DIR'):
-            cryptoppdir = os.environ['CRYPTOPP_DIR']
-            if not os.path.isdir(cryptoppdir) :
-                raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: cryptoppdir: %s" % cryptoppdir
+        if self.cryptopp_dir:
+            pass
+        elif os.environ.has_key('CRYPTOPP_DIR'):
+            self.cryptopp_dir = os.environ['CRYPTOPP_DIR']
+            if not os.path.isdir(self.cryptopp_dir) :
+                raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
         elif os.path.isdir('/usr/include/crypto++'):
-            cryptoppdir = '/usr/include/crypto++'
+            self.cryptopp_dir = '/usr/include/crypto++'
         elif os.path.isdir('/usr/local/include/crypto++'):
-            cryptoppdir = '/usr/local/include/crypto++'
+            self.cryptopp_dir = '/usr/local/include/crypto++'
         else:
             raise SystemExit, """\
 Your CRYPTOPP_DIR environment variable must be set, 
@@ -67,7 +66,8 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
             # vc++ complained to me and told me to add /GX so I did
             self.define.extend((('PYTHON_MODULE', None), ('WIN32', None), ('GX', None),))
             # os.environ['CFLAGS'] = '/DPYTHON_MODULE /DWIN32 /GX'
-            self.libraries.append('cryptlib-mojo')
+            self.library_dirs.extend([self.cryptopp_dir])
+            self.include_dirs.extend([self.cryptopp_dir])
         else:
             self.define.extend([('PYTHON_MODULE', None),])
             # self.extra_compile_args.extend(['-w',])
@@ -78,22 +78,31 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
             self.libraries.insert(0, 'cryptopp')
 
         # find out the crypto++ version from the include files
-        ff = file(os.path.join(cryptoppdir, 'local.h'), 'r')
-        tmp = ff.read()
-        ff.close()
-        tmp = re.findall(r'\#define\s+VERSION\s+\"([^"]+)\"', tmp)
+        tmp = None
+        if os.path.isfile(os.path.join(self.cryptopp_dir, 'README.txt')):
+            ff = file(os.path.join(self.cryptopp_dir, 'local.h'), 'r')
+            tmp = ff.readlines()
+            ff.close()
+            # try to find a string like this: Version 4.2 11/5/2001
+            tmp = re.findall(r'Version ([.0-9]+)', tmp[1])
+        elif os.path.isfile(os.path.join(self.cryptopp_dir, 'local.h')): 
+            ff = file(os.path.join(self.cryptopp_dir, 'local.h'), 'r')
+            tmp = ff.read()
+            ff.close()
+            tmp = re.findall(r'\#define\s+VERSION\s+\"([^"]+)\"', tmp)
+        
         try:
             cryptoppversion = tmp[0]
         except IndexError:
-            raise SystemExit, "Couldn't find Crypto++ version from the 'local.h' include file"
+            raise SystemExit, "Couldn't find Crypto++ version from the 'README.txt' / 'local.h'"
 
-        if self.cryptopp_version == "3.2":
+        if cryptoppversion == "3.2":
             self.define.extend([('CRYPTOPP_32', None),])
-        elif self.cryptopp_version == "4.0":
+        elif cryptoppversion == "4.0":
             self.define.extend([('CRYPTOPP_40', None),])
-        elif self.cryptopp_version == "4.1":
+        elif cryptoppversion == "4.1":
             self.define.extend([('CRYPTOPP_41', None),])
-        elif self.cryptopp_version == "4.2":
+        elif cryptoppversion == "4.2":
             self.define.extend([('CRYPTOPP_42', None),])
         
         # On FreeBSD we -finally- found that -lgcc was the magic needed linker flag to
