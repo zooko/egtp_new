@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPCommsHandler.py,v 1.11 2002/12/02 21:20:46 myers_carpenter Exp $"
+__revision__ = "$Id: TCPCommsHandler.py,v 1.12 2003/01/05 23:30:03 myers_carpenter Exp $"
 
 # standard modules
 import UserDict, asyncore, os, socket, string, struct, threading, time
@@ -27,8 +27,10 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
     """
     This accepts incoming connections and spawns off a TCPConnection for each one.
     """
-    def __init__(self, mtm, listenport=None, pickyport=false, dontbind=false, max_in = 56, max_out = 56, announce_ip = None, announce_port = None, maintained_connections = 32, max_connections = 512, timeout = 600 ):
+    def __init__(self, mtm, ip_bind='', listenport=None, pickyport=false, dontbind=false, max_in = 56, max_out = 56, announce_ip = None, announce_port = None, maintained_connections = 32, max_connections = 512, timeout = 600 ):
         """
+        @param ip_bind: what ip address to bind to 
+
         @param listenport: the preferred port to listen on
 
         @param pickyport: `true' if you want to fail in the case that
@@ -42,8 +44,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         @param announce_ip: What should we tell the network our IP address
             is (useful for forwarding from a NAT firewall)
         
-        @param announce_port: What should we tell the network our port is
-            (useful for forwarding from a NAT firewall)
+        @param announce_port: What should we tell the network our port is            (useful for forwarding from a NAT firewall)
         
         @param maintained_connections: The number of TCP connections to hold
              open in case you deal with that counterparty again.  I'm not
@@ -87,6 +88,8 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         self._mtm = mtm
            
         self._requested_listenport = listenport
+        self._ip_bind = ip_bind
+        
         self._pickyport = pickyport
         self._announce_ip = announce_ip
         self._announce_port = announce_port
@@ -180,7 +183,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
         if self._pickyport:
             try:
-                self.bind(('', self._requested_listenport,))
+                self.bind((self._ip_bind, self._requested_listenport,))
             except socket.error:
                 raise CommsError.CannotListenError, "couldn't bind to port, and I'm picky about which port I listen on"
 
@@ -198,7 +201,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
             while not newlistenport:
                 try:
-                    self.bind(('', try_listenport,))
+                    self.bind((self._ip_bind, try_listenport,))
                     debugprint("successfully bound to port %s.\n", args=(try_listenport,), v=1, vs="TCPCommsHandler")
                     newlistenport = try_listenport
 
