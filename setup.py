@@ -309,10 +309,10 @@ You don't have a copy of crypto++ version 5.0.  Try runing 'python setup.py down
 
         # non framework python build ... like what shipped with OS X 10.2
         elif string.find(sys.platform, 'darwin') != -1:
-            #self.extra_link_args.extend(['-framework', 'Python'])
-            #self.extra_link_args.append('-lstdc++')
-            #self.extra_link_args.append('-bundle')
-            #self.extra_link_args.extend(['-bundle_loader', sys.executable])
+            self.extra_link_args.extend(['-arch', 'ppc'])
+            self.extra_link_args.append('-bundle')
+            self.extra_link_args.append('-flat_namespace')
+            self.extra_link_args.extend(['-undefined','suppress'])
             self.library_dirs.append(self.cryptopp_dir)
             self.include_dirs.append(self.cryptopp_dir)
             self.libraries.insert(0, 'cryptopp')
