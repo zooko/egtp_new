@@ -35,10 +35,10 @@ class TCPConnection(asyncore.dispatcher):
     """
     def __init__(self, inmsg_handler_func, key, close_handler_func=None, host=None, port=None, sock=None, commstratobj=None, throttlerin=None, throttlerout=None, cid_for_debugging=None):
         """
-        @param key a key for identifying this connection;  (Hint: if you know the counterparty id use that, else use `idlib.make_new_random_id(thingtype='TCPConnection')')
-        @param close_handler_func a function that gets called when the TCPConnection closes
+        @param key: a key for identifying this connection;  (Hint: if you know the counterparty id use that, else use `idlib.make_new_random_id(thingtype='TCPConnection')')
+        @param close_handler_func: a function that gets called when the TCPConnection closes
 
-        @precondition `key' must be a binary id.: idlib.is_binary_id(key): "key: %s :: %s" % (humanreadable.hr(key), humanreadable.hr(type(key)),)
+        @precondition: `key' must be a binary id.: idlib.is_binary_id(key): "key: %s :: %s" % (humanreadable.hr(key), humanreadable.hr(type(key)),)
         """
         assert idlib.is_binary_id(key), "precondition: `key' must be a binary id." + " -- " + "key: %s :: %s" % (humanreadable.hr(key), humanreadable.hr(type(key)),)
 
@@ -141,7 +141,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def _fail_if_not_connected(self):
         """
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
 
@@ -160,7 +160,7 @@ class TCPConnection(asyncore.dispatcher):
         """
         No more data will be read in from the network until `unthrottle_read()' is called.
 
-        @precondition This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
+        @precondition: This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
         """
         assert pyutilasync.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the pyutilasync thread."
 
@@ -169,7 +169,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def _unthrottle_read(self):
         """
-        @precondition This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
+        @precondition: This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
         """
         assert pyutilasync.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the pyutilasync thread."
 
@@ -182,7 +182,7 @@ class TCPConnection(asyncore.dispatcher):
         """
         No more data will be written out to the network until `unthrottle_write()' is called.
 
-        @precondition This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
+        @precondition: This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
         """
         assert pyutilasync.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the pyutilasync thread."
 
@@ -191,7 +191,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def _unthrottle_write(self):
         """
-        @precondition This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
+        @precondition: This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
         """
         assert pyutilasync.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the pyutilasync thread."
 
@@ -202,7 +202,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def send(self, msg, fast_fail_handler=None, pack=struct.pack):
         """
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
 
@@ -234,7 +234,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def is_idle(self, idletimeout=30):
         """
-        @returns `true' if and only if there have been no I/O events have occured on this socket in >= idletimeout seconds or if it is closed
+        @return: `true' if and only if there have been no I/O events have occured on this socket in >= idletimeout seconds or if it is closed
         """
         if self._closing:
             return true
@@ -242,13 +242,13 @@ class TCPConnection(asyncore.dispatcher):
 
     def is_talking(self):
         """
-        @returns `true' if and only if there is a message actually half-sent or half-received
+        @return: `true' if and only if there is a message actually half-sent or half-received
         """
         return (len(self._outbuf) > 0) or (self._inbuflen > 0) or (len(self._outmsgq) > 0)
 
     def is_busy(self, idletimeout):
         """
-        @returns `true' if and only if (there is a message actually (half-sent or half-received)
+        @return: `true' if and only if (there is a message actually (half-sent or half-received)
             and not `is_idle(idletimeout)')
         """
         return self.is_talking() and not self.is_idle(idletimeout)
@@ -281,7 +281,7 @@ class TCPConnection(asyncore.dispatcher):
         It then puts a task on the DoQ to do any cleaning-up that interacts with the DoQ world.
         (See `_finish_closing_on_doq'.)
 
-        @precondition This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
+        @precondition: This method must be called on the pyutilasync thread.: pyutilasync.selector.is_currently_asyncore_thread()
         """
         assert pyutilasync.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the pyutilasync thread."
 
@@ -302,7 +302,7 @@ class TCPConnection(asyncore.dispatcher):
         Does a fast-fail on any messages that were queued to be sent but haven't been sent yet.
         Unregisters from throttlers.
 
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
 
@@ -410,7 +410,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def _chunkify(self, nextstream, unpack=struct.unpack):
         """
-        @precondition `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (humanreadable.hr(self._upward_inmsg_handler), humanreadable.hr(type(self._upward_inmsg_handler)),)
+        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (humanreadable.hr(self._upward_inmsg_handler), humanreadable.hr(type(self._upward_inmsg_handler)),)
         """
         assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % (humanreadable.hr(self._upward_inmsg_handler), humanreadable.hr(type(self._upward_inmsg_handler)),)
 

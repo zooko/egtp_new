@@ -127,9 +127,9 @@ def __internal_mdecode_cache(msgString) :
 
 def getType(msgString):
     """
-    @param msgString the string containing the message in canonical form
+    @param msgString: the string containing the message in canonical form
 
-    @throws BadFormatError if `msgString' is badly formed or of an incompatible version of the
+    @raises BadFormatError: if `msgString' is badly formed or of an incompatible version of the
         Mojo protocol
 
     @memoizable
@@ -140,9 +140,9 @@ def getType(msgString):
 
 def getRecipient(msgString):
     """
-    @param msgString the string containing the message in canonical form
+    @param msgString: the string containing the message in canonical form
 
-    @return the recipient of the message or `None' if not included
+    @return: the recipient of the message or `None' if not included
   
     @memoizable
     """
@@ -151,8 +151,8 @@ def getRecipient(msgString):
 
 def getSendersMetaInfo(msgString):
     """
-    @param msgString the string containing the message in canonical form
-    @return the meta info included with the message or None if not included
+    @param msgString: the string containing the message in canonical form
+    @return: the meta info included with the message or None if not included
     @memoizable
     """
     __internal_checkMsg(msgString)
@@ -160,8 +160,8 @@ def getSendersMetaInfo(msgString):
 
 def getExtraMetaInfo(msgString):
     """
-    @param msgString the string containing the message in canonical form
-    @return the meta info included with the message or None if not included
+    @param msgString: the string containing the message in canonical form
+    @return: the meta info included with the message or None if not included
     @memoizable
     """
     __internal_checkMsg(msgString)
@@ -169,8 +169,8 @@ def getExtraMetaInfo(msgString):
 
 def getBody(msgString):
     """
-    @param msgString the string containing the message in canonical form
-    @return the body of the message excluding header info
+    @param msgString: the string containing the message in canonical form
+    @return: the body of the message excluding header info
     @memoizable
     """
     __internal_checkMsg(msgString)
@@ -179,9 +179,9 @@ def getBody(msgString):
 
 def getReference(msgString):
     """
-    @param msgString the string containing the message in canonical form
-    @return the reference of the message or `None' if this is an initial message
-    @postcondition Result is of correct form.: idlib.is_sloppy_id(result)
+    @param msgString: the string containing the message in canonical form
+    @return: the reference of the message or `None' if this is an initial message
+    @postcondition: Result is of correct form.: idlib.is_sloppy_id(result)
     @memoizable
     """
     __internal_checkMsg(msgString)
@@ -190,9 +190,9 @@ def getReference(msgString):
 
 def getNonce(msgString):
     """
-    @param msgString the string containing the message in canonical form
-    @return the nonce of the initiating message or `None' if this is a response message
-    @postcondition Result is of correct form.: idlib.is_sloppy_id(result)
+    @param msgString: the string containing the message in canonical form
+    @return: the nonce of the initiating message or `None' if this is a response message
+    @postcondition: Result is of correct form.: idlib.is_sloppy_id(result)
     @memoizable
     """
     __internal_checkMsg(msgString)
@@ -201,22 +201,22 @@ def getNonce(msgString):
 
 def makeInitialMessage(msgtype, msgbody, recipient_id, nonce, freshnessproof, mymetainfo=None):
     """
-    @param msgtype the type of the message, human readable string
-    @param msgbody an Mojo dict containing the contents of the message
-    @recipient_id the id of the intended recipient
-    @param nonce a unique 20-byte number to ensure uniqueness of the message
-    @param freshnessproof the binary hash of the most recent message that you've received
+    @param msgtype: the type of the message, human readable string
+    @param msgbody: an Mojo dict containing the contents of the message
+    @param recipient_id: the id of the intended recipient
+    @param nonce: a unique 20-byte number to ensure uniqueness of the message
+    @param freshnessproof: the binary hash of the most recent message that you've received
         from this counterparty, to ensure freshness
-    @param mymetainfo is optional and should contain the senders most recent
+    @param mymetainfo: is optional and should contain the senders most recent
         meta info if they wish to include it with their message.
 
-    @return the canonical string representation of this Mojo message
+    @return: the canonical string representation of this Mojo message
 
     @memoizable
 
-    @precondition `recipient_id' must be an id.: idlib.is_sloppy_id(recipient_id): "recipient_id: %s" % humanreadable.hr(recipient_id)
-    @precondition `nonce' must be an id.: idlib.is_sloppy_id(nonce): "nonce: %s" % humanreadable.hr(nonce)
-    @precondition `freshnessproof' must be `None' or a binary id.: (freshnessproof is None) or (idlib.is_binary_id(freshnessproof, 'msg')): "freshnessproof: %s" % humanreadable.hr(freshnessproof)
+    @precondition: `recipient_id' must be an id.: idlib.is_sloppy_id(recipient_id): "recipient_id: %s" % humanreadable.hr(recipient_id)
+    @precondition: `nonce' must be an id.: idlib.is_sloppy_id(nonce): "nonce: %s" % humanreadable.hr(nonce)
+    @precondition: `freshnessproof' must be `None' or a binary id.: (freshnessproof is None) or (idlib.is_binary_id(freshnessproof, 'msg')): "freshnessproof: %s" % humanreadable.hr(freshnessproof)
     """
     assert idlib.is_sloppy_id(recipient_id), "precondition: `recipient_id' must be an id." + " -- " + "recipient_id: %s" % humanreadable.hr(recipient_id)
     assert idlib.is_sloppy_id(nonce), "precondition: `nonce' must be an id." + " -- " + "nonce: %s" % humanreadable.hr(nonce)
@@ -258,23 +258,23 @@ def makeInitialMessage(msgtype, msgbody, recipient_id, nonce, freshnessproof, my
 
 def makeResponseMessage(msgtype, msgbody, reference, freshnessproof, mymetainfo=None, extrametainfo=None):
     """
-    @param msgtype the type of the message, human readable string
-    @param msgbody an Mojo dict containing the contents of the message
-    @param reference the secure hash of the canonical string representation of the previous
+    @param msgtype: the type of the message, human readable string
+    @param msgbody: an Mojo dict containing the contents of the message
+    @param reference: the secure hash of the canonical string representation of the previous
         message to which this is a response
-    @param freshnessproof the binary hash of the most recent message that you've received
+    @param freshnessproof: the binary hash of the most recent message that you've received
         from this counterparty, to ensure freshness, or `None' if none
-    @param mymetainfo is optional and should contain the senders most recent
+    @param mymetainfo: is optional and should contain the senders most recent
         meta info if they wish to include it with their message.  (or a mencode.PreEncodedThing of the info)
-    @param extrametainfo is optional and should contain a list of a few other counterparties
+    @param extrametainfo: is optional and should contain a list of a few other counterparties
         metainfo dicts to share.  (or a mencode.PreEncodedThing of the info list)
 
-    @return the canonical string representation of this Mojo message
+    @return: the canonical string representation of this Mojo message
 
     @memoizable
 
-    @precondition `reference' must be an id.: idlib.is_sloppy_id(reference): "reference: %s" % humanreadable.hr(reference)
-    @precondition `freshnessproof' must be None or an id.: (freshnessproof is None) or idlib.is_sloppy_id(freshnessproof, 'msg'): "freshnessproof: %s" % humanreadable.hr(freshnessproof)
+    @precondition: `reference' must be an id.: idlib.is_sloppy_id(reference): "reference: %s" % humanreadable.hr(reference)
+    @precondition: `freshnessproof' must be None or an id.: (freshnessproof is None) or idlib.is_sloppy_id(freshnessproof, 'msg'): "freshnessproof: %s" % humanreadable.hr(freshnessproof)
     """
     assert idlib.is_sloppy_id(reference), "precondition: `reference' must be an id." + " -- " + "reference: %s" % humanreadable.hr(reference)
     assert (freshnessproof is None) or idlib.is_sloppy_id(freshnessproof, 'msg'), "precondition: `freshnessproof' must be None or an id." + " -- " + "freshnessproof: %s" % humanreadable.hr(freshnessproof)
@@ -344,11 +344,11 @@ RESPONSE_TEMPL = {
 
 def checkMessageType(msgString, requiredmsgtype):
     """
-    @param msgString the string containing the message in canonical form
-    @param requiredmsgtype the required type of the message in a human readable string or `None'
+    @param msgString: the string containing the message in canonical form
+    @param requiredmsgtype: the required type of the message in a human readable string or `None'
         if any type is acceptable
 
-    @throws WrongMessageTypeError if `requiredmsgtype' is not `None' and `msgString' is not of
+    @raises WrongMessageTypeError: if `requiredmsgtype' is not `None' and `msgString' is not of
         `requiredmsgtype'
 
     @memoizable
@@ -405,11 +405,11 @@ def __internal_checkMsgBody(msgdict):
 
 def __internal_checkMojoVersion(msgdict, minVer=MIN_MOJO_VER, nextVer=NEXT_MOJO_VER):
     """
-    @param msgString the string containing the message in canonical form
-    @param minVer we don't accept messages of less than this version number
-    @param nextVer we don't accept messages of a this version number or greater
+    @param msgString: the string containing the message in canonical form
+    @param minVer: we don't accept messages of less than this version number
+    @param nextVer: we don't accept messages of a this version number or greater
 
-    @throws IncompatibleVersionError if `eDict' is of an incompatible version of the Mojo 
+    @raises IncompatibleVersionError: if `eDict' is of an incompatible version of the Mojo 
         protocol
 
     @memoizable

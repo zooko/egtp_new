@@ -20,7 +20,7 @@ false = 0
 
 def pubkey_to_id(key):
     """
-    @precondition `key' is a public key in SEXP form.: publicKeyIsWellFormed(key): "key: %s" % hr(key)
+    @precondition: `key' is a public key in SEXP form.: publicKeyIsWellFormed(key): "key: %s" % hr(key)
     """
     assert publicKeyIsWellFormed(key), "`key' is a public key in SEXP form." + " -- " + "key: %s" % hr(key)
 
@@ -38,9 +38,9 @@ def getModulusFromPublicKey(key) :
 
 def makePublicRSAKeyForVerifyingTokenSignatures(keyMV):
     """
-    @param keyMV the key in a modval instance
+    @param keyMV: the key in a modval instance
 
-    @return the Mojo encoding of the key
+    @return: the Mojo encoding of the key
     """
     return mencode.mencode({ 'key header': { 'type': "public", 'cryptosystem': "RSA", 'usage': "only for verifying token signatures", 'value of signed token': { 'currency': "Mojo Test Points", 'amount': "16" } }, 'key values': { 'public modulus': mojosixbit.b2a(keyMV.get_modulus()), 'public exponent': repr(keyMV.get_exponent()) }})
 
@@ -51,12 +51,12 @@ def makePublicRSAKeyForCommunicating(keyMV):
    
 def makeRSAPublicKeyMVFromSexpString(keySexpStr):
     """
-    @param keySexpStr RSA public key in MojoMessage format
+    @param keySexpStr: RSA public key in MojoMessage format
 
-    @return modval instance containing the modulus and exponent of `keySexpStr'
+    @return: modval instance containing the modulus and exponent of `keySexpStr'
 
-    @precondition `keySexpStr' is well-formed RSA public key.: publicRSAKeyIsWellFormed(keySexpStr): "keySexpStr: %s" % hr(keySexpStr)
-    @precondition `keySexpStr' is sane.: publicRSAKeyIsSane(keySexpStr): "keySexpStr: %s" % hr(keySexpStr)
+    @precondition: `keySexpStr' is well-formed RSA public key.: publicRSAKeyIsWellFormed(keySexpStr): "keySexpStr: %s" % hr(keySexpStr)
+    @precondition: `keySexpStr' is sane.: publicRSAKeyIsSane(keySexpStr): "keySexpStr: %s" % hr(keySexpStr)
     """
     assert publicRSAKeyIsWellFormed(keySexpStr), "`keySexpStr' is well-formed RSA public key." + " -- " + "keySexpStr: %s" % hr(keySexpStr)
     assert publicRSAKeyIsSane(keySexpStr), "`keySexpStr' is sane." + " -- " + "keySexpStr: %s" % hr(keySexpStr)
@@ -68,11 +68,11 @@ def makeRSAPublicKeyMVFromSexpString(keySexpStr):
 
 def publicRSAKeyIsSane(keySexpStr):
     """
-    @param keySexpStr public key (in an s-expression string with accompanying meta-data)
+    @param keySexpStr: public key (in an s-expression string with accompanying meta-data)
 
-    @return `true' if and only if `keySexpStr' is a correctly formed MojoMessage of an RSA public key for verifying token signatures which also satisfies a few mathematical sanity checks
+    @return: `true' if and only if `keySexpStr' is a correctly formed MojoMessage of an RSA public key for verifying token signatures which also satisfies a few mathematical sanity checks
 
-    @precondition `keySexpStr' is well-formed.: publicRSAKeyIsWellFormed(keySexpStr): "keySexpStr: %s" % hr(keySexpStr)
+    @precondition: `keySexpStr' is well-formed.: publicRSAKeyIsWellFormed(keySexpStr): "keySexpStr: %s" % hr(keySexpStr)
     """
     assert publicRSAKeyIsWellFormed(keySexpStr), "`keySexpStr' is well-formed." + " -- " + "keySexpStr: %s" % hr(keySexpStr)
 
@@ -85,9 +85,9 @@ def publicRSAKeyIsSane(keySexpStr):
 
 def keyIsWellFormed(keySexpStr):
     """
-    @param keySexpStr key in an s-expression string with accompanying meta-data
+    @param keySexpStr: key in an s-expression string with accompanying meta-data
 
-    @return `true' if and only if `keySexpStr' is in the correct format for keys in the Mojo system
+    @return: `true' if and only if `keySexpStr' is in the correct format for keys in the Mojo system
     """
     try:
         ed = mencode.mdecode(keySexpStr)
@@ -103,9 +103,9 @@ K_TEMPL={'key header': {'cryptosystem': ANY, 'type': ANY, 'usage': ANY}, 'key va
 
 def publicKeyIsWellFormed(keySexpStr):
     """
-    @param keySexpStr key in an s-expression string with accompanying meta-data
+    @param keySexpStr: key in an s-expression string with accompanying meta-data
 
-    @return `true' if and only if `keySexpStr' is in the correct format for keys in the Mojo system
+    @return: `true' if and only if `keySexpStr' is in the correct format for keys in the Mojo system
     """
     if not keyIsWellFormed(keySexpStr):
         return false
@@ -124,9 +124,9 @@ PK_TEMPL={'key header': {'cryptosystem': ANY, 'type': "public", 'usage': ANY}, '
 
 def publicRSAKeyIsWellFormed(keySexpStr):
     """
-    @param keySexpStr public RSA key in an s-expression string with accompanying meta-data
+    @param keySexpStr: public RSA key in an s-expression string with accompanying meta-data
 
-    @return tuple of (`true' if and only if `keySexpStr' is in the correct format for public RSA keys in the Mojo system, the key data in sexp format)
+    @return: tuple of (`true' if and only if `keySexpStr' is in the correct format for public RSA keys in the Mojo system, the key data in sexp format)
     """
     if not publicKeyIsWellFormed(keySexpStr):
         return false
@@ -145,9 +145,9 @@ PRK_TEMPL={'key header': {'cryptosystem': "RSA", 'type': "public", 'usage': ANY}
 
 def publicKeyForVerifyingTokenSignaturesIsWellFormed(keySexpStr):
     """
-    @param keySexpStr public key for verifying token signatures in an s-expression string with accompanying meta-data
+    @param keySexpStr: public key for verifying token signatures in an s-expression string with accompanying meta-data
 
-    @return `true' if and only if `keySexpStr' is in the correct format for public keys which are used for token signing in the Mojo system
+    @return: `true' if and only if `keySexpStr' is in the correct format for public keys which are used for token signing in the Mojo system
     """
     if not publicKeyIsWellFormed(keySexpStr):
         return false
@@ -166,9 +166,9 @@ PKFVTS_TEMPL={'key header': {'cryptosystem': ANY, 'type': "public", 'usage': "on
 
 def publicKeyForCommunicationSecurityIsWellFormed(keySexpStr):
     """
-    @param keySexpStr public key for verifying token signatures in an s-expression string with accompanying meta-data
+    @param keySexpStr: public key for verifying token signatures in an s-expression string with accompanying meta-data
 
-    @return `true' if and only if `keySexpStr' is in the correct format for public keys which are used for communication security
+    @return: `true' if and only if `keySexpStr' is in the correct format for public keys which are used for communication security
     """
     if not publicKeyIsWellFormed(keySexpStr):
         return false
@@ -185,9 +185,9 @@ def publicKeyForCommunicationSecurityIsWellFormed(keySexpStr):
 
 def publicRSAKeyForVerifyingTokenSignaturesIsWellFormed(key):
     """
-    @param key public RSA key for verifying token signatures in an s-expression string with accompanying meta-data
+    @param key: public RSA key for verifying token signatures in an s-expression string with accompanying meta-data
 
-    @return `true' if and only if `key' is in the correct format for public keys which are used for token signing in the Mojo system
+    @return: `true' if and only if `key' is in the correct format for public keys which are used for token signing in the Mojo system
     """
     if (publicRSAKeyIsWellFormed(key)) and (publicKeyForVerifyingTokenSignaturesIsWellFormed(key)):
         return true
@@ -197,9 +197,9 @@ def publicRSAKeyForVerifyingTokenSignaturesIsWellFormed(key):
 
 def publicRSAKeyForCommunicationSecurityIsWellFormed(key):
     """
-    @param key public RSA key for communications security in an s-expression string with accompanying meta-data
+    @param key: public RSA key for communications security in an s-expression string with accompanying meta-data
 
-    @return `true' if and only if `key' is in the correct format for public keys which are used for communications security
+    @return: `true' if and only if `key' is in the correct format for public keys which are used for communications security
     """
     if (publicRSAKeyIsWellFormed(key)) and (publicKeyForCommunicationSecurityIsWellFormed(key)):
         return true
@@ -211,11 +211,11 @@ def getDenomination(keySexpStr):
     """
     Get the currency and value of tokens verified by this public key.
 
-    @param key public RSA key for verifying token signatures in an s-expression string with accompanying meta-data
+    @param key: public RSA key for verifying token signatures in an s-expression string with accompanying meta-data
 
-    @return a tuple of (currency, amount), where `currency' is a string and `amount' is a long
+    @return: a tuple of (currency, amount), where `currency' is a string and `amount' is a long
 
-    @precondition `keySexpStr' is well-formed.: publicKeyForVerifyingTokenSignaturesIsWellFormed(key): "keySexpStr: %s" % hr(keySexpStr)
+    @precondition: `keySexpStr' is well-formed.: publicKeyForVerifyingTokenSignaturesIsWellFormed(key): "keySexpStr: %s" % hr(keySexpStr)
     """
     assert publicKeyForVerifyingTokenSignaturesIsWellFormed(key), "`keySexpStr' is well-formed." + " -- " + "keySexpStr: %s" % hr(keySexpStr)
 

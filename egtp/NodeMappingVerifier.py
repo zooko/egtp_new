@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeMappingVerifier.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: NodeMappingVerifier.py,v 1.3 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -31,9 +31,9 @@ class NodeMappingVerifier(interfaces.IVerifier):
 
     def verify_mapping(self, key, object):
         """
-        @returns true if and only if `object' is a valid result for `key'
+        @return: true if and only if `object' is a valid result for `key'
 
-        @precondition key must be well-formed.: self.verify_key(key)
+        @precondition: key must be well-formed.: self.verify_key(key)
         """
         assert self.verify_key(key), "precondition: key must be well-formed."
 
@@ -45,6 +45,6 @@ class NodeMappingVerifier(interfaces.IVerifier):
 
     def verify_key(self, key):
         """
-        @returns true if and only if `key' is well-formed
+        @return: true if and only if `key' is well-formed
         """
         return idlib.is_id(key)

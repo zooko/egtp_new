@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeLookupMan.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: NodeLookupMan.py,v 1.5 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -30,9 +30,9 @@ class NodeLookupMan(interfaces.ILookupManager):
     """
     def __init__(self, lm, verifier=None):
         """
-        @param lm the lookup manager object that implements publish and lookup
-        @param verifier the object that verifies that what the lookup returned
-               is indeed valid.
+        @param lm: the lookup manager object that implements publish and lookup
+        @param verifier: the object that verifies that what the lookup
+               returned is indeed valid.
         """
         if verifier is None:
             verifier = NodeMappingVerifier.NodeMappingVerifier() 
@@ -41,7 +41,7 @@ class NodeLookupMan(interfaces.ILookupManager):
 
     def lookup(self, key, lookuphand):
         """
-        @precondition key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
+        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
         """
         assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % (hr(key), hr(type(key)),)
 
@@ -49,9 +49,9 @@ class NodeLookupMan(interfaces.ILookupManager):
 
     def publish(self, key, object):
         """
-        @precondition key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
-        @precondition object must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)): "object: %s :: %s" % (hr(object), hr(type(object)),)
-        @precondition key must match object.: idlib.equal(key, CommStrat.addr_to_id(object)): "key: %s, object: %s" % (hr(key), hr(object),)
+        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
+        @precondition: object must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)): "object: %s :: %s" % (hr(object), hr(type(object)),)
+        @precondition: key must match object.: idlib.equal(key, CommStrat.addr_to_id(object)): "key: %s, object: %s" % (hr(key), hr(object),)
         """
         assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % (hr(key), hr(type(key)),)
         assert ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)), "precondition: object must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain, or else a CommStrat instance with a broker_id." + " -- " + "object: %s :: %s" % (hr(object), hr(type(object)),)
@@ -68,9 +68,9 @@ class NodeLookupHand(interfaces.ILookupHandler):
     """
     def __init__(self, lh, key):
         """
-        @param lh the lookup handler object
+        @param lh: the lookup handler object
 
-        @precondition key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
+        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
         """
         assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % (hr(key), hr(type(key)),)
 
@@ -80,9 +80,9 @@ class NodeLookupHand(interfaces.ILookupHandler):
 
     def result(self, object):
         """
-        @precondition self.key must be an id.: idlib.is_id(self.key): "self.key: %s :: %s" % (hr(self.key), hr(type(self.key)),)
-        @precondition object must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)): "object: %s :: %s" % (hr(object), hr(type(object)),)
-        @precondition self.key must match object.: idlib.equal(self.key, CommStrat.addr_to_id(object)): "self.key: %s, object: %s" % (hr(self.key), hr(object),)
+        @precondition: self.key must be an id.: idlib.is_id(self.key): "self.key: %s :: %s" % (hr(self.key), hr(type(self.key)),)
+        @precondition: object must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)): "object: %s :: %s" % (hr(object), hr(type(object)),)
+        @precondition: self.key must match object.: idlib.equal(self.key, CommStrat.addr_to_id(object)): "self.key: %s, object: %s" % (hr(self.key), hr(object),)
         """
         assert idlib.is_id(self.key), "precondition: self.key must be an id." + " -- " + "self.key: %s :: %s" % (hr(self.key), hr(type(self.key)),)
         assert ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)), "precondition: object must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain, or else a CommStrat instance with a broker_id." + " -- " + "object: %s :: %s" % (hr(object), hr(type(object)),)

@@ -97,9 +97,9 @@ except:
 
 def a2b(astr, _strtypes=_strtypes):
     """
-    @precondition `astr' is a string.: type(astr) in _strtypes: "astr: %s" % `astr`
+    @precondition: `astr' is a string.: type(astr) in _strtypes: "astr: %s" % `astr`
 
-    @throws mojosixbit.Error if `astr' is `None', is an empty string "", does not fit the Mojo
+    @rasies mojosixbit.Error: if `astr' is `None', is an empty string "", does not fit the Mojo
         sixbit format, or has trailing garbage, or if b2a(a2b(astr)) != astr
     """
     assert type(astr) in _strtypes, "`astr' is a string." + " -- " + "astr: %s" % `astr`
@@ -121,7 +121,7 @@ def b2a_long_string_idempotent(thing):
     Beware that strings that are too short (say, shorter than 20 bytes), might accidentally look like 
     a valid mojosixbit-encoding when they aren't.
 
-    @precondition `thing' must be long enough that there is no significant chance of an accident.: len(thing) >= 20: "len(thing): %s, thing: %s" % (std.hr(len(thing)), std.hr(thing),)
+    @precondition: `thing' must be long enough that there is no significant chance of an accident.: len(thing) >= 20: "len(thing): %s, thing: %s" % (std.hr(len(thing)), std.hr(thing),)
     """
     assert len(thing) >= 20, "precondition: `thing' must be long enough that there is no significant chance of an accident." + " -- " + "len(thing): %s, thing: %s" % (std.hr(len(thing)), std.hr(thing),)
 
@@ -136,7 +136,7 @@ def a2b_long_string_idempotent(thing):
     Beware that strings that are too short (say, shorter than 20 bytes), might accidentally look like 
     a valid mojosixbit-encoding when they aren't.
 
-    @precondition `thing' must be long enough that there is no significant chance of an accident.: len(thing) >= 20: "len(thing): %s, thing: %s" % (std.hr(len(thing)), std.hr(thing),)
+    @precondition: `thing' must be long enough that there is no significant chance of an accident.: len(thing) >= 20: "len(thing): %s, thing: %s" % (std.hr(len(thing)), std.hr(thing),)
     """
     assert len(thing) >= 20, "precondition: `thing' must be long enough that there is no significant chance of an accident." + " -- " + "len(thing): %s, thing: %s" % (std.hr(len(thing)), std.hr(thing),)
 

@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: UnreliableHandicapper.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: UnreliableHandicapper.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $'
 
 # standard modules
 import whrandom
@@ -33,8 +33,6 @@ class UnreliableHandicapper:
     def __call__(self, counterparty_id, metainfo, message_type, message_body, TUNING_FACTOR=TUNING_FACTOR):
         """
         for all msgtypes
-
-        @returns XXX
         """
         if idlib.equal(counterparty_id, self.our_id):
             return 0.0  # no handicap for us, we have high self esteem

@@ -45,7 +45,8 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
     def download_pyutil(self):
         try:
             import pyutil
-            # TODO verison testing
+            # TODO verison test
+            ing
         except ImportError:   
             print "Downloading 'pyutil' ... "
             pyutil_build_dir = os.path.join('build', 'pyutil')
@@ -227,7 +228,7 @@ class test(Command):
          "directory that contains the test definitions"),]
                  
     def initialize_options(self):
-        self.test_dir = 'tests'    
+        self.test_dir = os.path.join(os.getcwd(), 'pyunit')
         
     def finalize_options(self):
         build = self.get_finalized_command('build')
@@ -239,9 +240,9 @@ class test(Command):
         self.run_command('build')
 
         old_path = sys.path[:]
-        sys.path.insert(0, self.build_purelib)
-        sys.path.insert(0, self.build_platlib)
-        sys.path.insert(0, os.path.join(os.getcwd(), self.test_dir))
+        sys.path.insert(0, os.path.abspath(self.build_purelib))
+        sys.path.insert(0, os.path.abspath(self.build_platlib))
+        sys.path.insert(0, self.test_dir)
         
         runner = unittest.TextTestRunner()
         filelist = os.listdir(self.test_dir)

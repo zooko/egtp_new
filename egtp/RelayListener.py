@@ -75,24 +75,46 @@ class RelayListener(LazySaver.LazySaver):
     """
     The policy of this listener is like this:
 
-    You keep a list of N preferred relay servers.  Every five minutes you "go shopping", fetch a list of relay servers, handicap them, and insert the winner as the 0th element in your list of preferred relay servers.  This pushes the previous top relayer down to being your second-favorite and so on (unless of course your previous top *is* the new winner of the handicapping in which case there's no change).  (Also, if you get a transaction failure with your current preferred relayer then you go shopping.)
+    You keep a list of N preferred relay servers.  Every five minutes you
+    "go shopping", fetch a list of relay servers, handicap them, and insert
+    the winner as the 0th element in your list of preferred relay servers. 
+    This pushes the previous top relayer down to being your second-favorite
+    and so on (unless of course your previous top *is* the new winner of the
+    handicapping in which case there's no change).  (Also, if you get a
+    transaction failure with your current preferred relayer then you go
+    shopping.)
 
-    You poll your preferred relay server every 60 seconds, your second-most-preferred relay server every 120 seconds, and your third-most-preferred every 240 seconds.
+    You poll your preferred relay server every 60 seconds, your
+    second-most-preferred relay server every 120 seconds, and your
+    third-most-preferred every 240 seconds.
 
-    Anytime you receive a message from any relayer, then you schedule a poll for 60 seconds later to that relayer.
+    Anytime you receive a message from any relayer, then you schedule a poll
+    for 60 seconds later to that relayer.
 
-    Finally, whenever you receive a message from any relayer then there is a 50% chance that the relayer will get "promoted".  Being promoted means, if you are already in the preferredrelayers list, that you swap places with the relayer above you, and if you are not already in the preferred relayers list, that you get inserted in the middle of the list (thus pushing the least preferred one right off the list).
+    Finally, whenever you receive a message from any relayer then there is a
+    50% chance that the relayer will get "promoted".  Being promoted means,
+    if you are already in the preferredrelayers list, that you swap places
+    with the relayer above you, and if you are not already in the preferred
+    relayers list, that you get inserted in the middle of the list (thus
+    pushing the least preferred one right off the list).
 
-    This means that you switch your preferred relay server any time that handicapping shows there is a better one, but we have add a "stick with what works" handicapper to try to dampen any churn of switching between relayers (by giving a 500 point handicap to any counterparty that isn't our current preferred relay server.
+    This means that you switch your preferred relay server any time that
+    handicapping shows there is a better one, but we have add a "stick with
+    what works" handicapper to try to dampen any churn of switching between
+    relayers (by giving a 500 point handicap to any counterparty that isn't
+    our current preferred relay server.
 
     Things to do:
-    * fix up and tune latency handicap (just use the dynamic-timers statistics instead of gathering separate ones) and reliability handicap
+    * fix up and tune latency handicap (just use the dynamic-timers
+      statistics instead of gathering separate ones) and reliability
+      handicap
     """
     def __init__(self, mtm, discoveryman=None, neverpoll=false):
         """
-        @param neverpoll `true' if you want to override the confman['POLL_RELAYER'] and force it to false;  This is for the Payment MTM -- otherwise you should just use confman.
-
-        @precondition `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
+        @param: neverpoll `true' if you want to override the
+            confman['POLL_RELAYER'] and force it to false; This is for the
+            Payment MTM -- otherwise you should just use confman.
+        @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
         """
         assert isinstance(discoveryman, IDiscoveryManager), "precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager." + " -- " + "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
 
@@ -126,7 +148,7 @@ class RelayListener(LazySaver.LazySaver):
 
     def start_listening(self, inmsg_handler_func):
         """
-        @precondition `inmsg_handler_func' must be callable.: callable(inmsg_handler_func): "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
+        @precondition: `inmsg_handler_func' must be callable.: callable(inmsg_handler_func): "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
         """
         assert callable(inmsg_handler_func), "precondition: `inmsg_handler_func' must be callable." + " -- " + "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
 
@@ -168,7 +190,7 @@ class RelayListener(LazySaver.LazySaver):
 
     def _get_favorite(self):
         """
-        @returns the id of the current favorite or `None' if none.
+        @return: the id of the current favorite or `None' if none.
         """
         if len(self._preferredrelayers) == 0:
             return None
@@ -180,7 +202,7 @@ class RelayListener(LazySaver.LazySaver):
         This does not schedule the poll if there is already a poll scheduled that would go off approximately before this one would.
         (Where approximately is very approximate -- within MIN_POLL_DELAY.)
 
-        @precondition `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
         """
         assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" % (hr(relayerid), hr(type(relayerid)),)
 
@@ -196,8 +218,8 @@ class RelayListener(LazySaver.LazySaver):
 
     def _adopt_new_favorite(self, true=true):
         """
-        @precondition The `self._preferredrelayers' list has already been adjusted so that the new favorite is in front.: true
-        @precondition The `self._preferredrelayers' list contains at least one element, which is an id.: (len(self._preferredrelayers) > 0) and (idlib.is_binary_id(self._preferredrelayers[0]))
+        @precondition: The `self._preferredrelayers' list has already been adjusted so that the new favorite is in front.: true
+        @precondition: The `self._preferredrelayers' list contains at least one element, which is an id.: (len(self._preferredrelayers) > 0) and (idlib.is_binary_id(self._preferredrelayers[0]))
         """
         assert true, "precondition: The `self._preferredrelayers' list has already been adjusted so that the new favorite is in front."
         assert (len(self._preferredrelayers) > 0) and (idlib.is_binary_id(self._preferredrelayers[0])), "precondition: The `self._preferredrelayers' list contains at least one element, which is an id."
@@ -280,7 +302,7 @@ class RelayListener(LazySaver.LazySaver):
         """
         This probabilistically increments the relayer's status in our preferredrelayers list (or adds him in if he isn't already there) and calls `_adopt_new_favorite()' if he reaches the top spot.
 
-        @precondition `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
         """
         assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
 
@@ -305,8 +327,8 @@ class RelayListener(LazySaver.LazySaver):
 
     def _inmsg_handler(self, relayerid, msg, timer=timeutil.timer):
         """
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
-        @precondition `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
         assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
@@ -395,7 +417,7 @@ class RelayListener(LazySaver.LazySaver):
 
         `self._handle_result_of_poll' will be called one or more times with a `widget' argument whose counterparty id is the id of the relayer and with a `failure_reason' argument.  failure_reason == None means everything went well and we are done.  failure_reason == timeout means that the 97% percentile impatience time has passed, but note that you can still get incoming messages and result-of-poll callbacks, after the "timeout" has passed.
 
-        @precondition `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
         """
         assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
 

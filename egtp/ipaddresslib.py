@@ -6,7 +6,7 @@
 #
 # A library for determining the IP addresses of the local machine.
 #
-__cvsid = '$Id: ipaddresslib.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: ipaddresslib.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $'
 
 # standard modules
 import sys
@@ -75,7 +75,7 @@ if confutils.confman.dict.get('IGNORE_BAD_IP_ADDRS') == "testing" or \
 
 def get_primary_ip_address(nonroutableok) :
     """
-    @param nonroutableok `true' if and only if it is okay to bind to a non-routable IP address
+    @param nonroutableok: `true' if and only if it is okay to bind to a non-routable IP address
         like 127.0.0.1 or 192.168.1.2
     """
     address = None

@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # CVS:
-__cvsid = '$Id: EGTPhumanreadable.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPhumanreadable.py,v 1.4 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 # standard modules
 import string 
@@ -24,7 +24,7 @@ printableascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
 
 class EGTPRepr(humanreadable.BetterRepr):
     """
-    @subclasses BetterRepr and represents 20-byte "unique ID" strings as "<abcde>" base-32 abbreviations.
+    @subclasses BetterRepr: and represents 20-byte "unique ID" strings as "<abcde>" base-32 abbreviations.
     """
     def __init__(self):
         BetterRepr.__init__(self)

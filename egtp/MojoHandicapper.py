@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoHandicapper.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: MojoHandicapper.py,v 1.4 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -40,8 +40,9 @@ def getnameofhandicapper(thingie):
 
 class MojoHandicapper :
     """
-    A very simple business logic utility - for each message to be sent out, compute the 
-    sum of all estimated real costs of it, and sort based on those.
+    A very simple business logic utility - for each message to be sent out,
+    compute the sum of all estimated real costs of it, and sort based on
+    those.
     
     Available methods are add_handicapper and sort_by_preference
     """
@@ -55,9 +56,10 @@ class MojoHandicapper :
         A handicap function must take the parameters counterparty_id, message_type, and
         message_body and return a float value or DISQUALIFIED.
 
-        @param mtypes if specified is a list of message types this handicapper
-        should be applied to (None indicates all message types).
-        [message type specific handicappers will always be evaulated before generic handicappers]
+        @param mtypes: if specified is a list of message types this
+            handicapper should be applied to (None indicates all message
+            types).  [message type specific handicappers will always be
+            evaulated before generic handicappers]
 
         Sum of squares addition is used: All results are squared before being used.
 
@@ -69,8 +71,8 @@ class MojoHandicapper :
         make a handicapper which returns your friend's friend's opinion, and it will be factored
         in along with the other considerations.
 
-        @precondition `handicapper' must be a callable.: callable(handicapper): "handicapper: %s :: %s" % (humanreadable.hr(handicapper), `type(handicapper)`)
-        @precondition `mtypes' must be None or a sequence.: (mtypes is None) or (type(mtypes) in (types.ListType, types.TupleType,))
+        @precondition: `handicapper' must be a callable.: callable(handicapper): "handicapper: %s :: %s" % (humanreadable.hr(handicapper), `type(handicapper)`)
+        @precondition: `mtypes' must be None or a sequence.: (mtypes is None) or (type(mtypes) in (types.ListType, types.TupleType,))
         """
         assert callable(handicapper), "precondition: `handicapper' must be a callable." + " -- " + "handicapper: %s :: %s" % (humanreadable.hr(handicapper), `type(handicapper)`)
         assert (mtypes is None) or (type(mtypes) in (types.ListType, types.TupleType,)), "precondition: `mtypes' must be None or a sequence."
@@ -86,8 +88,8 @@ class MojoHandicapper :
         Computes the 'handicap', or estimated real cost including risk of failure, 
         of sending the message to the counterparty.
 
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
-        @precondition `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
         assert idlib.is_binary_id(counterparty_id), "precondition: `counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
@@ -116,11 +118,11 @@ class MojoHandicapper :
 
     def pick_best(self, counterparties, message_type, message_body):
         """
-        @returns the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
+        @return: the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
 
-        @param counterparties a sequence of (counterparty_id, service_info_dict);  It is okay to be an empty list.
+        @param counterparties: a sequence of (counterparty_id, service_info_dict);  It is okay to be an empty list.
 
-        @precondition `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
+        @precondition: `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
         """
         assert (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0), "precondition: `counterparties' must be a sequence of (id, infodict,) tuples." + " -- " + "counterparties: %s" % humanreadable.hr(counterparties)
 
@@ -136,9 +138,9 @@ class MojoHandicapper :
 
     def pick_best_from_dict(self, counterparties, message_type, message_body):
         """
-        @param counterparties a dict of key: counterparty_id, value: service_info_dict;  It is okay to be an empty dict.
+        @param counterparties: a dict of key: counterparty_id, value: service_info_dict;  It is okay to be an empty dict.
 
-        @returns the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
+        @return: the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
         """
         best = None
         bestcost = None
@@ -152,17 +154,17 @@ class MojoHandicapper :
 
     def sort_by_preference_from_dict(self, counterparties, message_type, message_body):
         """
-        @param counterparties a dict of key: counterparty_id, value: service_info_dict;  It is okay to be an empty dict.
-
         Cogitates on the possibility of sending each counterparty in counterparties 
         the given message and returns a list sorted by order of preference of which 
         counterparties to try to use. Disqualified counterparties are not included 
         in the list at all.
 
-        @returns a list of (counterpartyid, info) tuples sorted into descending order of preference
+        @param counterparties: a dict of key: counterparty_id, value: service_info_dict;  It is okay to be an empty dict.
 
-        @precondition `counterparties' must be a dict.: type(counterparties) is types.DictType: "counterparties: %s :: %s" % (humanreadable.hr(counterparties), humanreadable.hr(type(counterparties)),)
-        @precondition `message_type' must be a string.: type(message_type) == types.StringType
+        @return: a list of (counterpartyid, info) tuples sorted into descending order of preference
+
+        @precondition: `counterparties' must be a dict.: type(counterparties) is types.DictType: "counterparties: %s :: %s" % (humanreadable.hr(counterparties), humanreadable.hr(type(counterparties)),)
+        @precondition: `message_type' must be a string.: type(message_type) == types.StringType
         """
         assert type(counterparties) is types.DictType, "precondition: `counterparties' must be a dict." + " -- " + "counterparties: %s :: %s" % (humanreadable.hr(counterparties), humanreadable.hr(type(counterparties)),)
         assert type(message_type) == types.StringType, "precondition: `message_type' must be a string."
@@ -180,15 +182,15 @@ class MojoHandicapper :
 
     def sort_by_preference(self, counterparties, message_type, message_body):
         """
-        @param counterparties a sequence of (counterparty_id, service_info_dict);  It is okay to be an empty list.
+        @param counterparties: a sequence of (counterparty_id, service_info_dict);  It is okay to be an empty list.
 
         Cogitates on the possibility of sending each counterparty in counterparties 
         the given message and returns a list sorted by order of preference of which 
         counterparties to try to use. Disqualified counterparties are not included 
         in the list at all.
 
-        @precondition `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
-        @precondition `message_type' must be a string.: type(message_type) == types.StringType
+        @precondition: `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
+        @precondition: `message_type' must be a string.: type(message_type) == types.StringType
         """
         assert (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0), "precondition: `counterparties' must be a sequence of (id, infodict,) tuples." + " -- " + "counterparties: %s" % humanreadable.hr(counterparties)
         assert type(message_type) == types.StringType, "precondition: `message_type' must be a string."

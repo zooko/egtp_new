@@ -30,8 +30,8 @@ class ListenerManager(LazySaver.LazySaver):
     """
     def __init__(self,cryptol, tcpl, relayl, mtm, allownonrouteableip=false): 
         """
-        @param relaylistener The RelayListener instance which will poll relay servers and unwrap incoming "message for you" messages;  Should not be `None', even if you are not behind a firewall and you are not advertising as "contactable via relay" -- it's always possible that someone out there will send you a "message for you", for one reason or another, and there's no harm in having a relaylistener ready to hear it.
-        @param allownonrouteableip `true' if you want the ListenerManager to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
+        @param relaylistener: The RelayListener instance which will poll relay servers and unwrap incoming "message for you" messages;  Should not be `None', even if you are not behind a firewall and you are not advertising as "contactable via relay" -- it's always possible that someone out there will send you a "message for you", for one reason or another, and there's no harm in having a relaylistener ready to hear it.
+        @param allownonrouteableip: `true' if you want the ListenerManager to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
         """
         self._cryptol = cryptol
         self._tcpl = tcpl
@@ -66,7 +66,7 @@ class ListenerManager(LazySaver.LazySaver):
         routeable (and you haven't specified `allownonrouteableip'), then tell the relay listener to
         poll relay servers.
 
-        @param inmsg_handler_func the function to be called whenever a message for us comes in
+        @param inmsg_handler_func: the function to be called whenever a message for us comes in
         """
         # things that the cryptol hears get sent up to whoever is above us
         self._cryptol.start_listening(inmsg_handler_func)
@@ -83,7 +83,7 @@ class ListenerManager(LazySaver.LazySaver):
 
     def get_comm_strategy_and_newflag(self):
         """
-        @returns a tuple of (commstrat, newflag) where `newflag' is a boolean indicating whether this comm strat differs from the last one that was returned (persistently)
+        @return: a tuple of (commstrat, newflag) where `newflag' is a boolean indicating whether this comm strat differs from the last one that was returned (persistently)
         """
         result = None
         if self.primary_comm_strat_is_relay():

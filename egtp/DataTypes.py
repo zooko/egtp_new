@@ -247,9 +247,8 @@ def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodTyp
 
 def checkTemplate(thing, templ):
     """
-    throws BadFormatError if the thing does not match the template
-
-    @deprecated in favor of `check_template()' for naming consistency reasons
+    @rasies BadFormatError: if the thing does not match the template
+    @deprecated: in favor of `check_template()' for naming consistency reasons
     """
     return check_template(thing, templ)
 

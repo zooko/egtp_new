@@ -13,7 +13,7 @@
 # us, their reputation for coming through with their deals in our eyes,
 # etc.
 #
-__cvsid = '$Id: counterparties.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: counterparties.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -65,7 +65,7 @@ class CounterpartyObjectKeeper:
 
     def __init__(self, dbparentdir, local_id, recoverdb=true) :
         """
-        @precondition `local_id' must be an id.: idlib.is_sloppy_id(local_id): "local_id: %s" % hr(local_id)
+        @precondition: `local_id' must be an id.: idlib.is_sloppy_id(local_id): "local_id: %s" % hr(local_id)
         """
         assert idlib.is_sloppy_id(local_id), "`local_id' must be an id." + " -- " + "local_id: %s" % hr(local_id)
 
@@ -115,7 +115,7 @@ class CounterpartyObjectKeeper:
 
     def get_counterparty_object(self, counterparty_id) :
         """
-        @precondition `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
         """
         assert idlib.is_binary_id(counterparty_id), "precondition: `counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
 
@@ -191,7 +191,7 @@ class CounterpartyObjectKeeper:
 
     def update_mos_others_owe_us_total(self, value) :
         """
-        @param value how much more they owe us now
+        @param value: how much more they owe us now
 
         Add value to our known total of mojo offers that other people owe us.
         Call with a negative value to decrease the total.
@@ -228,7 +228,7 @@ class CounterpartyObject :
 
     def __init__(self, counterparty_id, keeper) :
         """
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
         """
         assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
 
@@ -334,10 +334,10 @@ class CounterpartyObject :
 
     def charge(self, amount, reasonstr="") :
         """
-        @precondition `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
-        @precondition `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
+        @precondition: `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
+        @precondition: `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
 
-        @returns (okay, amount will front, current balance)
+        @return: tuple: (okay, amount will front, current balance)
         """
         assert type(amount) == types.IntType or type(amount) == types.LongType, "`amount' is an integer." + " -- " + "amount: %s :: %s" % (hr(amount), str(type(amount)))
         assert amount >= 0, "`amount' is non-negative." + " -- " + "amount: %s" % hr(amount)
@@ -375,8 +375,8 @@ class CounterpartyObject :
         """
         increment our record of total_spent and our num_offers_made
 
-        @precondition `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
-        @precondition `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
+        @precondition: `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
+        @precondition: `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
         """
         assert type(amount) == types.IntType or type(amount) == types.LongType, "`amount' is an integer." + " -- " + "amount: %s :: %s" % (hr(amount), str(type(amount)))
         assert amount >= 0, "`amount' is non-negative." + " -- " + "amount: %s" % hr(amount)
@@ -398,8 +398,8 @@ class CounterpartyObject :
         """
         Only call this if you KNOW that your message was never sent (otherwise will torture your loved ones)
 
-        @precondition `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
-        @precondition `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
+        @precondition: `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
+        @precondition: `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
         """
         assert type(amount) == types.IntType or type(amount) == types.LongType, "`amount' is an integer." + " -- " + "amount: %s :: %s" % (hr(amount), str(type(amount)))
         assert amount >= 0, "`amount' is non-negative." + " -- " + "amount: %s" % hr(amount)
@@ -425,10 +425,10 @@ class CounterpartyObject :
 
     def token_payment_came_in(self, amount, reasonstr=""):
         """
-        @param the aggregate value in Mojo of the payment
+        @param amount: the aggregate value in Mojo of the payment
 
-        @precondition `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
-        @precondition `amount' is positive.: amount > 0: "amount: %s" % hr(amount)
+        @precondition: `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
+        @precondition: `amount' is positive.: amount > 0: "amount: %s" % hr(amount)
         """
         assert type(amount) == types.IntType or type(amount) == types.LongType, "`amount' is an integer." + " -- " + "amount: %s :: %s" % (hr(amount), str(type(amount)))
         assert amount > 0, "`amount' is positive." + " -- " + "amount: %s" % hr(amount)
@@ -444,10 +444,10 @@ class CounterpartyObject :
 
     def token_payment_went_out(self, amount, reasonstr=""):
         """
-        @param the aggregate value in Mojo of the payment
+        @param amount: the aggregate value in Mojo of the payment
 
-        @precondition `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
-        @precondition `amount' is positive.: amount > 0: "amount: %s" % hr(amount)
+        @precondition: `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
+        @precondition: `amount' is positive.: amount > 0: "amount: %s" % hr(amount)
         """
         assert type(amount) == types.IntType or type(amount) == types.LongType, "`amount' is an integer." + " -- " + "amount: %s :: %s" % (hr(amount), str(type(amount)))
         assert amount > 0, "`amount' is positive." + " -- " + "amount: %s" % hr(amount)
@@ -494,7 +494,7 @@ class CounterpartyObject :
 
     def update_custom_stat_weighted_sample(self, statname, newvalue, historyweight=None, defaultvalue=0.5):
         """
-        @param historyweight 0.0 = ignore history, 1.0 = ignore new sample
+        @param historyweight: 0.0 = ignore history, 1.0 = ignore new sample
         """
         if historyweight is None:
             historyweight = float(confman.dict['COUNTERPARTY'].get('DEFAULT_HISTORY_WEIGHT', 0.75))
@@ -512,7 +512,7 @@ class CounterpartyObject :
 
     def update_custom_stat_weighted_sample_with_deviation(self, statname, newvalue, historyweight=None,default_value=None):
         """
-        @param historyweight 0.0 = ignore history, 1.0 = ignore new sample
+        @param historyweight: 0.0 = ignore history, 1.0 = ignore new sample
         """
         if historyweight is None:
             historyweight = float(confman.dict['COUNTERPARTY'].get('DEFAULT_HISTORY_WEIGHT', 0.75))
@@ -607,7 +607,7 @@ class CounterpartyObject :
 
     def get_amount_owe(self) :
         """
-        @returns the amount of Mojo that I owe to her
+        @return: the amount of Mojo that I owe to her
         """
         self.synch()
         try :
@@ -617,7 +617,7 @@ class CounterpartyObject :
 
     def get_balance_transferred_in(self) :
         """
-        @returns the value of all Mojo Token that she has given me;  Negative if I have given her more tokens than she has given me.
+        @return: the value of all Mojo Token that she has given me;  Negative if I have given her more tokens than she has given me.
         """
         self.synch()
         try :

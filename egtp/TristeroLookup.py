@@ -6,7 +6,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: TristeroLookup.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroLookup.py,v 1.5 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 # standard Python modules
 from xmlrpclib import *
@@ -34,13 +34,13 @@ class TristeroLookup(ILookupManager):
 
         def verify_mapping(self, key, object):
             """
-            @returns true. (Does nothing)
+            @return: true. (Does nothing)
             """
             return 1
 
         def verify_key(self, key):
             """
-            @returns true. (Does nothing)
+            @return: true. (Does nothing)
             """
             return 1
 
@@ -65,7 +65,7 @@ class TristeroLookup(ILookupManager):
 
     def lookup(self, key, lookuphand):
         """
-        @precondition key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
         """
         assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
 
@@ -210,8 +210,8 @@ class TristeroLookup(ILookupManager):
 
     def publish(self, key, object):
         """
-        @precondition key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
-        @precondition key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % (hr(key), hr(object),)
+        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % (hr(key), hr(object),)
         """
         assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
         assert self.verifier.verify_mapping(key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "key: %s, object: %s" % (hr(key), hr(object),)

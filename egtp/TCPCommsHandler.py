@@ -41,11 +41,14 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
     """
     def __init__(self, mtm, listenport=None, pickyport=false, dontbind=false):
         """
-        @param listenport the preferred port to listen on
-        @param pickyport `true' if you want to fail in the case that `listenport' is unavailable, false if you want to get another arbitrary port
+        @param listenport: the preferred port to listen on
 
-        @precondition `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) is types.IntType) and (listenport > 0)): "listenport: %s :: %s" % (hr(listenport), `type(listenport)`)
-        @precondition `pickyport' is false or listenport is an integer.: (not pickyport) or (type(listenport) is types.IntType)
+        @param pickyport: `true' if you want to fail in the case that
+            `listenport' is unavailable, false if you want to get another
+            arbitrary port
+
+        @precondition: `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) is types.IntType) and (listenport > 0)): "listenport: %s :: %s" % (hr(listenport), `type(listenport)`)
+        @precondition: `pickyport' is false or listenport is an integer.: (not pickyport) or (type(listenport) is types.IntType)
         """
         assert (listenport is None) or ((type(listenport) is types.IntType) and (listenport > 0)), "precondition: `listenport' must be a non-negative integer or `None'." + " -- " + "listenport: %s :: %s" % (hr(listenport), `type(listenport)`)
         assert (not pickyport) or (type(listenport) is types.IntType), "precondition: `pickyport' is false or listenport is an integer."
@@ -129,7 +132,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
     def start_listening(self, inmsg_handler_func):
         """
-        @precondition `inmsg_handler_func' must be callable.: callable(inmsg_handler_func): "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
+        @precondition: `inmsg_handler_func' must be callable.: callable(inmsg_handler_func): "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
         """
         assert callable(inmsg_handler_func), "precondition: `inmsg_handler_func' must be callable." + " -- " + "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
 
@@ -317,9 +320,9 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
     def use_comm_strategy(self, counterparty_id, commstrat):
         """
-        @precondition `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
-        @precondition `commstrat' must be a CommStrat.TCP.: isinstance(commstrat, CommStrat.TCP): "commstrat: %s :: %s" % (hr(commstrat), hr(type(commstrat)))
-        @precondition If `commstrat' already has an open TCP socket then the `commstrat' must be part of this TCPCommsHandler.: (commstrat.asyncsock is None) or (commstrat._tcpch is self): "counterparty_id: %s, commstrat: %s, self._conncache.get(counterparty_id): %s, commstrat._tcpch: %s, self: %s" % (hr(counterparty_id), hr(commstrat), hr(self._conncache.get(counterparty_id)), hr(commstrat._tcpch), hr(self),)
+        @precondition: `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `commstrat' must be a CommStrat.TCP.: isinstance(commstrat, CommStrat.TCP): "commstrat: %s :: %s" % (hr(commstrat), hr(type(commstrat)))
+        @precondition: If `commstrat' already has an open TCP socket then the `commstrat' must be part of this TCPCommsHandler.: (commstrat.asyncsock is None) or (commstrat._tcpch is self): "counterparty_id: %s, commstrat: %s, self._conncache.get(counterparty_id): %s, commstrat._tcpch: %s, self: %s" % (hr(counterparty_id), hr(commstrat), hr(self._conncache.get(counterparty_id)), hr(commstrat._tcpch), hr(self),)
         """
         assert idlib.is_binary_id(counterparty_id), "precondition: `counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
         assert isinstance(commstrat, CommStrat.TCP), "precondition: `commstrat' must be a CommStrat.TCP." + " -- " + "commstrat: %s :: %s" % (hr(commstrat), hr(type(commstrat)))
@@ -351,7 +354,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
     def _activate_commstrat(self, counterparty_id, cs):
         """
-        @precondition `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
+        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
         """
         assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
 
@@ -377,8 +380,8 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
     def _inmsg_handler(self, asyncsock, msg):
         """
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
-        @precondition `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
         assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
@@ -498,13 +501,13 @@ class TCPConnCache(Cache.SimpleCache):
     def __init__(self, cid_to_cs={}):
         """
         The following "virtual parameters" are pulled out of confman whenever they are referenced:
-        @param TCP_MAINTAINED_CONNECTIONS the number of connections which have "probably will be
+        @param TCP_MAINTAINED_CONNECTIONS: the number of connections which have "probably will be
             used again someday" hints to keep open, or `-1' if all of them should be kept open
-        @param TCP_MAX_CONNECTIONS the maximum number of conns to keep open (this is the
+        @param TCP_MAX_CONNECTIONS: the maximum number of conns to keep open (this is the
             absolute max, a `-1' in `TCP_MAINTAINED_CONNECTIONS' notwithstanding)
-        @param TCP_TIMEOUT the number of seconds to give a connection even if we have no hint to
+        @param TCP_TIMEOUT: the number of seconds to give a connection even if we have no hint to
             keep it
-        @param cid_to_cs a dict mapping cids to CommStrats; We look in the CommStrats to get
+        @param cid_to_cs: a dict mapping cids to CommStrats; We look in the CommStrats to get
             hints.  We never change this dict.
         """
         Cache.SimpleCache.__init__(self)
@@ -514,7 +517,7 @@ class TCPConnCache(Cache.SimpleCache):
 
     def remove_socket_if_present(self, tcpc, default=None):
         """
-        @precondition `tcpc' must not be None.: tcpc is not None
+        @precondition: `tcpc' must not be None.: tcpc is not None
         """
         assert tcpc is not None, "precondition: `tcpc' must not be None."
 
@@ -569,7 +572,7 @@ class TCPConnCache(Cache.SimpleCache):
 
         If the cache is near maximum size, then this calls `_cleanup()' before inserting.
 
-        @precondition `item' must be a TCPConnection.: isinstance(item, TCPConnection.TCPConnection): "item: %s :: %s" % (hr(item), hr(type(item)))
+        @precondition: `item' must be a TCPConnection.: isinstance(item, TCPConnection.TCPConnection): "item: %s :: %s" % (hr(item), hr(type(item)))
         """
         assert isinstance(item, TCPConnection.TCPConnection), "precondition: `item' must be a TCPConnection." + " -- " + "item: %s :: %s" % (hr(item), hr(type(item)))
 
@@ -597,7 +600,7 @@ class TCPConnCache(Cache.SimpleCache):
 
     def _cleanup(self, maxconns):
         """
-        @returns "success" -- `true' if and only if it pared down to less than or equal to
+        @return: "success" -- `true' if and only if it pared down to less than or equal to
             `maxconns' connections;  The only time it can fail is if there are more than `max'
             connections that are currently busy (they all return `true' from
             `TCPConnection.is_busy()').
@@ -609,7 +612,7 @@ class TCPConnCache(Cache.SimpleCache):
         is just to turn down TCP_MAX_CONNECTIONS to be small enough that this is fast!  :-)
         --Zooko 2000-08-15
 
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
 

@@ -93,7 +93,7 @@ def _skim_with_builtin(set, num):
     """
     nice and fast, but still does a full sort so it is O(N log N)
 
-    @precondition `num' must be non-negative.: num >= 0: "num: %s" % `num`
+    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % `num`
     """
     assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % `num`
 
@@ -144,9 +144,9 @@ def _skim_with_partial_bisort(set, num):
     All values must be > (-sys.maxint-1).
     This is up to 2.5 times as fast as `_sort_with_builtin()' in benchmarks.  It's fastest when `num' is small.
 
-    @param set a map from keys to values
-    @returns No return value, but `set' has been "skimmed" so that only the `num' items with the highest values remain.
-    @precondition `num' must be non-negative.: num >= 0: "num: %s" % hr(num)
+    @param set: a map from keys to values
+    @return: No return value, but `set' has been "skimmed" so that only the `num' items with the highest values remain.
+    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % hr(num)
     """
     assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % hr(num)
 
@@ -204,7 +204,7 @@ def _skim_with_partial_qsort(set, num):
 
     This is faster than `_skim_with_builtin()', but it is complicated and potentially brittle in the presence of different statistical distributions, weird values of `num', etc.
 
-    @precondition `num' must be non-negative.: num >= 0: "num: %s" % hr(num)
+    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % hr(num)
     """
     assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % hr(num)
 
@@ -457,7 +457,7 @@ def int_log_base_2(x):
     """
     Rounds down.
 
-    @precondition `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % hr(x)
+    @precondition: `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % hr(x)
     """
     assert x >= 1.0, "precondition: `x' must be greater than or equal to 1.0." + " -- " + "x: %s" % hr(x)
 
@@ -474,7 +474,7 @@ def int_log_base_10(x):
     """
     Rounds down.
 
-    @precondition `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % hr(x)
+    @precondition: `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % hr(x)
     """
     assert x >= 1.0, "precondition: `x' must be greater than or equal to 1.0." + " -- " + "x: %s" % hr(x)
 
@@ -749,7 +749,7 @@ def callback_wrapper(func, args=(), kwargs={}, defaultreturnval=None):
     Use this with all callbacks to aid debugging.  When there is a TypeError it shows which function was being called
     (as opposed to just having a reference named something like "cb").
 
-    @param defaultreturnval if `func' is None, then this will be returned;  You probably want `None'.
+    @param defaultreturnval: if `func' is None, then this will be returned;  You probably want `None'.
     """
 ##    if int(confman.dict['MAX_VERBOSITY']) >= 22:   # because traceback.extract_stack() is slow
 ##        debugprint("DEBUG: about to call wrapped method: %s(%s, %s) from %s\n", args=(func, args, kwargs, traceback.extract_stack()), v=22, vs="debug")
@@ -780,7 +780,7 @@ def _cb_warper(icb=None):
     the callback function.  Also your `icb' function, if it exists, got called before the
     `wait()' returned.
 
-    @precondition `icb' is None or callable.: (not icb) or callable(icb): "icb: [%s]" % hr(icb)
+    @precondition: `icb' is None or callable.: (not icb) or callable(icb): "icb: [%s]" % hr(icb)
     """
     assert (not icb) or callable(icb), "`icb' is None or callable." + " -- " + "icb: [%s]" % hr(icb)
 
@@ -884,11 +884,11 @@ def safe_zlib_decompress_to_retval(zbuf, maxlen=(65 * (2**20)), maxmem=(65 * (2*
 
     This function hopefully guards against zlib based memory allocation attacks.
 
-    @param maxlen the resulting text must not be greater than this
-    @param maxmem the execution of this function must not use more than this amount of memory in bytes;  The higher this number is (optimally 1032 * maxlen, or even greater), the faster this function can complete.  (Actually I don't fully understand the workings of zlib, so this function might use a *little* more than this memory, but not a lot more.)  (Also, this function will raise an exception if the amount of memory required even *approaches* `maxmem'.  Another reason to make it large.)  (Hence the default value which would seem to be exceedingly large until you realize that it means you can decompress 64 KB chunks of compressiontext at a bite.)
+    @param maxlen: the resulting text must not be greater than this
+    @param maxmem: the execution of this function must not use more than this amount of memory in bytes;  The higher this number is (optimally 1032 * maxlen, or even greater), the faster this function can complete.  (Actually I don't fully understand the workings of zlib, so this function might use a *little* more than this memory, but not a lot more.)  (Also, this function will raise an exception if the amount of memory required even *approaches* `maxmem'.  Another reason to make it large.)  (Hence the default value which would seem to be exceedingly large until you realize that it means you can decompress 64 KB chunks of compressiontext at a bite.)
 
-    @precondition `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
-    @precondition `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % hr(maxmem)
+    @precondition: `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
+    @precondition: `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % hr(maxmem)
     """
     assert ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0, "precondition: `maxlen' must be a real maxlen, geez!" + " -- " + "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
     assert maxmem >= 2 ** 20, "precondition: `maxmem' must be at least 1 MB." + " -- " + "maxmem: %s" % hr(maxmem)
@@ -953,13 +953,13 @@ def safe_zlib_decompress_to_file(zbuf, fileobj, maxlen=(65 * (2**20)), maxmem=(6
 
     Note that this assumes that data written to `fileobj' continues to take up memory.
 
-    @param maxlen the resulting text must not be greater than this
-    @param maxmem the execution of this function must not use more than this amount of memory in bytes;  The higher this number is (optimally 1032 * maxlen, or even greater), the faster this function can complete.  (Actually I don't fully understand the workings of zlib, so this function might use a *little* more than this memory, but not a lot more.)  (Also, this function will raise an exception if the amount of memory required even *approaches* `maxmem'.  Another reason to make it large.)  (Hence the default value which would seem to be exceedingly large until you realize that it means you can decompress 64 KB chunks of compressiontext at a bite.)
-    @param fileobj the decompressed text will be written to it
+    @param maxlen: the resulting text must not be greater than this
+    @param maxmem: the execution of this function must not use more than this amount of memory in bytes;  The higher this number is (optimally 1032 * maxlen, or even greater), the faster this function can complete.  (Actually I don't fully understand the workings of zlib, so this function might use a *little* more than this memory, but not a lot more.)  (Also, this function will raise an exception if the amount of memory required even *approaches* `maxmem'.  Another reason to make it large.)  (Hence the default value which would seem to be exceedingly large until you realize that it means you can decompress 64 KB chunks of compressiontext at a bite.)
+    @param fileobj: the decompressed text will be written to it
 
-    @precondition `fileobj' must be an IO.: fileobj is not None
-    @precondition `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
-    @precondition `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % hr(maxmem)
+    @precondition: `fileobj' must be an IO.: fileobj is not None
+    @precondition: `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
+    @precondition: `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % hr(maxmem)
     """
     assert fileobj is not None, "precondition: `fileobj' must be an IO."
     assert ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0, "precondition: `maxlen' must be a real maxlen, geez!" + " -- " + "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
@@ -1011,12 +1011,12 @@ mojo_test_flag = 1
 
 def update_weighted_sample(history, newvalue, historyweight=None,default_value=None):
     """
-    @param history (mean, sigma, mean_squares,)
-    @param newvalue new statistic to add to history with weighted deviation
-    @param historyweight 0.0 = ignore history, 1.0 = ignore new sample
-    @param default_value what to use when history param is None
+    @param history: (mean, sigma, mean_squares,)
+    @param newvalue: new statistic to add to history with weighted deviation
+    @param historyweight: 0.0 = ignore history, 1.0 = ignore new sample
+    @param default_value: what to use when history param is None
 
-    @returns updated history (mean, sigma, mean_squares,)
+    @return: updated history (mean, sigma, mean_squares,)
     """
     stat = history
     if stat is None:

@@ -123,11 +123,11 @@ class SessionKeeper:
         "...mtmdb/ABCDEFGHIJKLMNOPQRSTUVWXYZA/mesgen/" and uses the key therein.
 
 
-        @param dbparentdir the directory for all keys;  Subdirectories will be located or
+        @param dbparentdir: the directory for all keys;  Subdirectories will be located or
             created, named by the mojosixbit encoding of the hash of the key.
-        @param dir the directory for this particular key
+        @param dir: the directory for this particular key
 
-        @precondition Exactly one of (dbparentdir, dir) must be not None.: ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)): "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
+        @precondition: Exactly one of (dbparentdir, dir) must be not None.: ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)): "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
         """
         assert ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)), "precondition: Exactly one of (dbparentdir, dir) must be not None." + " -- " + "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
 
@@ -223,7 +223,7 @@ class SessionKeeper:
 
     def get_public_key_id(self):
         """
-        @deprecated in favor of `get_id()'
+        @deprecated: in favor of `get_id()'
         """
         return self.get_id()
 
@@ -241,7 +241,7 @@ class SessionKeeper:
         """
         Called when a message comes in for a not set up connection.
 
-        @precondition `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % hr(id)
+        @precondition: `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % hr(id)
         """
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be  an id." + " -- " + "id: %s" % hr(id)
 
@@ -464,7 +464,7 @@ class SessionKeeper:
         
         Generates new connection info if there is none
 
-        @precondition `counterparty_id' must be of the right form for an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be of the right form for an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
         """
         assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be of the right form for an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
 
@@ -567,11 +567,11 @@ class MessageMaker:
         "...mtmdb/ABCDEFGHIJKLMNOPQRSTUVWXYZA/mesgen/" and uses the key therein.
 
 
-        @param dbparentdir the directory for all keys;  Subdirectories will be located or
+        @param dbparentdir: the directory for all keys;  Subdirectories will be located or
             created, named by the mojosixbit encoding of the hash of the key.
-        @param dir the directory for this particular key
+        @param dir: the directory for this particular key
 
-        @precondition Exactly one of (dbparentdir, dir) must be not None.: ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)): "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
+        @precondition: Exactly one of (dbparentdir, dir) must be not None.: ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)): "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
         """
         assert ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)), "precondition: Exactly one of (dbparentdir, dir) must be not None." + " -- " + "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
 
@@ -590,7 +590,7 @@ class MessageMaker:
 
     def get_public_key_id(self):
         """
-        @deprecated in favor of `get_id()'
+        @deprecated: in favor of `get_id()'
         """
         return self.get_id()
 
@@ -599,7 +599,7 @@ class MessageMaker:
 
     def get_counterparty_public_key(self, counterparty_id):
         """
-        @precondition `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % hr(id)
+        @precondition: `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % hr(id)
         """
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be  an id." + " -- " + "id: %s" % hr(id)
 
@@ -609,9 +609,9 @@ class MessageMaker:
 
     def store_key(self, pub_key_sexp):
         """
-        @precondition `pub_key_sexp' must be a well-formed MojoKey.: MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp): "pub_key_sexp: %s" % hr(pub_key_sexp)
+        @precondition: `pub_key_sexp' must be a well-formed MojoKey.: MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp): "pub_key_sexp: %s" % hr(pub_key_sexp)
 
-        @idempotent
+        @idempotent:
         """
         assert MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp), "`pub_key_sexp' must be a well-formed MojoKey." + " -- " + "pub_key_sexp: %s" % hr(pub_key_sexp)
 
@@ -645,13 +645,13 @@ class MessageMaker:
     # throws Error
     def parse(self, wired_string):
         """
-        @returns (counterparty_pub_key_sexp, cleartext,)
+        @return: (counterparty_pub_key_sexp, cleartext,)
 
-        @raises SessionInvalidated if the incoming message was an "invalidate session" message \000\000\000\002.
-        @raises UnknownSession error if the incoming message did not identify a known session key.
+        @raises SessionInvalidated: if the incoming message was an "invalidate session" message \000\000\000\002.
+        @raises UnknownSession: error if the incoming message did not identify a known session key.
 
-        @precondition `wired_string' must be a string.: type(wired_string) == types.StringType: "wired_string: %s :: %s" % (hr(wired_string), hr(type(wired_string)))
-        @postcondition `counterparty_pub_key_sexp' is a public key.: MojoKey.publicRSAKeyForCommunicationSecurityIsWellFormed(counterparty_pub_key_sexp): "counterparty_pub_key_sexp: %s" % hr(counterparty_pub_key_sexp)
+        @precondition: `wired_string' must be a string.: type(wired_string) == types.StringType: "wired_string: %s :: %s" % (hr(wired_string), hr(type(wired_string)))
+        @postcondition: `counterparty_pub_key_sexp' is a public key.: MojoKey.publicRSAKeyForCommunicationSecurityIsWellFormed(counterparty_pub_key_sexp): "counterparty_pub_key_sexp: %s" % hr(counterparty_pub_key_sexp)
         """
         assert type(wired_string) == types.StringType, "precondition: `wired_string' must be a string." + " -- " + "wired_string: %s :: %s" % (hr(wired_string), hr(type(wired_string)))
         session = None

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.4 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 true = 1
 false = 0
@@ -67,7 +67,7 @@ class LookupHand(ILookupHandler):
 
     def result(self, value):
         """
-        @precondition `value' must be a dict.: type(value) is types.DictType: "value: %s :: %s" % (hr(value), hr(type(value)),)
+        @precondition: `value' must be a dict.: type(value) is types.DictType: "value: %s :: %s" % (hr(value), hr(type(value)),)
         """
         assert type(value) is types.DictType, "precondition: `value' must be a dict." + " -- " + "value: %s :: %s" % (hr(value), hr(type(value)),)
 
@@ -89,7 +89,7 @@ best price auctioning system.
 class Widget:
     def __init__(self, counterparty_id, firstmsgId=None):
         """
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
         """
         assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
 
@@ -156,19 +156,19 @@ class MojoTransactionManager:
     """
     def __init__(self, lookupman, discoveryman, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
         """
-        @param lookupman an object which implements the ILookupManager interface;  MojoTransaction uses the lookupman to get fresh EGTP addresses for counterparty_id's (i.e. to find out the current IP address or current relay server of a given public key ID).
-        @param discoveryman an object which implements the IDiscoveryManager interface;  MojoTransaction passes this to RelayListener, which uses the discoveryman to find relay servers.
+        @param lookupman: an object which implements the ILookupManager interface;  MojoTransaction uses the lookupman to get fresh EGTP addresses for counterparty_id's (i.e. to find out the current IP address or current relay server of a given public key ID).
+        @param discoveryman: an object which implements the IDiscoveryManager interface;  MojoTransaction passes this to RelayListener, which uses the discoveryman to find relay servers.
 
-        @param dontbind `true' if and only if you don't want to bind and listen to a port
-        @param neverpoll `true' if you want to override the confman['POLL_RELAYER'] and force it to false;  This is for the Payment MTM -- otherwise you should just use confman.
-        @param allownonrouteableip `true' if you want the MTM to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
+        @param dontbind: `true' if and only if you don't want to bind and listen to a port
+        @param neverpoll: `true' if you want to override the confman['POLL_RELAYER'] and force it to false;  This is for the Payment MTM -- otherwise you should just use confman.
+        @param allownonrouteableip: `true' if you want the MTM to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
 
-        @precondition `announced_service_dicts' must be a list.: type(announced_service_dicts) == types.ListType: "announced_service_dicts: %s" % hr(announced_service_dicts)
-        @precondition `handler_funcs' must be a dict.: type(handler_funcs) == types.DictType: "handler_funcs: %s" % hr(handler_funcs)
-        @precondition `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) == types.IntType) and (listenport > 0)): "listenport: %s" % hr(listenport)
-        @precondition `lookupman' must be an instance of interfaces.ILookupManager.: isinstance(lookupman, ILookupManager): "lookupman: %s :: %s" % (hr(lookupman), hr(type(lookupman)),)
-        @precondition `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq(): "currentThread(): %s" % hr(threading.currentThread())
+        @precondition: `announced_service_dicts' must be a list.: type(announced_service_dicts) == types.ListType: "announced_service_dicts: %s" % hr(announced_service_dicts)
+        @precondition: `handler_funcs' must be a dict.: type(handler_funcs) == types.DictType: "handler_funcs: %s" % hr(handler_funcs)
+        @precondition: `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) == types.IntType) and (listenport > 0)): "listenport: %s" % hr(listenport)
+        @precondition: `lookupman' must be an instance of interfaces.ILookupManager.: isinstance(lookupman, ILookupManager): "lookupman: %s :: %s" % (hr(lookupman), hr(type(lookupman)),)
+        @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq(): "currentThread(): %s" % hr(threading.currentThread())
         """
         assert type(announced_service_dicts) == types.ListType, "precondition: `announced_service_dicts' must be a list." + " -- " + "announced_service_dicts: %s" % hr(announced_service_dicts)
         assert type(handler_funcs) == types.DictType, "precondition: `handler_funcs' must be a dict." + " -- " + "handler_funcs: %s" % hr(handler_funcs)
@@ -244,16 +244,16 @@ class MojoTransactionManager:
         # the performance handicappers which should come after price so that they can scale independently
         # of later handicappers values)
         # When reading the following list, remember that all scalar additives are squared before
-        # being added.  The "@returns" doco below is _before_ squaring.  All "@returns" numbers
+        # being added.  The "@return" doco below is _before_ squaring.  All "@return" numbers
         # below are additives unless specified to be multipliers.
 
         # for all msgtypes
-        #  @returns 1000 if counterparty is "unreliable";  With default settings, you are unreliable if you have dropped more than 30% of queries or more than 2000 queries throughout all history.
+        #  @return 1000 if counterparty is "unreliable";  With default settings, you are unreliable if you have dropped more than 30% of queries or more than 2000 queries throughout all history.
         # DISQUALIFIES counterparties.  The above line is incorrect.
         self.get_handicapper().add_handicapper(UnreliableHandicapper(self._keeper, self.get_id()))
 
         # for msgtype in ('are there messages',)
-        #  @returns 500 if counterparty is not the currently preferred (== most recently advertised) relay server.
+        #  @return 500 if counterparty is not the currently preferred (== most recently advertised) relay server.
         self.get_handicapper().add_handicapper(self._listenermanager._relayl.compute_handicap_prefer_current, mtypes=('are there messages',))
 
         # significantly handicap counterparties that haven't been responding to their messages recently at all or fast enough
@@ -373,7 +373,7 @@ class MojoTransactionManager:
         """
         Add more announced services to our list of servers we run.
 
-        @precondition `service_dict_list' must be a list.: type(service_dict_list) == types.ListType: "service_dict_list: %s" % hr(service_dict_list)
+        @precondition: `service_dict_list' must be a list.: type(service_dict_list) == types.ListType: "service_dict_list: %s" % hr(service_dict_list)
         """
         assert type(service_dict_list) == types.ListType, "`service_dict_list' must be a list." + " -- " + "service_dict_list: %s" % hr(service_dict_list)
 
@@ -430,7 +430,7 @@ class MojoTransactionManager:
 
     def _get_our_hello_msgbody(self):
         """
-        @returns a contact info dict which can have no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
+        @return: a contact info dict which can have no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
         """
         (cs, newflag,) = self._listenermanager.get_comm_strategy_and_newflag()
         # debugprint("xxxxxxx %s._get_our_hello_msgbody(); cs: %s, newflag: %s\n", args=(self, cs, newflag,))
@@ -488,7 +488,7 @@ class MojoTransactionManager:
         MetaTrackerLib (basically this is what a meta tracker lookup
         of us would return)
 
-        @returns a contact info dict with no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
+        @return: a contact info dict with no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
         """
         hello_dict=self._get_our_hello_msgbody()
         metainfo_dict = copy.copy(hello_dict)
@@ -538,7 +538,7 @@ class MojoTransactionManager:
 
     def get_comm_strategy(self):
         """
-        @returns the comm strategy in the form of an instance of CommStrat.CommStrat, or `None' if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
+        @return: the comm strategy in the form of an instance of CommStrat.CommStrat, or `None' if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
         """
         return self._listenermanager.get_comm_strategy_and_newflag()[0]
 
@@ -554,12 +554,12 @@ class MojoTransactionManager:
         ensure by relying upon MojoTransaction's guarantee that your handler will be invoked
         exactly one time in the history of the universe for one message.
 
-        @param prevmsgId the id of the message to which this is a response
-        @param msgbody the body of the response
-        @param mojoheader is an optional 'mojo header' to send with this response.  It should not be used
+        @param prevmsgId: the id of the message to which this is a response
+        @param msgbody: the body of the response
+        @param mojoheader: is an optional 'mojo header' to send with this response.  It should not be used
             by normal callers as it is parsed and interpreted by MojoTransaction internally on the receiving end.
 
-        @precondition `msgbody' is just the innermost message body, not having a "mojo header" or "mojo message" subdict.: (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))): "msgbody: %s" % hr(msgbody)
+        @precondition: `msgbody' is just the innermost message body, not having a "mojo header" or "mojo message" subdict.: (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))): "msgbody: %s" % hr(msgbody)
 
         @precondition internal1: self._cm._map_inmsgid_to_info.get(prevmsgId) is not None: "prevmsgId: %s, msgbody: %s" % (hr(prevmsgId), hr(msgbody))
         @precondition internal2: (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.TupleType) or (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.ListType): "self._cm._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (hr(self._cm._map_inmsgid_to_info.get(prevmsgId)), hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId))))
@@ -593,11 +593,11 @@ class MojoTransactionManager:
         """
         Invoke the appropriate server func.
 
-        @returns the full msg body to be sent back in response (containing a 'mojo header' and/or 'mojo message' subdict) in dict form, or None, or std.ASYNC_RESPONSE
+        @return: the full msg body to be sent back in response (containing a 'mojo header' and/or 'mojo message' subdict) in dict form, or None, or std.ASYNC_RESPONSE
 
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
 
-        @postcondition Result must be either None or std.ASYNC_REPONSE or else the full msg body dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not result) or (result is std.ASYNC_RESPONSE) or result.has_key('mojo header') or result.has_key('mojo message'): "result: %s" % hr(result)
+        @postcondition: Result must be either None or std.ASYNC_REPONSE or else the full msg body dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not result) or (result is std.ASYNC_RESPONSE) or result.has_key('mojo header') or result.has_key('mojo message'): "result: %s" % hr(result)
         """ 
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
 
@@ -645,15 +645,15 @@ class MojoTransactionManager:
         """
         Initiates a transaction with the specified counterparty.
 
-        @param counterparty_id the id of the counterparty with whom to transact
-        @param conversationtype human readable string "message type" or "conversation type";
+        @param counterparty_id: the id of the counterparty with whom to transact
+        @param conversationtype: human readable string "message type" or "conversation type";
             See OurMessages*.py for examples.
-        @param firstmsgbody the contents of the initiating message of the transaction;  This
+        @param firstmsgbody: the contents of the initiating message of the transaction;  This
             can be any of the Pythonic types supported by the mencode module, currently
             (in v0.913): integers (ints or longs), strings, None, sequences (lists or tuples)
             and dicts, where the items in the sequences and the keys and values in the dicts
             may be any of these same types.
-        @param outcome_func a callback that will be called exactly once with "widget",
+        @param outcome_func: a callback that will be called exactly once with "widget",
             "outcome", "failure_reason", and "notes" keyword arguments;  <p>This func will be
             called with a `failure_reason' argument other than `None' if and only if there is a
             failure below the level of the transaction layer.  Typical causes of failure below
@@ -666,21 +666,21 @@ class MojoTransactionManager:
             with strings as names. <p>The "notes" argument is the same as was passed to
             this initiate call.  This allows data to be passed from initiation code to response
             handling code.
-        @param timeout the maximum amount of time before `outcome_func' is called with a
+        @param timeout: the maximum amount of time before `outcome_func' is called with a
             `failure_reason' indicating timeout if no response message has been received
-        @param post_timeout_outcome_func is a callback with the same interface as outcome_func.
+        @param post_timeout_outcome_func: is a callback with the same interface as outcome_func.
             It will only be called if outcome_func has already been called with a failure_reason
             of 'timeout' and the response messages arrives (known as a "post timeout response").  It
             is not guaranteed to be called at all.  The idea of this function is that response
             messages still contain valid data that your application could use even if they took longer
             than expected.
-        @param use_dynamic_timeout a flag to indiciate whether a dynamic timeout
+        @param use_dynamic_timeout: a flag to indiciate whether a dynamic timeout
             based on previous timings with this kind of message to this counterparty
             would be a good idea.  If no data is available, fall back to using timeout.
             Set this to "never" to indicate never using a dynamic timeout, "always" to indicate
             always, and "iff there is a post_timeout_outcome_func" to indicate 'use one iff
             post_timeout_outcome_func is not None'
-        @param commstratseqno the sequence number of the comm strategy which has
+        @param commstratseqno: the sequence number of the comm strategy which has
             already been tried (i.e., if you are doing a pass-this-along on behalf of an original
             sender, then this should be the commstratseqno that that sender used, which
             told him to forward through you.;  If you attempt a recursive delivery
@@ -688,10 +688,10 @@ class MojoTransactionManager:
             strategy you try has seqno > than this one.  `None' means to always send the
             message to the next hop, regardless, which is what you want when it is a
             message that actually originates with you.
-        @param an optional comms hint (see CommHints.py)
+        @param hint: an optional comms hint (see CommHints.py)
 
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
-        @precondition This MTM must not be shutting down.: not self._shuttingdownflag
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: This MTM must not be shutting down.: not self._shuttingdownflag
         """
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
         assert not self._shuttingdownflag, "precondition: This MTM must not be shutting down."
@@ -706,7 +706,7 @@ class MojoTransactionManager:
 
     def _initiate(self, counterparty_id, conversationtype, firstmsgbody, outcome_func, timeout=300, post_timeout_outcome_func=None, use_dynamic_timeout=None, commstratseqno=None, hint=HINT_NO_HINT):
         """
-        @precondition This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
 
@@ -829,7 +829,7 @@ class MojoTransactionManager:
         XXX adding yet another feature to this handler (it already has several separate feature not adequately described by "to do mojo header").  The new one is forget a comm strategy if a conversation fails.  --Zooko 2001-05-04
         XXX In the future, we need to keep track of which actual specific comm strategy the conversation was trying to use, and only forget that one, rather than forgetting whatever one we are using *now*.  --Zooko 2001-05-04
 
-        @precondition `outcome' is none or else the full message body, having a "mojo header" or "mojo message" subdict.: (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'): "outcome: %s" % hr(outcome)
+        @precondition: `outcome' is none or else the full message body, having a "mojo header" or "mojo message" subdict.: (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'): "outcome: %s" % hr(outcome)
         """
         assert (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'), "`outcome' is none or else the full message body, having a \"mojo header\" or \"mojo message\" subdict." + " -- " + "outcome: %s" % hr(outcome)
 
@@ -892,8 +892,8 @@ class MojoTransactionManager:
         """
         An internal use only fast fail handler that calls the conversation properly.
 
-        @param counterparty_id is the id of the counterparty we were sending this message to.
-        @param bad_commstrat (if not None) must be the particular comm strategy that the lower layers think is bad.
+        @param counterparty_id: is the id of the counterparty we were sending this message to.
+        @param bad_commstrat: (if not None) must be the particular comm strategy that the lower layers think is bad.
         """
         # XXX If we were clever we would be able to tell which specific comm strat we used to
         # send the failed message, and we would neg that particular comm strat but not any
@@ -932,8 +932,8 @@ class MojoTransactionManager:
 
     def send_message_with_lookup_internal(self, counterparty_id, msg, timeout=300, hint=HINT_NO_HINT, commstratseqno=None):
         """
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
-        @precondition `msg' must be a string, and non-empty.: (type(msg) is types.StringType) and (len(msg) > 0): "msg: %s" % hr(msg)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `msg' must be a string, and non-empty.: (type(msg) is types.StringType) and (len(msg) > 0): "msg: %s" % hr(msg)
         """
         assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
         assert (type(msg) is types.StringType) and (len(msg) > 0), "`msg' must be a string, and non-empty." + " -- " + "msg: %s" % hr(msg)

@@ -429,7 +429,7 @@ def addr_to_id(addr):
 
 def dict_to_strategy(dict, mtm, broker_id=None, commstratseqno=None):
     """
-    @raises: an UnsupportedTypeError if `dict' is not either a TCP, Relay, Crypto, or Pickup
+    @raises UnsupportedTypeError: if `dict' is not either a TCP, Relay, Crypto, or Pickup
     
     @precondition: `broker_id' must be an id or None.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)))
     """

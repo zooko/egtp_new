@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: interfaces.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: interfaces.py,v 1.5 2002/09/09 21:15:14 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -28,25 +28,25 @@ class ILookupManager:
     """
     def __init__(self, verifier):
         """
-        @param a verifier object
+        @param verifier: a verifier object
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         self.verifier = verifier
         pass
 
     def lookup(self, key, lookuphand):
         """
-        @param key the key of the thing to be looked up;  This key must be self-authenticating,
+        @param key: the key of the thing to be looked up;  This key must be self-authenticating,
             i.e. given this key and the resulting object, the lookup manager must be able to
             determine whether or not the object is a valid object for the key even if the object is
             a bogus object manufactured by a powerful and malicious attacker.  (If you don't have
             self-authenticating keys, use a discovery manager instead.)
-        @param lookuphand an object which satisfies the ILookupHandler interface
+        @param lookuphand: an object which satisfies the ILookupHandler interface
 
-        @precondition key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
         raise NotImplementedError
@@ -54,18 +54,18 @@ class ILookupManager:
 
     def publish(self, key, object, publishhand=None):
         """
-        @param key the key by which the object can subsequently to be looked up;  This key must be
+        @param key: the key by which the object can subsequently to be looked up;  This key must be
             self-authenticating, i.e. given this key and an object, a lookup manager must be able
             to determine whether or not the object is *this* object even if the object is a bogus
             object manufactured by a powerful and malicious attacker.  (If you don't have self-
             authenticating keys, use a discovery manager instead.)
-        @param object the thing to be published
-        @param publishhand an object which satisfies the IRemoteOpHandler interface, or `None'
+        @param object: the thing to be published
+        @param publishhand: an object which satisfies the IRemoteOpHandler interface, or `None'
 
-        @precondition key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
-        @precondition key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % (hr(key), hr(object),)
+        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % (hr(key), hr(object),)
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
         assert self.verifier.verify_mapping(key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "key: %s, object: %s" % (hr(key), hr(object),)
@@ -88,32 +88,32 @@ class IDiscoveryManager:
     """
     def __init__(self):
         """
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         pass
 
     def discover(self, query, discoveryhand):
         """
-        @param query the query describing the kind of thing you want to discover;  If the query is
+        @param query: the query describing the kind of thing you want to discover;  If the query is
             self-authenticating, (i.e. given this query and the resulting object, the lookup manager
             is able to determine whether or not the object is a valid object for the key even if the
             object is a bogus object manufactured by a powerful and malicious attacker), then you
             should use a lookup manager instead of a discovery manager.  (The lookup manager will
             perform that verification for you.)
-        @param discoveryhand an object which satisfies the IDiscoveryHandler interface
+        @param discoveryhand: an object which satisfies the IDiscoveryHandler interface
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
 
     def publish(self, metadata, object, publishhand=None):
         """
-        @param metadata some metadata by which the object can subsequently to be discovered
-        @param object the thing to be published
-        @param publishhand an object which satisfies the IRemoteOpHandler interface, or `None'
+        @param metadata: some metadata by which the object can subsequently to be discovered
+        @param object: the thing to be published
+        @param publishhand: an object which satisfies the IRemoteOpHandler interface, or `None'
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
@@ -129,11 +129,11 @@ class IVerifier:
 
     def verify_mapping(self, key, object):
         """
-        @returns true if and only if `object' is a valid result for `key'
+        @return: true if and only if `object' is a valid result for `key'
 
-        @precondition key must be well-formed.: self.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed.: self.verify_key(key): "key: %s" % hr(key)
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         assert self.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % hr(key)
         raise NotImplementedError
@@ -141,9 +141,9 @@ class IVerifier:
 
     def verify_key(self, key):
         """
-        @returns true if and only if `key' is well-formed
+        @return: true if and only if `key' is well-formed
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
@@ -154,12 +154,12 @@ class ILookupHandler(IRemoteOpHandler):
     """
     def __init__(self, key, verifier):
         """
-        @param the key that you are trying to look up
-        @param a verifier object
+        @param key: the key that you are trying to look up
+        @param verifier: a verifier object
 
-        @precondition key must be well-formed.: verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed.: verifier.verify_key(key): "key: %s" % hr(key)
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         assert verifier.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % hr(key)
         self.key = key
@@ -172,9 +172,9 @@ class ILookupHandler(IRemoteOpHandler):
         cryptographically proven to match the self-authenticating key.  You can now do what you want
         with the results.
 
-        @precondition key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(self.key, object): "self.key: %s, object: %s" % (hr(self.key), hr(object),)
+        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(self.key, object): "self.key: %s, object: %s" % (hr(self.key), hr(object),)
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         assert self.verifier.verify_mapping(self.key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "self.key: %s, object: %s" % (hr(self.key), hr(object),)
         raise NotImplementedError
@@ -191,9 +191,9 @@ class ILookupHandler(IRemoteOpHandler):
         for.  There is no chance that he will later call `result()' for this query.  You can
         safely forget all about this particular query.
 
-        @param failure_reason None or a string describing why it failed
+        @param failure_reason: None or a string describing why it failed
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
@@ -209,7 +209,7 @@ class ILookupHandler(IRemoteOpHandler):
         which come in after this point, is signalled by a call to `done()'. with a
         `failure_reason' argument of "hard timeout".
 
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
@@ -252,7 +252,7 @@ class IDiscoveryHandler(IRemoteOpHandler):
         necessarily fuzzy, but it can be important as technical failure can trigger attempts to
         try alternate routes or to rebuild your network, etc..
 
-        @param reason a string describing why it failed (used for human-readable diagnostic output)
+        @param reason: a string describing why it failed (used for human-readable diagnostic output)
         """
         raise NotImplementedError
         pass

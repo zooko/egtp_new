@@ -11,7 +11,7 @@
 # Everything in this file is optimized for speed, it gets called a
 # -lot- throughout the program, including many hot spots.
 #
-# $Id: idlib.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $
+# $Id: idlib.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $
 
 # standard modules
 import re
@@ -39,7 +39,7 @@ Largest_Distance_NativeId_Int_Space = 2**23
 
 def sign(id1, id2):
     """
-    @returns `1' if the distance in the increasing direction around the circle from `id1' to `id2' is shorter than the distance in the decreasing direction, else returns `-1';  If (in *native int* form) id1 == id2, or id1 == (id2+Largest_Distance_NativeId_Int_Space), then return 0.
+    @return: `1' if the distance in the increasing direction around the circle from `id1' to `id2' is shorter than the distance in the decreasing direction, else returns `-1';  If (in *native int* form) id1 == id2, or id1 == (id2+Largest_Distance_NativeId_Int_Space), then return 0.
     """
     id1 = id_to_native_int(id1)
     id2 = id_to_native_int(id2)
@@ -56,10 +56,10 @@ def sign(id1, id2):
 
 def distance(id1, id2):
     """
-    @param id1 an id, can be in native-int form (for extra speed -- it converts them to native int anyway so it doesn't change the answer)
-    @param id2 an id, can be in native-int form (for extra speed -- it converts them to native int anyway so it doesn't change the answer)
+    @param id1: an id, can be in native-int form (for extra speed -- it converts them to native int anyway so it doesn't change the answer)
+    @param id2: an id, can be in native-int form (for extra speed -- it converts them to native int anyway so it doesn't change the answer)
 
-    @returns the distance between the two ids on the Great Circle
+    @return: the distance between the two ids on the Great Circle
     """
     id1 = id_to_native_int(id1)
     id2 = id_to_native_int(id2)
@@ -73,9 +73,9 @@ def id_to_native_int(id, IntType=types.IntType, LongType=types.LongType, FloatTy
     """
     This uses only the first 24 bits of `id', in order to be fast.  (If we used 32 bits, it would be slower due to using Python longs instead of a native int.)
 
-    @param id can be one of the following four options: a native-int representation of an id, a float representation of a native-int, a full 160-bit id in either straight binary or mojosixbit-encoded form, or the prefix of an id, as long as it contains at least 24 bits of information and is in straight binary form, *not* in mojosixbit encoded form
+    @param: id can be one of the following four options: a native-int representation of an id, a float representation of a native-int, a full 160-bit id in either straight binary or mojosixbit-encoded form, or the prefix of an id, as long as it contains at least 24 bits of information and is in straight binary form, *not* in mojosixbit encoded form
 
-    @precondition `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix.: is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= 20)): "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
+    @precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix.: is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= 20)): "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
     """
     assert is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= 20)), "precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix." + " -- " + "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
 
@@ -104,9 +104,9 @@ def int_to_id_prefix(i):
     """
     This generates only the first 24 bits of an id, from the most significant 24 bits of `i'.
 
-    @param i an int or an id
+    @param i: an int or an id
 
-    @precondition `i' must be an integer or an id.: is_sloppy_id(i) or (type(i) in ( types.IntType, types.LongType, )): "i: %s :: %s" % (std.hr(i), std.hr(type(i)))
+    @precondition: `i' must be an integer or an id.: is_sloppy_id(i) or (type(i) in ( types.IntType, types.LongType, )): "i: %s :: %s" % (std.hr(i), std.hr(type(i)))
     """
     assert is_sloppy_id(i) or (type(i) in ( types.IntType, types.LongType, )), "precondition: `i' must be an integer or an id." + " -- " + "i: %s :: %s" % (std.hr(i), std.hr(type(i)))
 
@@ -129,7 +129,7 @@ def is_canonical_uniq(thing, _strtypes=_strtypes):
 
 def identifies(id, thing, thingtype=None):
     """
-    @precondition `id' must be an id.: is_sloppy_id(id): "id: %s" % repr(id)
+    @precondition: `id' must be an id.: is_sloppy_id(id): "id: %s" % repr(id)
     """
     assert is_sloppy_id(id), "precondition: `id' must be an id." + " -- " + "id: %s" % repr(id)
 
@@ -141,17 +141,17 @@ def make_ascii_id(data):
 
 def string_to_id(sexpStr):
     """
-    @param sexpStr the string containing the expression in canonical form
+    @param sexpStr: the string containing the expression in canonical form
 
-    @return the unique id of the sexp str
+    @return: the unique id of the sexp str
 
-    @postcondition Result is of correct form.: is_binary_id(result)
+    @postcondition: Result is of correct form.: is_binary_id(result)
 
-    @precondition `sexpStr' must be a string.: type(sexpStr) == types.StringType: "sexpStr: %s" % repr(sexpStr)
+    @precondition: `sexpStr' must be a string.: type(sexpStr) == types.StringType: "sexpStr: %s" % repr(sexpStr)
 
     @memoizable
 
-    @deprecated in favor of new name: `make_id()'
+    @deprecated: in favor of new name: `make_id()'
     """
     return make_id(sexpStr)
 
@@ -159,10 +159,10 @@ def make_id(thing, thingtype=None):
     """
     Use this function to create a unique persistent cryptographically assured id of a string.
 
-    @param thing the thing that you want an id of
-    @param thingtype optional type of the thing (ignored)
+    @param thing: the thing that you want an id of
+    @param thingtype: optional type of the thing (ignored)
 
-    @precondition `thing' must be a string.: type(thing) == types.StringType: "thing: %s :: %s" % (std.hr(thing), std.hr(type(thing)))
+    @precondition: `thing' must be a string.: type(thing) == types.StringType: "thing: %s :: %s" % (std.hr(thing), std.hr(type(thing)))
 
     """
     assert type(thing) == types.StringType, "precondition: `thing' must be a string." + " -- " + "thing: %s :: %s" % (str(thing), str(type(thing)))
@@ -175,12 +175,12 @@ def canonicalize(id, thingtype=None):
     or the mojosixbit encoding thereof) into the canonical form.  Useful for calling on ids
     received from other brokers over the wire.
 
-    @param id an id, which may be a bare binary or bare mojosixbit encoded id, or a full canonical id
-    @param thingtype optional type of the thing that is identified (ignored)
+    @param id: an id, which may be a bare binary or bare mojosixbit encoded id, or a full canonical id
+    @param thingtype: optional type of the thing that is identified (ignored)
 
-    @returns the full canonical id
+    @return: the full canonical id
 
-    @precondition `id' must be an id.: is_sloppy_id(id): "id: %s" % repr(id)
+    @precondition: `id' must be an id.: is_sloppy_id(id): "id: %s" % repr(id)
     """
     assert is_sloppy_id(id), "precondition: `id' must be an id." + " -- " + "id: %s" % repr(id)
 
@@ -193,10 +193,10 @@ def canonicalize(id, thingtype=None):
 
 def equal(id1, id2):
     """
-    @returns `true' if and only if id1 and id2 identify the same thing;  if `id1' or `id2' or both are `None', then `equals()' returns false.
+    @return: `true' if and only if id1 and id2 identify the same thing;  if `id1' or `id2' or both are `None', then `equals()' returns false.
 
-    @precondition `id1' must be `None' or an id.: (id1 is None) or is_sloppy_id(id1): "id1: %s" % repr(id1)
-    @precondition `id2' must be `None' or an id.: (id2 is None) or is_sloppy_id(id2): "id2: %s" % repr(id2)
+    @precondition: `id1' must be `None' or an id.: (id1 is None) or is_sloppy_id(id1): "id1: %s" % repr(id1)
+    @precondition: `id2' must be `None' or an id.: (id2 is None) or is_sloppy_id(id2): "id2: %s" % repr(id2)
     """
     assert (id1 is None) or is_sloppy_id(id1), "precondition: `id1' must be `None' or an id." + " -- " + "id1: %s" % repr(id1)
     assert (id2 is None) or is_sloppy_id(id2), "precondition: `id2' must be `None' or an id." + " -- " + "id2: %s" % repr(id2)
@@ -223,13 +223,13 @@ def make_new_random_id(thingtype=None):
 
 def string_to_id(sexpStr):
     """
-    @param sexpStr the string containing the expression in canonical form
+    @param sexpStr: the string containing the expression in canonical form
 
-    @return the unique id of the sexp str
+    @return: the unique id of the sexp str
 
-    @postcondition Result is of correct form.: is_binary_id(result)
+    @postcondition: Result is of correct form.: is_binary_id(result)
 
-    @precondition `sexpStr' must be a string.: type(sexpStr) == types.StringType: "sexpStr: %s" % repr(sexpStr)
+    @precondition: `sexpStr' must be a string.: type(sexpStr) == types.StringType: "sexpStr: %s" % repr(sexpStr)
 
     @memoizable
     """
@@ -239,7 +239,7 @@ def string_to_id(sexpStr):
 
 def id_to_abbrev(str):
     """
-    @precondition `str' must be an id.: is_sloppy_id(str): "str: %s" % repr(str)
+    @precondition: `str' must be an id.: is_sloppy_id(str): "str: %s" % repr(str)
     """
     if (len(str) == 27) and (_asciihash_re.match(str)):
         return "<" + str[:4] + ">"
@@ -276,7 +276,7 @@ to_binary = canonicalize
 
 def to_mojosixbit(sid):
     """
-    @precondition `sid' must be an id.: is_sloppy_id(sid): "sid: %s" % repr(sid)
+    @precondition: `sid' must be an id.: is_sloppy_id(sid): "sid: %s" % repr(sid)
     """
     if _asciihash_re.match(sid):
         return sid
@@ -290,11 +290,11 @@ to_ascii = to_mojosixbit
 
 def newRandomUniq():
     """
-    @return a universally unique random number
+    @return: a universally unique random number
 
-    @postcondition Result is of correct form.: is_canonical_uniq(result)
+    @postcondition: Result is of correct form.: is_canonical_uniq(result)
 
-    @deprecated in favor of `new_random_uniq()'
+    @deprecated: in favor of `new_random_uniq()'
     """
     return randsource.get(20)
 

@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
 # CVS:
-__cvsid = '$Id: IRemoteOpHandler.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
+__cvsid = '$Id: IRemoteOpHandler.py,v 1.2 2002/09/09 21:15:13 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -41,7 +41,7 @@ class IRemoteOpHandler:
         has already called `result()', and given you the result that you were looking for), then
         the `failure_reason' argument will be None.
 
-        @param failure_reason None or a string describing why it failed
+        @param failure_reason: None or a string describing why it failed
         """
         raise NotImplementedError
         pass

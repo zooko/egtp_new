@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.5 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.6 2002/09/09 21:15:14 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -44,6 +44,8 @@ from pyutil import dictutil
 from pyutil import fileutil
 from pyutil import humanreadable
 from pyutil import timeutil
+print sys.path
+print compat.__file__
 from pyutil.xor import xor
 
 true = 1
@@ -147,9 +149,9 @@ COLORCODE_NONE   = '%s'
 ### Functions:
 def hilight(string, colorcode=COLORCODE_NONE):
     """
-    @precondition string must be of the right type.: type(string) == types.StringType
+    @precondition: string must be of the right type.: type(string) == types.StringType
 
-    @returns the string surrounded by Linux compatible color codes for blue.
+    @return: the string surrounded by Linux compatible color codes for blue.
     """
     assert type(string) == types.StringType, "string must be of the right type."
 
@@ -262,14 +264,14 @@ class DebugStream:
         """
         Writes output to stderr.  Pretty-prints non-strings.  Filters specific stuff out.
 
-        @param v the verbosity level of this message;  If it is less than or equal to
+        @param v: the verbosity level of this message;  If it is less than or equal to
             MAX_VERBOSITY, then the string will be written.
-        @param vs the purpose of this message;  This string is included in the output.  In the
+        @param vs: the purpose of this message;  This string is included in the output.  In the
             future we may use this string to determine whether to print the message out to the
             user, log it to a log file, drop it on the floor, etc.  Suggested values: "error",
             "debug", "user", or specific things that you might want to get diagnostics on e.g.
             "commstrats", "comm hints", "accounting".
-        @param args if a tuple is specified output will be run through the % operator with args:
+        @param args: if a tuple is specified output will be run through the % operator with args:
             "output = output % humanreadable.hr(args)"  The advantage of this is that the possibly expensive %
             and`humanreadable.hr()' functions won't be executed unless the message is being printed.
         """
@@ -441,7 +443,7 @@ from egtp.MojoErrors import MojoMessageError
 
 def stringToDict(string) :
     """
-    @deprecated in favor of `mencode.mdecode()'
+    @deprecated: in favor of `mencode.mdecode()'
     """
     try:
         return mencode.mdecode(string)
@@ -450,13 +452,13 @@ def stringToDict(string) :
 
 def dictToString(dict) :
     """
-    @deprecated in favor of `mencode.mencode()'
+    @deprecated: in favor of `mencode.mencode()'
     """
     return mencode.mencode(dict)
 
 def listToDict(list):
     """
-    @deprecated in favor of .. well, you don't have to call anything at all since somebody else already used `mencode.mencode()'
+    @deprecated: in favor of .. well, you don't have to call anything at all since somebody else already used `mencode.mencode()'
     """
     if not list:
         return {}  # empty list -> empty dict
@@ -482,7 +484,7 @@ def dictToList(dict):
     All keys must be of the same width, and that width must be the smallest width sufficient to
     encode the largest key.  Keys must be integers, starting at 0 and incrementing.
 
-    @deprecated in favor of .. well, you don't have to call anything at all since somebody else already used `mencode.mdecode()'
+    @deprecated: in favor of .. well, you don't have to call anything at all since somebody else already used `mencode.mdecode()'
     """
     if type(dict) != types.DictType :
         raise SEXPError, 'expected dict, got %s :: %s' % (`dict`, `type(dict)`)
@@ -639,13 +641,13 @@ def oaep(m, emLen, p=""):
     padded thingie of size SIZE_OF_MODULAR_VALUES - 1.  The thing to do is prepend a 0 byte
     before passing to modval.
 
-    @param m the message to be encoded
-    @param emLen the intended length of the padded form (should be EGTPConstants.SIZE_OF_MODULAR_VALUES)
-    @param p encoding parameters; we use empty string
+    @param m: the message to be encoded
+    @param emLen: the intended length of the padded form (should be EGTPConstants.SIZE_OF_MODULAR_VALUES)
+    @param p: encoding parameters; we use empty string
 
-    @precondition The length of `p' must be less than or equal to the input limitation for SHA-1.: len(p) <= ((2^61)-1): "p: %s" % humanreadable.hr(p)
-    @precondition `emLen' must be big enough.: emLen >= (2 * EGTPConstants.SIZE_OF_UNIQS) + 1: "emLen: %s, EGTPConstants.SIZE_OF_UNIQS: %s" % (humanreadable.hr(emLen), humanreadable.hr(EGTPConstants.SIZE_OF_UNIQS))
-    @precondition The length of `m' must be small enough to fit.: len(m) <= (emLen - (2 * EGTPConstants.SIZE_OF_UNIQS) - 1): "emLen: %s, EGTPConstants.SIZE_OF_UNIQS: %s" % (humanreadable.hr(emLen), humanreadable.hr(EGTPConstants.SIZE_OF_UNIQS))
+    @precondition: The length of `p' must be less than or equal to the input limitation for SHA-1.: len(p) <= ((2^61)-1): "p: %s" % humanreadable.hr(p)
+    @precondition: `emLen' must be big enough.: emLen >= (2 * EGTPConstants.SIZE_OF_UNIQS) + 1: "emLen: %s, EGTPConstants.SIZE_OF_UNIQS: %s" % (humanreadable.hr(emLen), humanreadable.hr(EGTPConstants.SIZE_OF_UNIQS))
+    @precondition: The length of `m' must be small enough to fit.: len(m) <= (emLen - (2 * EGTPConstants.SIZE_OF_UNIQS) - 1): "emLen: %s, EGTPConstants.SIZE_OF_UNIQS: %s" % (humanreadable.hr(emLen), humanreadable.hr(EGTPConstants.SIZE_OF_UNIQS))
     """
     assert len(p) <= ((2^61)-1), "The length of `p' must be less than or equal to the input limitation for SHA-1." + " -- " + "p: %s" % humanreadable.hr(p)
     assert emLen >= (2 * EGTPConstants.SIZE_OF_UNIQS) + 1, "`emLen' must be big enough." + " -- " + "emLen: %s, EGTPConstants.SIZE_OF_UNIQS: %s" % (humanreadable.hr(emLen), humanreadable.hr(EGTPConstants.SIZE_OF_UNIQS))
@@ -679,10 +681,10 @@ def oaep_decode(em, p=""):
     0 byte before passing to oaep_decode().  (Feel free to check whether it is zero and raise a
     bad-encoding error if it isn't.)
 
-    @param em the encoded message
-    @param p encoding parameters; we use empty string
+    @param em: the encoded message
+    @param p: encoding parameters; we use empty string
 
-    @precondition The length of `p' must be less than or equal to the input limitation for SHA-1.: len(p) <= ((2^61)-1)
+    @precondition: The length of `p' must be less than or equal to the input limitation for SHA-1.: len(p) <= ((2^61)-1)
     """
     assert len(p) <= ((2^61)-1), "The length of `p' must be less than or equal to the input limitation for SHA-1."
 
@@ -729,7 +731,7 @@ def oaep_decode(em, p=""):
 
 def get_rand_lt_n(seed, n):
     """
-    @param n a modval
+    @param n: a modval
 
     This function can take an average of 2^(K+1) time, where K is the number of leading 0 bits
     in the most significant places in `n'.  In all of our current code, K == 0 (modvals are
@@ -747,7 +749,7 @@ def get_rand_lt_n(seed, n):
 
 def get_rand_lt_n_with_prepended_0(seed, n):
     """
-    @param n a modval
+    @param n: a modval
     """
     r = HashRandom.SHARandom(seed)
     return '\000' + r.get(len(n.get_modulus()) - 1)
@@ -756,15 +758,15 @@ def get_rand_lt_n_with_prepended_0(seed, n):
 
 def _canon(numstr, size):
     """
-    @param numstr the string representation of an integer which will be canonicalized
-    @param size the size in 8-bit bytes (octets) that numbers of this kind should have;  This
+    @param numstr: the string representation of an integer which will be canonicalized
+    @param size: the size in 8-bit bytes (octets) that numbers of this kind should have;  This
         number should almost always be EGTPConstants.SIZE_OF_UNIQS or
         EGTPConstants.SIZE_OF_MODULAR_VALUES
 
-    @return the canonical version of `numstr' for numbers of its type
+    @return: the canonical version of `numstr' for numbers of its type
 
-    @precondition `numstr' must be a string.: type(numstr) == types.StringType: "numstr: %s :: %s" % (humanreadable.hr(numstr), `type(numstr)`)
-    @precondition `numstr', not counting leading zeroes, is not too large.: len(strip_leading_zeroes(numstr)) <= size: "numstr: %s" % humanreadable.hr(numstr)
+    @precondition: `numstr' must be a string.: type(numstr) == types.StringType: "numstr: %s :: %s" % (humanreadable.hr(numstr), `type(numstr)`)
+    @precondition: `numstr', not counting leading zeroes, is not too large.: len(strip_leading_zeroes(numstr)) <= size: "numstr: %s" % humanreadable.hr(numstr)
     """
     assert type(numstr) == types.StringType, "precondition: `numstr' must be a string." + " -- " + "numstr: %s :: %s" % (humanreadable.hr(numstr), `type(numstr)`)
     assert len(strip_leading_zeroes(numstr)) <= size, "precondition: `numstr', not counting leading zeroes, is not too large." + " -- " + "numstr: %s" % humanreadable.hr(numstr)
@@ -776,11 +778,11 @@ def _canon(numstr, size):
 
 def strip_leading_zeroes(numstr):
     """
-    @param numstr the string to be stripped
+    @param numstr: the string to be stripped
 
-    @return `numstr' minus any leading zero bytes
+    @return: `numstr' minus any leading zero bytes
 
-    @precondition `numstr' must be a string.: type(numstr) == types.StringType: "numstr: %s :: %s" % (humanreadable.hr(numstr), `type(numstr)`)
+    @precondition: `numstr' must be a string.: type(numstr) == types.StringType: "numstr: %s :: %s" % (humanreadable.hr(numstr), `type(numstr)`)
     """
     assert type(numstr) == types.StringType, "precondition: `numstr' must be a string." + " -- " + "numstr: %s :: %s" % (humanreadable.hr(numstr), `type(numstr)`)
 
