@@ -55,3 +55,52 @@ D. EGTPv1
 
  * Zooko and Art. Introduction to the EGTP version 1 Architecture
 http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/egtp/egtp_new/doc/Architecture.txt?rev=HEAD&content-type=text/vnd.viewcvs-markup
+
+II. Desiderata
+
+A.  Automatic Fail Stop
+
+This is the semi-novel bit, and the most important distinction from other secure comms layers.
+
+B.  Unify Designation and Public Key
+
+The API requires that you pass the public key Id in order to specify which recipient you mean.  No doing as so many do -- allowing public key and "recipient Id" to get separated, and then trying to tie them back together later...
+
+C.  Forward Secrecy
+
+D.  Key-Privacy
+
+E.  Protocol-Privacy
+
+The protocol is indistinguishable from a random bitstream to someone who doesn't know the decryption key.  (This requires public key privacy.)  Also, "Silent Bob Mode" a la Freenet -- you can't find out if a given computer speaks this protocol unless you provide some secret or semi-secret challenge (e.g. use the right public key for that computer...).
+
+F.  Deniability
+
+E.g. Ian Goldberg and Nikita Borisov's "Off The Record Messaging"
+
+G.  Efficiency
+
+Most importantly: minimal round-trips.  Secondly, minimal message size.  Thirdly, minimal computation.
+
+H.  Simplicity
+
+It's actually going to be rather subtle, but of course we always like simplicity when we can have it.  In particular, there will be no "protocol negotiation" where I say "I like AES, DES, and Anubis" and he says "Well *I* like 3DES-EDE, DES, and Serpent...".
+
+III.  Summary
+
+(These notes are transcribed from scribbles on paper and I'm in a hurry.  --Zooko 2002-12-14)
+
+[this version of protocol no ordering guarantee]
+
+ * FRESHNESSPROOF, NONCE (unspecified but recommended and beware restart re-use)
+ * CHALLENGE
+ * sender remembers MSG until ACK, unless willing to never learn resolution
+ * receiver remembers ACK until ACKACK, unless willing to break RELATIONSHIP ("DIALOG"? "SERVICEAGREEMENT"? "CHANNEL"?)
+ * RELATIONSHIPID
+ * rememberer resends until satisfied (with backoff)
+ * msg uniqueness guarantee: NONCE is in context of FRESHNESSPROOF, FRESHNESSPROOF is in context of MSGSHAREDSECRET, MSS binds in SENDERID and RECIPID which bind in PUBLICKEY and are universally unique
+! Oooh, waitasec -- maybe MSS can bind in all of the above..  :-)
+
+
+
+
