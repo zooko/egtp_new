@@ -16,7 +16,6 @@ from pyutil import LazySaver
 
 # (old-)EGTP modules
 from egtp import CommStrat, DataTypes
-from egtp.confutils import confman
 
 true = 1
 false = None
@@ -62,8 +61,8 @@ class ListenerManager(LazySaver.LazySaver):
 
         Start trying to get incoming messages which you will then pass to `inmsg_handler_func()'.
 
-        If confman.is_true_bool(('POLL_RELAYER',)) or if the TCP listener isn't listening and
-        routeable (and you haven't specified `allownonrouteableip'), then tell the relay listener to
+        If the TCP listener isn't listening and routeable (and you haven't
+        specified `allownonrouteableip'), then tell the relay listener to
         poll relay servers.
 
         @param inmsg_handler_func: the function to be called whenever a message for us comes in
@@ -79,7 +78,7 @@ class ListenerManager(LazySaver.LazySaver):
 
     def primary_comm_strat_is_relay(self):
         tcpcs = self._tcpl.get_comm_strategy()
-        return confman.is_true_bool(('POLL_RELAYER',)) or (tcpcs is None) or ((not tcpcs.is_routeable()) and not self.allownonrouteableip)
+        return (tcpcs is None) or ((not tcpcs.is_routeable()) and not self.allownonrouteableip)
 
     def get_comm_strategy_and_newflag(self):
         """

@@ -23,7 +23,6 @@ from pyutil import timeutil
 from egtp import CommHints, CommStrat, DataTypes, MojoMessage, OurMessages, idlib
 
 from egtp.CommHints import HINT_EXPECT_MORE_TRANSACTIONS
-from egtp.confutils import confman
 
 from egtp.crypto import randsource
 
@@ -109,11 +108,9 @@ class RelayListener(LazySaver.LazySaver):
       statistics instead of gathering separate ones) and reliability
       handicap
     """
-    def __init__(self, mtm, discoveryman=None, neverpoll=false):
+    def __init__(self, mtm, discoveryman=None, neverpoll=false, poll_timeout=30):
         """
-        @param: neverpoll `true' if you want to override the
-            confman['POLL_RELAYER'] and force it to false; This is for the
-            Payment MTM -- otherwise you should just use confman.
+        @param neverpoll: `true' if you don't want poll relay servers
         @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
         """
         assert isinstance(discoveryman, IDiscoveryManager), "precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager." + " -- " + "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
@@ -125,6 +122,7 @@ class RelayListener(LazySaver.LazySaver):
         self._regularshoppingison = false
         self._outstandingshoppingtrips = 0 # the number of shopping trips either scheduled on the DoQ, or else outstanding but not yet late
         self._discoveryman = discoveryman
+        self._poll_timeout = poll_timeout
 
         # A list of relayers that we like, in descending order of preference.
         # self._preferredrelayers = [] # persistent -- it gets initialized only once in the persistent life of the broker -- not every time the broker process is started.  So don't comment this back in, it is just here for documetary purposes.
@@ -427,22 +425,5 @@ class RelayListener(LazySaver.LazySaver):
         # `'enable fast relay: 1' is unnecessary nowadays, but let's leave it in for one last "backwards compatible withour grandfathers" cycle...  --Zooko 2001-09-04
         # we don't use a dynamic timeout because polling when things are idle causes the timeout to
         # become super low which instantly fails us over to a new relay server when we become busy.
-        self._mtm.initiate(relayerid, "are there messages v2", {'response version': 3, 'enable fast relay': 1}, outcome_func=self._handle_are_there_messages_response, post_timeout_outcome_func=self._handle_are_there_messages_response, use_dynamic_timeout="never", timeout=max(5, int(confman['RELAY_SERVER_POLL_TIMEOUT'])), hint=HINT_EXPECT_MORE_TRANSACTIONS)
+        self._mtm.initiate(relayerid, "are there messages v2", {'response version': 3, 'enable fast relay': 1}, outcome_func=self._handle_are_there_messages_response, post_timeout_outcome_func=self._handle_are_there_messages_response, use_dynamic_timeout="never", timeout=max(5, self._poll_timeout), hint=HINT_EXPECT_MORE_TRANSACTIONS)
 
-
-
-
-
-# Generic stuff
-NAME_OF_THIS_MODULE="RelayListener"
-
-mojo_test_flag = true
-
-def run():
-    confman['MAX_VERBOSITY'] = "9"
-    import RunTests
-    RunTests.runTests(NAME_OF_THIS_MODULE)
-
-#### this runs if you import this module by itself
-if __name__ == '__main__':
-    run()

@@ -25,10 +25,9 @@ from pyutil.humanreadable import hr
 from pyutil import Asyncore, Cache, DoQ, LazySaver
 
 # (old-)EGTP modules
-from egtp import BandwidthThrottler, CommsError, CommStrat, TCPConnection, confutils, idlib, mojoutil, ipaddresslib
+from egtp import BandwidthThrottler, CommsError, CommStrat, TCPConnection, idlib, mojoutil, ipaddresslib
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 from egtp.mojoutil import bool
-from egtp.confutils import confman
 
 true = 1
 false = None
@@ -39,13 +38,49 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
     """
     This accepts incoming connections and spawns off a TCPConnection for each one.
     """
-    def __init__(self, mtm, listenport=None, pickyport=false, dontbind=false):
+    def __init__(self, mtm, listenport=None, pickyport=false, dontbind=false, max_in = 56, max_out = 56, announce_ip = None, announce_port = None, maintained_connections = 32, max_connections = 512, timeout = 600 ):
         """
         @param listenport: the preferred port to listen on
 
         @param pickyport: `true' if you want to fail in the case that
             `listenport' is unavailable, false if you want to get another
             arbitrary port
+
+        @param max_in: What should we throttle the incoming traffic to
+        
+        @param max_out: What should we throttle the outgoing traffic to
+        
+        @param announce_ip: What should we tell the network our IP address
+            is (useful for forwarding from a NAT firewall)
+        
+        @param announce_port: What should we tell the network our port is
+            (useful for forwarding from a NAT firewall)
+        
+        @param maintained_connections: The number of TCP connections to hold
+             open in case you deal with that counterparty again.  I'm not
+             sure what the best number here is.  Maybe 0.  But if you have
+             frequent traffic, perhaps with relay servers, you might benefit
+             from a higher number (like 5) to keep connections open to your
+             most frequent counterparties.  Or, heck.  Maybe 512 would be
+             good.
+
+        @param max_connections: The total maximum number of TCP connections
+            for this Broker.  If there are this many _active_ connections
+            then initiation of new transactions will fail.  This number can
+            probably be pretty high because connections are not considered
+            "active" unless they are actually sending or receiving a message
+            at that moment.  So probably even if this number is a high
+            number like 128, your connections will be cleaned up down to
+            your preferred number (maintained_connections) as soon as
+            each connection is done sending the message.  If you are on such
+            a slow connection that a message takes a long time to squeeze
+            through, then you should never have opened 128 connections in
+            the first place.
+        
+        @param timeout: inactivity timeout for our TCP connections in
+            seconds; We never time-out a connection if we want it because we
+            are either expecting a reply, or maintaining a connection with a
+            frequently-used counterparty.
 
         @precondition: `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) is types.IntType) and (listenport > 0)): "listenport: %s :: %s" % (hr(listenport), `type(listenport)`)
         @precondition: `pickyport' is false or listenport is an integer.: (not pickyport) or (type(listenport) is types.IntType)
@@ -64,14 +99,23 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
            
         self._requested_listenport = listenport
         self._pickyport = pickyport
+        self._announce_ip = announce_ip
+        self._announce_port = announce_port
 
-        self._conncache = TCPConnCache(cid_to_cs=self._cid_to_cs)
+        self._maintained_connections = maintained_connections
+        self._max_connections = max_connections
+        self._timeout = timeout
+        
+        self._conncache = TCPConnCache(cid_to_cs=self._cid_to_cs, 
+            maintained_connections=maintained_connections, 
+            max_connections=max_connections,
+            timeout=timeout)
 
         # this boolean determines if we actually bind to a port
         self._dontbind = dontbind
 
-        self._throttlerout = BandwidthThrottler.BandwidthThrottler(throttle=confman.is_true_bool(('TCP_THROTTLE_OUT',)), Kbps=mojoutil.longpopL(confman.get('TCP_MAX_KILOBITS_PER_SECOND_OUT', "56")))
-        self._throttlerin = BandwidthThrottler.BandwidthThrottler(throttle=confman.is_true_bool(('TCP_THROTTLE_IN',)), Kbps=mojoutil.longpopL(confman.get('TCP_MAX_KILOBITS_PER_SECOND_IN', "56")))
+        self._throttlerout = BandwidthThrottler.BandwidthThrottler(throttle = max_out, Kbps = max_out)
+        self._throttlerin = BandwidthThrottler.BandwidthThrottler(throttle = max_in, Kbps = max_in)
         self._throttlerin.register(self._throttle, self._unthrottle)
 
         # My "id" is just a random number.  Nobody really uses this except for testing.
@@ -179,7 +223,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
                         raise CommsError.CannotListenError, "couldn't bind to any port"
             self._listenport = newlistenport
 
-        self.listen(int(confman['TCP_MAX_CONNECTIONS']))
+        self.listen(self._max_connections)
 
         self._ip = ipaddresslib.get_primary_ip_address(nonroutableok=true)
         debugprint("successfully bound to port %s.\n", args=(try_listenport,), v=1, vs="TCPCommsHandler")
@@ -212,16 +256,12 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
     def get_comm_strategy(self):
         if self._islistening:
-            # Now IP_ADDRESS_OVERRIDE overrides the actual bound IP address, and TRANSACTION_MANAGER_ANNOUNCED_PORT overrides the actual bound port.
-            announceip = confman.get('IP_ADDRESS_OVERRIDE')
-            if not announceip:
-                announceip = self._ip
-            if confman.get('TRANSACTION_MANAGER_ANNOUNCED_PORT'):
-                announceport = int(confman['TRANSACTION_MANAGER_ANNOUNCED_PORT'])
-            else:
-                announceport = self._listenport
+            if not self._announce_ip:
+                self._announce_ip = self._ip
+            if not self._announce_port:
+                self._announce_port = self._listenport
 
-            return CommStrat.TCP(tcpch=self, broker_id=self._mtm.get_id(), host=announceip, port=announceport)
+            return CommStrat.TCP(tcpch=self, broker_id=self._mtm.get_id(), host=self._announce_ip, port=self._announce_port)
         else:
             return None
 
@@ -366,7 +406,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
             tcpc = cs.asyncsock
             tcpc._upward_inmsg_handler=self._inmsg_handler
         elif cs.host and cs.port:
-            tcpc = TCPConnection.TCPConnection(inmsg_handler_func=self._inmsg_handler, close_handler_func=self._close_handler, key=counterparty_id, host=cs.host, port=cs.port, commstratobj=cs, throttlerin=self._throttlerin, throttlerout=self._throttlerout, cid_for_debugging=counterparty_id)
+            tcpc = TCPConnection.TCPConnection(inmsg_handler_func=self._inmsg_handler, close_handler_func=self._close_handler, key=counterparty_id, host=cs.host, port=cs.port, commstratobj=cs, throttlerin=self._throttlerin, throttlerout=self._throttlerout, cid_for_debugging=counterparty_id, timeout = self._timeout)
             cs.asyncsock = tcpc
         else:
             return # can't use this comm strat -- this problem will be discovered momentarily when someone tries to send a message  --Zooko 2000-09-26
@@ -434,7 +474,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         while hasattr(sock, 'socket'):
             # unwrap it from asyncore because we're about to wrap it in asyncore
             sock = sock.socket
-        tcpc = TCPConnection.TCPConnection(inmsg_handler_func=self._inmsg_handler, close_handler_func=self._close_handler, key=key, sock=sock, throttlerin=self._throttlerin, throttlerout=self._throttlerout)
+        tcpc = TCPConnection.TCPConnection(inmsg_handler_func=self._inmsg_handler, close_handler_func=self._close_handler, key=key, sock=sock, throttlerin=self._throttlerin, throttlerout=self._throttlerout, timeout=self._timeout)
         pn = None
         try:
             pn = tcpc.getpeername()
@@ -498,22 +538,24 @@ class TCPConnCache(Cache.SimpleCache):
     if it has been hinted that they will be useful in the future (and which throws out the least
     frequently used when it needs to throw some out).
     """
-    def __init__(self, cid_to_cs={}):
+    def __init__(self, cid_to_cs={}, maintained_connections = 32, max_connections = 512, timeout = 600):
         """
-        The following "virtual parameters" are pulled out of confman whenever they are referenced:
-        @param TCP_MAINTAINED_CONNECTIONS: the number of connections which have "probably will be
-            used again someday" hints to keep open, or `-1' if all of them should be kept open
-        @param TCP_MAX_CONNECTIONS: the maximum number of conns to keep open (this is the
-            absolute max, a `-1' in `TCP_MAINTAINED_CONNECTIONS' notwithstanding)
-        @param TCP_TIMEOUT: the number of seconds to give a connection even if we have no hint to
-            keep it
         @param cid_to_cs: a dict mapping cids to CommStrats; We look in the CommStrats to get
             hints.  We never change this dict.
+        @param maintained_connections: the number of connections which have "probably will be
+            used again someday" hints to keep open, or `-1' if all of them should be kept open
+        @param max_connections: the maximum number of conns to keep open (this is the
+            absolute max, a `-1' in `TCP_MAINTAINED_CONNECTIONS' notwithstanding)
+        @param timeout: the number of seconds to give a connection even if we have no hint to
+            keep it
         """
         Cache.SimpleCache.__init__(self)
         self._timelastcleaned = 0
         self._nice_cleanup_result = true
         self._cid_to_cs = cid_to_cs
+        self._maintained_connections = maintained_connections
+        self._max_connections = max_connections
+        self._timeout = timeout
 
     def remove_socket_if_present(self, tcpc, default=None):
         """
@@ -592,8 +634,8 @@ class TCPConnCache(Cache.SimpleCache):
         if self.has_key(key):
             self.remove(key)
 
-        if len(self._dict) > (int(confman.get('TCP_MAX_CONNECTIONS', 50)) - 1):
-            if not self._cleanup(int(confman.get('TCP_MAX_CONNECTIONS', 50)) - 1):
+        if len(self._dict) > (self._max_connections - 1):
+            if not self._cleanup(self._max_connections - 1):
                 raise CommsError.CannotSendError, "too many busy connections"
 
         return Cache.SimpleCache.insert(self, key, item)
@@ -622,18 +664,17 @@ class TCPConnCache(Cache.SimpleCache):
             return -1 * cmp(tcpa._inmsgs, tcpb._inmsgs)
 
         def cmpprobs(tupa, tupb, self=self):
-            tcp_timeout = int(confman.get('TCP_TIMEOUT', 60))
             (ka, tcpa) = tupa
             (kb, tcpb) = tupb
-            if tcpa.is_busy(tcp_timeout):
-                if tcpb.is_busy(tcp_timeout):
+            if tcpa.is_busy(self._timeout):
+                if tcpb.is_busy(self._timeout):
                     # Both are in the middle of something.
                     return -1 * cmp(tcpa._last_io_time, tcpb._last_io_time) # highest (most recent) io_time first
                 else:
                     # tcpa is in the middle of something so it goes first.
                     return -1
             else:
-                if tcpb.is_busy(tcp_timeout):
+                if tcpb.is_busy(self._timeout):
                     # tcpb is in the middle of something so it goes first.
                     return 1
 
@@ -641,7 +682,7 @@ class TCPConnCache(Cache.SimpleCache):
             return -1 * cmp(tcpa._last_io_time, tcpb._last_io_time) # highest (most recent) io_time first
 
         try:
-            # debugprint("TCPConnCache._cleanup(): starting... self: %s, MAINT: %s, MAX: %s, len(self): %s\n", args=(self, confman.get('TCP_MAINTAINED_CONNECTIONS', '5'), confman.get('TCP_MAX_CONNECTIONS', '50'), len(self)), v=6, vs="comm hints") ### for faster operation, comment this line out.  --Zooko 2000-12-11
+            # debugprint("TCPConnCache._cleanup(): starting... self: %s, MAINT: %s, MAX: %s, len(self): %s\n", args=(self, self._maintained_connections, self._max_connections, len(self)), v=6, vs="comm hints") ### for faster operation, comment this line out.  --Zooko 2000-12-11
 
             now = time.time()
 
@@ -658,7 +699,7 @@ class TCPConnCache(Cache.SimpleCache):
                 listomaybes.sort(cmpmaybs)
                 # If adding this put us over the limit...
                 # We can have only this many maybes:
-                cutoff = min(long(confman.get('TCP_MAINTAINED_CONNECTIONS', '5')), maxconns - len(listoprobablies))
+                cutoff = min(self._maintained_connections, maxconns - len(listoprobablies))
                 if (cutoff >= 0) and (len(listomaybes) > cutoff):
                     assert (cutoff + 1) == len(listomaybes), "internal error -- the listomaybes should be checked at each insert and never allowed to grow over limit."
                     (k, tcpc) = listomaybes.pop(cutoff)
@@ -689,7 +730,7 @@ class TCPConnCache(Cache.SimpleCache):
                     (k, tcpc) = listoprobablies.pop(cutoff)
                     assert cutoff == len(listoprobablies)
                     # If we are about to kill a busy connection then don't do it and instead return `false'.
-                    if tcpc.is_busy(long(confman.get('TCP_TIMEOUT', '60'))):
+                    if tcpc.is_busy(self._timeout):
                         return false # failure
                     pn = None
                     try:
@@ -701,7 +742,7 @@ class TCPConnCache(Cache.SimpleCache):
                     self.remove(k)
 
                 # We can only have this many maybes:
-                cutoff = min(long(confman.get('TCP_MAINTAINED_CONNECTIONS', '5')), maxconns - len(listoprobablies))
+                cutoff = min(self._maintained_connections, maxconns - len(listoprobablies))
                 if (cutoff >= 0) and (len(listomaybes) > cutoff):
                     assert (cutoff + 1) == len(listomaybes), "internal error -- the listomaybes should be checked at each insert and never allowed to grow over limit."
                     (k, tcpc) = listomaybes.pop(cutoff)
@@ -738,7 +779,7 @@ class TCPConnCache(Cache.SimpleCache):
                     continue
 
                 # Leave it alone if it is busy.
-                if tcpc.is_busy(long(confman.get('TCP_TIMEOUT', '60'))):
+                if tcpc.is_busy(self._timeout):
                     # debugprint("TCPConnCache._cleanup(): keeping connection %s._cid_for_debugging: %s, .getpeername(): %s probably: it is busy.\n", args=(tcpc, tcpc._cid_for_debugging, pn), v=7, vs="comm hints") ### for faster operation, comment this line out.  --Zooko 2000-12-11
 
                     addtoprobablies(k, tcpc)
@@ -761,7 +802,7 @@ class TCPConnCache(Cache.SimpleCache):
                     continue
 
                 # If we have no better clue to go on, then just time it out if it is old.
-                if tcpc.is_idle(long(confman.get('TCP_TIMEOUT', '60'))):
+                if tcpc.is_idle(self._timeout):
                     debugprint("TCPConnCache._cleanup(): removing connection %s._cid_for_debugging: %s, .getpeername(): %s, due to idleness.\n", args=(tcpc, tcpc._cid_for_debugging, pn), v=5, vs="comm hints")
                     self.remove(k)
                 else:
@@ -783,19 +824,6 @@ class TCPConnCache(Cache.SimpleCache):
         if (time.time() - self._timelastcleaned) < 5:
             return self._nice_cleanup_result
 
-        self._nice_cleanup_result = self._cleanup(long(confman.get('TCP_MAX_CONNECTIONS', '50')))
+        self._nice_cleanup_result = self._cleanup(self._max_connections)
         return self._nice_cleanup_result
 
-# Generic stuff
-NAME_OF_THIS_MODULE="TCPCommsHandler"
-
-mojo_test_flag = 1
-
-def run():
-    confman['MAX_VERBOSITY'] = "9"
-    import RunTests
-    RunTests.runTests(NAME_OF_THIS_MODULE)
-
-# #### this runs if you import this module by itself
-# if __name__ == '__main__':
-#     run()

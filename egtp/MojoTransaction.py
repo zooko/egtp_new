@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.5 2002/09/09 21:47:48 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.6 2002/09/21 22:08:07 myers_carpenter Exp $'
 
 true = 1
 false = 0
@@ -26,11 +26,12 @@ from traceback import print_stack, print_exc
 import types
 import pickle
 import whrandom
+import ConfigParser
 
 # pyutil modules
 from pyutil.compat import setdefault
 from pyutil.config import DEBUG_MODE
-from pyutil.debugprint import debugprint
+from pyutil.debugprint import debugprint, debugstream
 from pyutil import Cache
 from pyutil import DoQ
 from pyutil.humanreadable import hr
@@ -40,7 +41,6 @@ from pyutil import timeutil
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 from egtp.MojoHandicapper import MojoHandicapper
 from egtp.UnreliableHandicapper import UnreliableHandicapper
-from egtp.confutils import confman
 from egtp.mojoutil import strpopL, intorlongpopL
 from egtp.crypto import randsource
 from egtp.interfaces import *
@@ -48,13 +48,6 @@ from egtp import MojoKey, MojoMessage, RelayListener, TCPCommsHandler
 from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
 from egtp import confutils, counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
 
-# make users throttle a lot less than the metatracker
-if confman.is_true_bool(('YES_NO', 'RUN_META_TRACKER',)):
-    MAX_TIME_BETWEEN_IDLE = 90  # 90 seconds
-else:
-    MAX_TIME_BETWEEN_IDLE = 180  # three minutes
-
-  
 class LookupHand(ILookupHandler):
     def __init__(self, counterparty_id, msg, ch, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=300):
         self._counterparty_id = counterparty_id
@@ -171,13 +164,14 @@ class MojoTransactionManager:
     For an example of server behavior, see "server/merchant/BlockServerEGTP.py".  For an example
     of client behavior, see "common/Paytool.py".
     """
-    def __init__(self, lookupman, discoveryman, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
+    def __init__(self, lookupman, discoveryman, datadir, use_dynamic_timing = true, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
         """
         @param lookupman: an object which implements the ILookupManager interface;  MojoTransaction uses the lookupman to get fresh EGTP addresses for counterparty_id's (i.e. to find out the current IP address or current relay server of a given public key ID).
         @param discoveryman: an object which implements the IDiscoveryManager interface;  MojoTransaction passes this to RelayListener, which uses the discoveryman to find relay servers.
-
+        @param datadir: directory to story data files created and used by this object
+        
         @param dontbind: `true' if and only if you don't want to bind and listen to a port
-        @param neverpoll: `true' if you want to override the confman['POLL_RELAYER'] and force it to false;  This is for the Payment MTM -- otherwise you should just use confman.
+        @param neverpoll: `true' if you don't want to poll relayers
         @param allownonrouteableip: `true' if you want the MTM to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
 
         @precondition: `announced_service_dicts' must be a list.: type(announced_service_dicts) == types.ListType: "announced_service_dicts: %s" % hr(announced_service_dicts)
@@ -198,7 +192,16 @@ class MojoTransactionManager:
 
         self._lookupman = lookupman
         self._discoveryman = discoveryman
-
+        self._datadir = datadir
+        self._client_version = None
+        self._use_dynamic_timing = use_dynamic_timing
+        
+        
+        # tuneing attributes
+        self.collect_dynamic_timings = true
+        self.max_timeout = 3600
+        self.averaging_timescale = 100.0
+        
         if handler_funcs:
             for i in handler_funcs.keys():
                 assert type(i) is types.StringType
@@ -226,17 +229,16 @@ class MojoTransactionManager:
         else:
             self._handler_funcs={}
 
-        dbparentdir=os.path.expandvars(confman.dict["PATH"]["MOJO_TRANSACTION_MANAGER_DB_DIR"])
         if (serialized is None) and (keyID is None):
             # if not testing, generate new, secret, secure one
-            self._mesgen=mesgen.create_MessageMaker(dbparentdir=dbparentdir, recoverdb=recoverdb)
+            self._mesgen=mesgen.create_MessageMaker(dbparentdir=self._datadir, recoverdb=recoverdb)
         else:
             if keyID and dbparentdir:
-                self._mesgen=mesgen.MessageMaker(dir=os.path.join(dbparentdir, keyID), serialized=serialized, recoverdb=recoverdb)
+                self._mesgen=mesgen.MessageMaker(dir=os.path.join(self._datadir, keyID), serialized=serialized, recoverdb=recoverdb)
             else:
-                self._mesgen=mesgen.MessageMaker(dbparentdir=dbparentdir, serialized=serialized, recoverdb=recoverdb)
+                self._mesgen=mesgen.MessageMaker(dbparentdir=self._datadir, serialized=serialized, recoverdb=recoverdb)
 
-        self._dbdir=os.path.join(dbparentdir, idlib.to_mojosixbit(self._mesgen.get_id()))
+        self._dbdir=os.path.join(self._datadir, idlib.to_mojosixbit(self._mesgen.get_id()))
 
         self.response_times = {}
         self._responsetimesold = {}
@@ -462,8 +464,8 @@ class MojoTransactionManager:
 
         if len(self.__announced_service_dicts) > 0:
             hello_body['services']=self.__announced_service_dicts
-        hello_body['broker version'] = confman.dict.get("BROKER_VERSION_STR", "I'm not telling!")
-        hello_body['platform'] = confutils.platform # XXX Jim says: "This is to be removed after the beta period."  --Zooko 2000-08-22
+        hello_body['broker version'] = self._client_version
+        hello_body['platform'] = sys.platform
 
         hello_body['sequence num'] = self.get_hello_sequence_num()
         hello_body['dynamic pricing'] = "true" # This was for smooth changeover and can now be grandfathered out.  --Zooko 2001-09-06
@@ -475,18 +477,18 @@ class MojoTransactionManager:
         Get our current hello sequence number, incrementing it and
         saving it to the config file if it needs updating.
         """
-        seqconfkey = "MTM_HELLO_SEQUENCE_NUMS"
+        config = ConfigParser()
+        config.read(os.path.join(self._data_dir, 'sequences.conf'))
         asciiid = idlib.to_ascii(self.get_id())
         needtosave = false
-        if not confman.dict.has_key(seqconfkey):
-            confman.dict[seqconfkey] = {}
-            needtosave = true
-        if not confman.dict[seqconfkey].has_key(asciiid):
-            confman.dict[seqconfkey][asciiid] = strpopL(1)
+        if not config.has_section('sequences'):
+            config.add_section('sequences')
+        if not config.has_option('sequences', asciiid):
+            config.set('sequences', asciiid, 1)
             needtosave = true
         if self.__need_sequence_update:
             self.__need_sequence_update = false
-            confman.dict[seqconfkey][asciiid] = strpopL(intorlongpopL(confman.dict[seqconfkey][asciiid]) + 1)
+            config.set('sequences', asciiid, config.getint('sequences', asciiid) + 1)
             needtosave = true
             # wipe the cache of who we've sent metainfo to since it is now false as our metainfo has been updated
             self.__counterparties_metainfo_sent_to_map.expire(maxage=0)
@@ -495,9 +497,9 @@ class MojoTransactionManager:
             # save the current sequence number in the config file so that we never lower it
             # (XXX storing it somewhere other than the cfg file such as the mtmdb/<id>/ directory
             # would be a good idea before we implement persistent metainfo... -greg)
-            confman.save()
+            config.write(open(os.path.join(self._data_dir, 'sequences.conf'), 'w'))
 
-        return intorlongpopL(confman.dict[seqconfkey][asciiid])
+        return config.getint('sequences', asciiid)
 
     def get_contact_info(self):
         """
@@ -620,11 +622,11 @@ class MojoTransactionManager:
 
         serverfunc = self._handler_funcs.get(msgtype)
         if not serverfunc:
-            if confman.get('MAX_VERBOSITY', 0) >= 3:
+            if debugstream.max_verbosity >= 3:
                 debugprint("DEBUG: received a message of unhandled type `%s': `%s'.\n", args=(msgtype, msgbody), v=3, vs="debug")
             else:
                 debugprint("DEBUG: received a message of unhandled type `%s'.\n", args=(msgtype,), v=1, vs="debug")
-
+            
             # force the next message sent to counterparty_id to include our current metainfo
             if self.__counterparties_metainfo_sent_to_map.has_key(counterparty_id):
                 try:
@@ -729,7 +731,7 @@ class MojoTransactionManager:
 
         counterparty_id = idlib.canonicalize(counterparty_id, "broker")
             
-        if confman.is_true_bool(['COUNTERPARTY', 'USE_DYNAMIC_TIMING'], default="yes"):
+        if self._use_dynamic_timing:
             if (use_dynamic_timeout == "always" or (use_dynamic_timeout == "iff there is a post_timeout_outcome_func" and post_timeout_outcome_func is not None)):
                 counterparty = self._keeper.get_counterparty_object(counterparty_id)
                 stat = 'roundtrip_time['+conversationtype+']'
@@ -742,7 +744,7 @@ class MojoTransactionManager:
                     timeout = mu + 2*sigma
                     debugprint("using dynamic timeout %s with for %s to %s\n", args=("%0.2f" % timeout, stat, counterparty_id), v=3, vs='counterparty')
 
-        timeout = min(mojoutil.intorlongpopL(confman.get('MAX_TIMEOUT', 3600)), timeout)
+        timeout = min(self.max_timeout, timeout)
 
         def collect_timings(counterparty_id=counterparty_id, start_time=time.time(), conversationtype=conversationtype, self=self):
             """
@@ -759,7 +761,7 @@ class MojoTransactionManager:
             This may be too high; it should be a configuration option.
             """
             elapsed_time = time.time() - start_time
-            time_constant = float(confman["COUNTERPARTY"]["AVERAGING_TIMESCALE_v2"])
+            time_constant = self.averaging_timescale
             default_sigma = elapsed_time
 
             stat = 'roundtrip_time['+conversationtype+']'
@@ -807,7 +809,7 @@ class MojoTransactionManager:
             else:
                 return None
 
-        if confman.is_true_bool(['COUNTERPARTY', 'COLLECT_DYNAMIC_TIMING']) and outcome_func:
+        if self.collect_dynamic_timings and outcome_func:
             outcome_func = wrapped_outcome_func_collect_timings
             post_timeout_outcome_func = wrapped_post_timeout_outcome_func_collect_timings
         ### END DYNAMIC TIMERS code
@@ -968,7 +970,7 @@ class MojoTransactionManager:
         def outer_fast_fail_handler(msgId=msgId, failure_reason="cannot send message", bad_commstrat=None, counterparty_id=counterparty_id, self=self):
             self._ffh(msgId, failure_reason=failure_reason, bad_commstrat=bad_commstrat, counterparty_id=counterparty_id)
 
-        maxverb = int(confman.dict.get("MAX_VERBOSITY", 0))
+        maxverb = debugstream.max_verbosity
         if maxverb >= 5:
             _debugprint(diagstr="sending: %s, %s bytes uncomp", args=(msg, len(msg)), v=5) # super verbose
         elif maxverb >= 4:

@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: Conversation.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: Conversation.py,v 1.4 2002/09/21 22:08:07 myers_carpenter Exp $'
 
 # standard Python modules
 import threading
@@ -21,7 +21,7 @@ import types
 from traceback import print_exc
 
 # pyutil modules
-from pyutil.debugprint import debugprint
+from pyutil.debugprint import debugprint, debugstream
 from pyutil import Cache
 from pyutil import DoQ
 from pyutil import humanreadable
@@ -30,7 +30,6 @@ from pyutil import humanreadable
 from egtp import CommStrat
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 from egtp import MojoKey, MojoMessage
-from egtp.confutils import confman
 from egtp import idlib, mencode, mojosixbit, mojoutil, std
 from egtp.MojoHandicapper import DISQUALIFIED
 from egtp.crypto import modval
@@ -363,7 +362,7 @@ class ConversationManager:
                 printstr="<=== %s: %s\n"
                 theseargs=[counterparty_id, inmsg]
 
-                maxverb = int(confman.dict.get("MAX_VERBOSITY", 0))
+                maxverb = debugstream.max_verbosity
                 if maxverb >= 5:
                     debugprint("<=== %s: receiving: %s, %s bytes uncomp\n", args=(counterparty_id, inmsg, len(inmsg)), v=5, vs="conversation")
                 elif maxverb >= 4:

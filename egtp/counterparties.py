@@ -13,7 +13,7 @@
 # us, their reputation for coming through with their deals in our eyes,
 # etc.
 #
-__cvsid = '$Id: counterparties.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $'
+__cvsid = '$Id: counterparties.py,v 1.5 2002/09/21 22:08:07 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -37,8 +37,7 @@ from bsddb3 import db, dbobj
 
 # egtp modules
 from egtp.CleanLogDb import CleanLogDbEnv
-from egtp.confutils import confman
-from egtp import confutils, idlib, mojoutil, mojosixbit
+from egtp import idlib, mojoutil, mojosixbit
 
 true = 1
 false = None
@@ -248,6 +247,11 @@ class CounterpartyObject :
         self._counterparty_id = counterparty_id
         self.keeper = keeper
         self.trans = None
+        
+        if reliability_percent < float(confman.dict["COUNTERPARTY"]["MIN_RESPONSE_RELIABILITY_FRACTION"]) and size_of_disagreement >= int(confman.dict["COUNTERPARTY"]["MIN_NUM_MO_DIFFERENCE_FOR_RELIABILITY_CHECK"]) :
+            return 1  # they're currently unreliable
+        if size_of_disagreement >= int(confman.dict["COUNTERPARTY"]["MAX_NUM_MO_DIFFERENCE_BEFORE_UNRELIABLE"]) :
+        self.min_response_reliablitMIN_RESPONSE_RELIABILITY_FRACTION
 
         self._tempawfdelta = 0 # This is used to give a cp a temporary increase which is never written to the persistent db.  (For fast deposits.)
 
@@ -283,7 +287,7 @@ class CounterpartyObject :
 
         # Set _every_ counterparty's AWF to the current DEFAULT_AMOUNT_WILL_FRONT_v3.
         # This changes an old tradition of keeping the AWF separate for each counterparty.
-        configged = confman.dict["COUNTERPARTY"].get("DEFAULT_AMOUNT_WILL_FRONT_v3")
+        configged = 0
         if configged[-1:] == "L":
             configged = configged[:-1]
         try:
@@ -356,7 +360,7 @@ class CounterpartyObject :
                 self._debugprint("extending %s credit to her; new_balance = %s", args=(amount, new_balance,), reasonstr=reasonstr)
                 return true, amtwfront, new_balance
 
-            if (confman.is_true_bool(['KEEP_FUNCTIONING_WHILE_TS_IS_DOWN'])) or (new_balance <= amtwfront):
+            if true: # (confman.is_true_bool(['KEEP_FUNCTIONING_WHILE_TS_IS_DOWN'])) or (new_balance <= amtwfront):
                 self.keeper.update_mos_others_owe_us_total(amount)  # they owe us more
                 self._debugprint("extending %s credit to her. new_balance = %s", args=(amount, new_balance,), reasonstr=reasonstr)
                 self.vals['total performed'] = self.vals['total performed'] + amount
@@ -497,7 +501,7 @@ class CounterpartyObject :
         @param historyweight: 0.0 = ignore history, 1.0 = ignore new sample
         """
         if historyweight is None:
-            historyweight = float(confman.dict['COUNTERPARTY'].get('DEFAULT_HISTORY_WEIGHT', 0.75))
+            historyweight = 0.75
         assert (historyweight >= 0) and (historyweight <= 1), "a 0.0 <= historyweight <= 1.0 is required"
         self.synch()
         try:
@@ -515,7 +519,7 @@ class CounterpartyObject :
         @param historyweight: 0.0 = ignore history, 1.0 = ignore new sample
         """
         if historyweight is None:
-            historyweight = float(confman.dict['COUNTERPARTY'].get('DEFAULT_HISTORY_WEIGHT', 0.75))
+            historyweight = 0.75
         assert (historyweight >= 0) and (historyweight <= 1), "a 0.0 <= historyweight <= 1.0 is required"
         self.synch()
         try:

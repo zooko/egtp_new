@@ -14,9 +14,6 @@ from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import humanreadable, Asyncore, DoQ
 
-# (old-)EGTP modules
-from egtp.confutils import confman
-
 # EGTP modules
 from egtp import CommsError, idlib
 
@@ -33,17 +30,22 @@ class TCPConnection(asyncore.dispatcher):
     """
     Sends and receives buffers on TCP connections.  Prepends lengths for each message.
     """
-    def __init__(self, inmsg_handler_func, key, close_handler_func=None, host=None, port=None, sock=None, commstratobj=None, throttlerin=None, throttlerout=None, cid_for_debugging=None):
+    def __init__(self, inmsg_handler_func, key, close_handler_func=None, host=None, port=None, sock=None, commstratobj=None, throttlerin=None, throttlerout=None, cid_for_debugging=None, timeout=600):
         """
         @param key: a key for identifying this connection;  (Hint: if you know the counterparty id use that, else use `idlib.make_new_random_id(thingtype='TCPConnection')')
         @param close_handler_func: a function that gets called when the TCPConnection closes
-
+        @param timeout:  inactivity timeout for our TCP connections in
+            seconds; We never time-out a connection if we want it because we
+            are either expecting a reply, or maintaining a connection with a
+            frequently-used counterparty.
         @precondition: `key' must be a binary id.: idlib.is_binary_id(key): "key: %s :: %s" % (humanreadable.hr(key), humanreadable.hr(type(key)),)
         """
         assert idlib.is_binary_id(key), "precondition: `key' must be a binary id." + " -- " + "key: %s :: %s" % (humanreadable.hr(key), humanreadable.hr(type(key)),)
 
         # `_cid_for_debugging' is for debugging.
         self._cid_for_debugging = cid_for_debugging
+
+        self._timeout = timeout
 
         # `_key' is what we use to index this object in the TCPConnCache.  If we know the
         # counterparty id, then `_key' gets set to the counterparty id by the higher-level code
@@ -61,7 +63,8 @@ class TCPConnection(asyncore.dispatcher):
         # XXX multi-threading issues re: throttler
         self._throttlerread = throttlerin
         self._throttlerwrite = throttlerout
-
+        self._timeout = timeout
+        
         self._readthrottled = false
         self._writethrottled = false
 
@@ -106,7 +109,7 @@ class TCPConnection(asyncore.dispatcher):
                 self.close(reason=("socket.error on `connect()'", le,))
                 raise CommsError.CannotSendError, ("socket.error on connect", le)
 
-            DoQ.doq.add_task(self._fail_if_not_connected, delay=int(confman['TCP_CONNECT_TIMEOUT']))
+            DoQ.doq.add_task(self._fail_if_not_connected, delay=self._timeout)
 
         debugprint("%s created\n", args=(self,), v=5, vs="debug")
 
