@@ -4,48 +4,35 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.16 2002/12/02 19:58:48 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.17 2002/12/02 21:20:46 myers_carpenter Exp $"
 
 true = 1
 false = 0
 
 # Python standard library modules
-import copy
-import exceptions
-import math
-import os
+import copy, exceptions, math, os, string, sys, threading, time, traceback
+import types, pickle, whrandom, ConfigParser
 from sha import sha
-import string
-import sys
-import threading
-import time
-import traceback
 from traceback import print_stack, print_exc
-import types
-import pickle
-import whrandom
-import ConfigParser
 
 # pyutil modules
 from pyutil.compat import setdefault
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
-from pyutil import Cache
-from pyutil import DoQ
-from pyutil import timeutil
+from pyutil.compat import strpopL, intorlongpopL
+from pyutil.humanreadable import hr
+from pyutil import Cache, DoQ, timeutil
 
-from humanreadable import hr
-
-# EGTP modules
+# egtp modules
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 from egtp.MojoHandicapper import MojoHandicapper
 from egtp.UnreliableHandicapper import UnreliableHandicapper
-from egtp.mojoutil import strpopL, intorlongpopL
 from egtp.crypto import randsource
 from egtp.interfaces import *
 from egtp import MojoMessage, RelayListener, TCPCommsHandler
 from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
-from egtp import counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
+from egtp import counterparties, idlib, ipaddresslib, loggedthreading, mencode
+from egtp import mesgen, mojosixbit, mojoutil, std
 
 class LookupHand(ILookupHandler):
     def __init__(self, counterparty_id, msg, ch, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=300):

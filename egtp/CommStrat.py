@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.7 2002/12/02 19:58:44 myers_carpenter Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.8 2002/12/02 21:20:44 myers_carpenter Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -22,7 +22,7 @@ from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, 
 from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
 from egtp import keyutil, MojoMessage, OurMessages
 from egtp.OurMessagesCommStrat import *
-from egtp import TCPConnection, ipaddresslib, mencode, mojoutil
+from egtp import TCPConnection, ipaddresslib, mencode
 from egtp.crypto import modval
 
 true = 1

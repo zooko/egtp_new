@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.9 2002/12/02 19:58:46 myers_carpenter Exp $"
+__revision__ = "$Id: Conversation.py,v 1.10 2002/12/02 21:20:45 myers_carpenter Exp $"
 
 # Python standard library modules
 import threading
@@ -27,7 +27,7 @@ from pyutil import DoQ
 from egtp import CommStrat
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 from egtp import MojoMessage
-from egtp import humanreadable, idlib, mencode, mojosixbit, mojoutil, std
+from egtp import humanreadable, idlib, mencode, mojosixbit, std
 from egtp.MojoHandicapper import DISQUALIFIED
 from egtp.crypto import modval
 from egtp.crypto import randsource

@@ -1,15 +1,14 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
 
-### standard modules
+__revision__ = "$Id: hashrandom.py,v 1.1 2002/12/02 21:20:46 myers_carpenter Exp $"
+
+# python standard modules
 import sha
 
-### our modules
+# egtp modules
 from egtp import mencode, mojosixbit, std
 
 def shafunc(inpstr):
@@ -111,38 +110,3 @@ class SHARandom(HashRandom):
 
 def hashexpand(inpstr, expbytes, HRClass=SHARandom):
     return HRClass(inpstr).get(expbytes)
-  
-
-def test_SHARandom():
-    LEN = 20
-    r = SHARandom("0123456789")
-    result = r.get(LEN)
-    assert len(result) == LEN
-    
-
-def test_SHARandom_234():
-    import randsource
-    # ITERS=100 # for serious testing
-    ITERS=4 # for fast, casual testing
-    for i in range(ITERS):
-        r = SHARandom(randsource.get(10))
-
-        leng = (((ord(randsource.get(1)) * i * 3) + ord(randsource.get(1))) / 32) + 8
-        result = r.get(leng)
-        assert len(result) == leng
-    
-    
-# Generic stuff
-NAME_OF_THIS_MODULE="HashRandom"
-
-mojo_test_flag = 1
-
-def run():
-    import RunTests
-    RunTests.runTests(NAME_OF_THIS_MODULE)
-
-#### this runs if you import this module by itself
-if __name__ == '__main__':
-    run()
-
-

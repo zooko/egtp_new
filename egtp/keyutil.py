@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: keyutil.py,v 1.2 2002/12/02 19:58:53 myers_carpenter Exp $"
+__revision__ = "$Id: keyutil.py,v 1.3 2002/12/02 21:20:46 myers_carpenter Exp $"
 
 
 # python standard modules
@@ -11,7 +11,7 @@ import re
 
 # egtp modules
 from egtp.DataTypes import ANY, MOD_VAL, NON_NEGATIVE_INTEGER, UNIQUE_ID, ASCII_ARMORED_DATA
-from egtp import OurMessages, MojoMessage, idlib, mencode, mojosixbit, mojoutil
+from egtp import OurMessages, MojoMessage, idlib, mencode, mojosixbit
 from egtp.crypto import modval, randsource
 
 true = 1

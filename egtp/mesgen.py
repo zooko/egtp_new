@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.9 2002/12/02 19:58:53 myers_carpenter Exp $"
+__revision__ = "$Id: mesgen.py,v 1.10 2002/12/02 21:20:46 myers_carpenter Exp $"
 
 
 # Python standard library modules
@@ -24,7 +24,7 @@ from pyutil import fileutil
 from egtp.humanreadable import hr
 from egtp.CleanLogDb import CleanLogDbEnv
 from egtp.crypto import modval, tripledescbc, cryptutil, randsource
-from egtp import hashrandom, keyutil, idlib, mencode, mojosixbit, mojoutil
+from egtp import hashrandom, keyutil, idlib, mencode, mojosixbit
 
 true = 1
 false = 0

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mojoutil.py,v 1.9 2002/12/02 20:04:33 myers_carpenter Exp $"
+__revision__ = "$Id: mojoutil.py,v 1.10 2002/12/02 21:20:46 myers_carpenter Exp $"
 
 # standard modules
 import binascii, copy, math, operator, os, profile, pstats, re
@@ -252,43 +252,6 @@ def _skim_with_partial_qsort(set, num):
     return
 
 skim = _skim_with_partial_bisort
-
-def strpopL(num):
-    s = str(num)
-    if s[-1] == 'L':
-        return s[:-1]
-    return s
-
-def intpopL(s):
-    if type(s) is types.IntType:
-        return long(s)
-    if s[-1] == 'L':
-        return int(s[:-1])
-    else:
-        return int(s)
-
-def longpopL(s):
-    if type(s) in (types.IntType, types.LongType,):
-        return long(s)
-    if s[-1] == 'L':
-        return long(s[:-1])
-    else:
-        return long(s)
-
-def intorlongpopL(s):
-    if type(s) in (types.IntType, types.LongType,):
-        try:
-            return int(s)
-        except OverflowError:
-            return s
-    if s[-1] == 'L':
-        i = long(s[:-1])
-    else:
-        i = long(s)
-    try:
-        return int(i)
-    except OverflowError:
-        return i
 
 def int_log_base_2(x):
     """
