@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.15 2003/02/04 03:15:48 zooko Exp $"
+__revision__ = "$Id: Conversation.py,v 1.16 2003/02/10 03:19:44 zooko Exp $"
 
 # Python standard library modules
 import threading
@@ -149,7 +149,7 @@ class ConversationManager:
 
     def fail_conversation(self, msgId, failure_reason='generic failure', istimeout=0):
         initial = self.__callback_functions.get(msgId)
-        if initial is None :
+        if initial is None:
             # This means that a response has been received, so it shouldn't fail.
             return
         del self.__callback_functions[msgId]
@@ -192,7 +192,7 @@ class ConversationManager:
     def send_response(self, prevmsgId, msgbody, mymetainfo=None, hint=HINT_NO_HINT):
         """
         @param msgbody: the message body to be sent back
-        
+
         @precondition: `prevmsgId' must be a binary id.: idlib.is_binary_id(prevmsgId): "prevmsgId: %s" % humanreadable.hr(prevmsgId)
         @precondition: `msgbody' must be either None or else the full msg dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not msgbody) or is_mojo_message(msgbody): "msgbody: %s" % humanreadable.hr(msgbody)
         @precondition: internal1: self._map_inmsgid_to_info.get(prevmsgId) is not None: "prevmsgId: %s" % humanreadable.hr(prevmsgId)
@@ -231,7 +231,7 @@ class ConversationManager:
 
         @postcondition: Result must not be `None'.: result is not None: "result: %s" % humanreadable.hr(result)
         @postcondition: Result must be either std.NO_RESPONSE or std.ASYNC_RESPONSE or else a tuple whose first element is the full msg body dict and whose second element is a commshint, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (result is std.NO_RESPONSE) or (result is std.ASYNC_RESPONSE) or ((type(result) in (types.TupleType, types.ListType,)) and (len(result) == 2) and is_mojo_message(result[0]) and CommHints.is_hint(result[1])): "result: %s" % humanreadable.hr(result)
-        """ 
+        """
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 
         counterparty_id = idlib.canonicalize(counterparty_id, "broker")
@@ -253,12 +253,12 @@ class ConversationManager:
         senders_metainfo = MojoMessage.getSendersMetaInfo(msg)
         extra_metainfo = MojoMessage.getExtraMetaInfo(msg)
 
-        if nonce is not None :
+        if nonce is not None:
             # this is a first message
             if (reference is not None) or (recipient_id is None):
                 debugprint("WARNING: a Mojo Message arrived with inconsistent conversation markers: nonce: %s, reference: %s, recipient_id: %s\n", args=(nonce, reference, recipient_id), v=1, vs="conversation")
                 return std.NO_RESPONSE
-            if not idlib.is_sloppy_id(nonce) :
+            if not idlib.is_sloppy_id(nonce):
                 debugprint("WARNING: a Mojo Message arrived with badly formed nonce: %s\n", args=(nonce,), v=1, vs="conversation")
                 return std.NO_RESPONSE
             conversationtype = MojoMessage.getType(msg)
@@ -274,14 +274,15 @@ class ConversationManager:
             self._map_inmsgid_to_info[msgId] = (counterparty_id, MojoMessage.getType(msg), EXPECTING_RESPONSE)
             # Reminder: do not somehow change this handle_initiating_message call to be on the DoQ in the future without changing
             # the MTM.__in_message_for_you logic used in fast relay to prevent nested 'message for you' messages.  -greg
-            result = self._MTM.handle_initiating_message(counterparty_id, conversationtype, MojoMessage.getBody(msg), firstmsgId=msgId) 
+            result = self._MTM.handle_initiating_message(counterparty_id, conversationtype, MojoMessage.getBody(msg), firstmsgId=msgId)
             if result is std.NO_RESPONSE:
                 self.drop_request_state(msgId)
             if result is None:
                 result = std.NO_RESPONSE
 
-            if (type(result) in (types.TupleType, types.ListType,)) and (len(result) == 2) and is_mojo_message(result[0]) and CommHints.is_hint(result[1]):
-                (response, commhints,) = result
+            if (type(result) is types.DictType) and (len(result) == 2) and result.has_key('response') and result.has_key('commhints'):
+                response = result['response']
+                commhints = result['commhints']
             else:
                 response = result
                 commhints = HINT_NO_HINT

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPCommsHandler.py,v 1.15 2003/02/04 03:43:02 zooko Exp $"
+__revision__ = "$Id: TCPCommsHandler.py,v 1.16 2003/02/10 03:19:45 zooko Exp $"
 
 # standard modules
 import UserDict, asyncore, os, socket, string, struct, threading, time
@@ -29,7 +29,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
     """
     def __init__(self, mtm, ip_bind='', listenport=None, pickyport=false, dontbind=false, max_in = 56, max_out = 56, announce_ip = None, announce_port = None, maintained_connections = 32, max_connections = 512, timeout = 600 ):
         """
-        @param ip_bind: what ip address to bind to 
+        @param ip_bind: what ip address to bind to
 
         @param listenport: the preferred port to listen on
 
@@ -38,14 +38,14 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
             arbitrary port
 
         @param max_in: What should we throttle the incoming traffic to
-        
+
         @param max_out: What should we throttle the outgoing traffic to
-        
+
         @param announce_ip: What should we tell the network our IP address
             is (useful for forwarding from a NAT firewall)
-        
+
         @param announce_port: What should we tell the network our port is            (useful for forwarding from a NAT firewall)
-        
+
         @param maintained_connections: The number of TCP connections to hold
              open in case you deal with that counterparty again.  I'm not
              sure what the best number here is.  Maybe 0.  But if you have
@@ -66,7 +66,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
             a slow connection that a message takes a long time to squeeze
             through, then you should never have opened 128 connections in
             the first place.
-        
+
         @param timeout: inactivity timeout for our TCP connections in
             seconds; We never time-out a connection if we want it because we
             are either expecting a reply, or maintaining a connection with a
@@ -86,10 +86,10 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         self._cids_to_activation = {}
 
         self._mtm = mtm
-           
+
         self._requested_listenport = listenport
         self._ip_bind = ip_bind
-        
+
         self._pickyport = pickyport
         self._announce_ip = announce_ip
         self._announce_port = announce_port
@@ -97,9 +97,9 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         self._maintained_connections = maintained_connections
         self._max_connections = max_connections
         self._timeout = timeout
-        
-        self._conncache = TCPConnCache(cid_to_cs=self._cid_to_cs, 
-            maintained_connections=maintained_connections, 
+
+        self._conncache = TCPConnCache(cid_to_cs=self._cid_to_cs,
+            maintained_connections=maintained_connections,
             max_connections=max_connections,
             timeout=timeout)
 
@@ -258,10 +258,8 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
     def get_id(self):
         return self._id
-       
+
     def send_msg(self, counterparty_id, msg, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=None):
-        """
-        """
         counterparty_id = idlib.to_binary(counterparty_id)  # this also checks the precondition of counterparty_id being an id
 
         if self._cids_to_activation.get(counterparty_id) == "not yet":
@@ -435,7 +433,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         # assert (self._conncache.get(asyncsock._key) is asyncsock) or (asyncsock._closing), "asyncsock: %s: asyncsock._key: %s, self._conncache.get(asyncsock._key): %s" % (hr(asyncsock), hr(asyncsock._key), hr(self._conncache.get(asyncsock._key)),)
         if not ((self._conncache.get(asyncsock._key) is asyncsock) or (asyncsock._closing)):
             debugprint("faux AssertionFailure: (self._conncache.get(asyncsock._key) is asyncsock) or (asyncsock._closing) -- asyncsock: %s: asyncsock._key: %s, self._conncache.get(asyncsock._key): %s", args=(asyncsock, asyncsock._key, self._conncache.get(asyncsock._key),))
-            
+
         cs = self._cid_to_cs.get(asyncsock._key)
         if (cs is not None) and (cs.asyncsock is asyncsock) and (self._conncache.get(asyncsock._key) is asyncsock) and (not asyncsock._closing):
             # If the current `cs' points to a useful (i.e. registered and non-closing) socket, then just recommend to keep the current cs.
