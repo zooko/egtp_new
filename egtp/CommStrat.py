@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.15 2003/02/17 09:35:17 artimage Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.16 2003/02/28 17:59:48 tschechow Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -479,4 +479,6 @@ def dict_to_strategy(dict, mtm, broker_id=None, commstratseqno=None):
             DataTypes.check_template(dict, CRYPTO_COMM_STRAT_TEMPL)
         except DataTypes.BadFormatError, le:
             raise DataTypes.BadFormatError, { 'cause': le, 'explanation': "dict is not a CRYPT_COMM_STRAT_TEMPL", 'dict': dict, }
+        if broker_id is None:
+            broker_id = crypto_dict_to_id(dict)
         return Crypto(mencode.mencode(dict['pubkey']), dict_to_strategy(dict['lowerstrategy'], broker_id=broker_id, mtm=mtm, commstratseqno=commstratseqno), broker_id=broker_id)
