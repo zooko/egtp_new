@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode_unittests.py,v 1.1 2002/08/27 20:01:39 myers_carpenter Exp $'
+__cvsid = '$Id: mencode_unittests.py,v 1.2 2002/10/26 14:59:56 zooko Exp $'
 
 
 # Python standard library modules
@@ -24,11 +24,13 @@ except:
     pass
 
 # pyutil modules
-import humanreadable
-import memutil
+from pyutil import memutil
+
+# EGTP modules
+from egtp import humanreadable
+from egtp.mencode import *
 
 # Mnet modules
-from mencode import *
 
 class Testy(unittest.TestCase):
     def setUp(self):

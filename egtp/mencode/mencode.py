@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode.py,v 1.5 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: mencode.py,v 1.6 2002/10/26 14:59:55 zooko Exp $'
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -111,7 +111,7 @@ def encode_dict(data, result):
     keys.sort()
     for key in keys:
         if type(key) not in (types.StringType, types.BufferType, types.IntType, types.LongType):
-            raise MencodeError, 'mencoded dictionary keys must be strings or numbers: %s :: %s' % (hr(key), hr(type(key)),)
+            raise MencodeError, 'mencoded dictionary keys must be strings or numbers: %s :: %s' % (humanreadable.hr(key), humanreadable.hr(type(key)),)
         encode_io(key, result)
         encode_io(data[key], result)
     result.write(')')
@@ -127,7 +127,7 @@ def encode_preencoded(data, result):
 def encode_io(data, result):
     encoder = encodersdict.get(type(data))
     if not encoder:
-        raise MencodeError, 'unsupported data type: %s :: %s' % (hr(data), hr(type(data)),)
+        raise MencodeError, 'unsupported data type: %s :: %s' % (humanreadable.hr(data), humanreadable.hr(type(data)),)
     encoder(data, result)
 
 def mencode(data):
@@ -147,7 +147,7 @@ def mencode(data):
         # The ValueError results from memory exhaustion.  Memory exhaustion should be handled higher up (ultimately by aborting the current transaction, I think.)  --Zooko 2001-08-27
         raise MemoryError, le
     except MencodeError, le:
-        raise MencodeError, "Couldn't encode this data object: %s, le: %s" % (hr(data), hr(le),)
+        raise MencodeError, "Couldn't encode this data object: %s, le: %s" % (humanreadable.hr(data), humanreadable.hr(le),)
     return result.getvalue()
 
 def mdecode(s):
@@ -155,9 +155,9 @@ def mdecode(s):
     Does the opposite of mencode. Raises a mencode.MencodeError if the string is not a proper Python
     data structure encoding.
 
-    @precondition `s' must be a string.: type(s) is types.StringType: "s: %s :: %s" % (hr(s), hr(type(s)),)
+    @precondition `s' must be a string.: type(s) is types.StringType: "s: %s :: %s" % (humanreadable.hr(s), humanreadable.hr(type(s)),)
     """
-    assert type(s) is types.StringType, "precondition: `s' must be a string." + " -- " + "s: %s :: %s" % (hr(s), hr(type(s)),)
+    assert type(s) is types.StringType, "precondition: `s' must be a string." + " -- " + "s: %s :: %s" % (humanreadable.hr(s), humanreadable.hr(type(s)),)
 
     try:
         result, index = mdecode_index(s, 0)
@@ -167,11 +167,11 @@ def mdecode(s):
             raise UnknownTypeError, 'unknown type in required part of message'
         return result
     except IndexError, e:
-        raise MencodeError, 'unexpected end of s ' + hr(e)
+        raise MencodeError, 'unexpected end of s ' + humanreadable.hr(e)
     except ValueError, e:
-        raise MencodeError, 'bad format ' + hr(e)
+        raise MencodeError, 'bad format ' + humanreadable.hr(e)
     except TypeError, e:
-        raise MencodeError, 'type problem ' + hr(e)
+        raise MencodeError, 'type problem ' + humanreadable.hr(e)
 
 def decode_raw_string(s, index, _find=_find):
     index2 = _find(s, ':', index)
@@ -189,7 +189,7 @@ _int_re = re.compile(r'^(0|-?[1-9][0-9]*)$')
 def decode_int(s, index):
     n, index = decode_raw_string(s, index)
     if not _int_re.match(n):
-        raise MencodeError, "non canonical integer: %s" % hr(n)
+        raise MencodeError, "non canonical integer: %s" % humanreadable.hr(n)
     try:
         return int(n), index
     except (OverflowError, ValueError), le:
@@ -228,7 +228,7 @@ def decode_dict(s, index):
             # TODO use an mencode specific comparison function here.
             # Strings must be greater than numbers.  The python language doesn't actually guarantee this.
             if key <= prevkey:
-                raise MencodeError, "out of order keys in serialized dict: %s.  %s is not greater than %s\n" % (hr(s), hr(key), hr(prevkey),)
+                raise MencodeError, "out of order keys in serialized dict: %s.  %s is not greater than %s\n" % (humanreadable.hr(s), humanreadable.hr(key), humanreadable.hr(prevkey),)
         prevkey = key
         result[key] = value
     return result, index
@@ -254,12 +254,12 @@ def mdecode_index(s, index):
     return object, new index
     """
     if s[index] != '(':
-        raise MencodeError, "Object encodings must begin with an open parentheses.  index: %d, s: %s" % (index, hr(s),)
+        raise MencodeError, "Object encodings must begin with an open parentheses.  index: %d, s: %s" % (index, humanreadable.hr(s),)
     next_type, index = decode_raw_string(s, index + 1)
     decoder = decodersdict.get(next_type, decode_unknown)
     result, index = decoder(s, index)
     if s[index] != ')':
-        raise MencodeError, "Object encodings must end with a close parentheses.  index: %d, s: %s" % (index, hr(s),)
+        raise MencodeError, "Object encodings must end with a close parentheses.  index: %d, s: %s" % (index, humanreadable.hr(s),)
     return result, index + 1
 
 
