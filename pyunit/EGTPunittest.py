@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.6 2002/11/10 22:50:18 artimage Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.7 2002/11/22 05:37:57 zooko Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -161,7 +161,11 @@ class EGTPTestCaseTemplate(unittest.TestCase):
         DoQ.doq.do(setup)
 
         # Have the second node ping the first, using only the first's id.
-        d['n2'].send(CommStrat.addr_to_id(d['n1'].get_address()), mtype="ping", msg="hello there, you crazy listener!")
+        try:
+            d['n2'].send(CommStrat.addr_to_id(d['n1'].get_address()), mtype="ping", msg="hello there, you crazy listener!")
+        except exceptions.StandardError, le:
+            debugprint("le: %s\n", args=(le,))
+            raise le
 
         # Now block until it works or times out.
         TIMEOUTLIMIT = 60
