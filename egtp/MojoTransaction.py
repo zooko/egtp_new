@@ -4,13 +4,13 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.21 2003/01/06 03:00:20 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.22 2003/01/07 19:51:29 zooko Exp $"
 
 true = 1
 false = 0
 
 # Python standard library modules
-import copy, exceptions, math, os, string, sys, threading, time, traceback
+import copy, exceptions, math, os, string, sys, threading, traceback
 import types, pickle, whrandom, ConfigParser
 from sha import sha
 from traceback import print_stack, print_exc
@@ -262,16 +262,16 @@ class MojoTransactionManager:
         self._keeper=counterparties.CounterpartyObjectKeeper(dbparentdir=self._datadir, local_id=self.get_id(), recoverdb=true)
         # IMPORTANT NOTE:  handicappers are ordered as some of them are in-progress multipliers
         # When reading the following list, remember that all scalar additives are squared before
-        # being added.  The "@return" doco below is _before_ squaring.  All "@return" numbers
+        # being added.  The "@return:" doco below is _before_ squaring.  All "@return:" numbers
         # below are additives unless specified to be multipliers.
 
         # for all msgtypes
-        #  @return 1000 if counterparty is "unreliable";  With default settings, you are unreliable if you have dropped more than 30% of queries or more than 2000 queries throughout all history.
+        #  @return: 1000 if counterparty is "unreliable";  With default settings, you are unreliable if you have dropped more than 30% of queries or more than 2000 queries throughout all history.
         # DISQUALIFIES counterparties.  The above line is incorrect.
         self.get_handicapper().add_handicapper(UnreliableHandicapper(self._keeper, self.get_id()))
 
         # for msgtype in ('are there messages',)
-        #  @return 500 if counterparty is not the currently preferred (== most recently advertised) relay server.
+        #  @return: 500 if counterparty is not the currently preferred (== most recently advertised) relay server.
         self.get_handicapper().add_handicapper(self._listenermanager._relayl.compute_handicap_prefer_current, mtypes=('are there messages',))
 
         # this is used to prevent >1 update from occurring at the same time
@@ -306,7 +306,7 @@ class MojoTransactionManager:
             self._pt._register_omtm(self)
     
     def server_thread_join(self, t=1000000000):
-        time.sleep(31000000L)
+        timeutil.sleep(31000000L)
 
     def get_handicapper(self):
         return self._handicapper
@@ -556,7 +556,10 @@ class MojoTransactionManager:
 
     def get_comm_strategy(self):
         """
-        @return: the comm strategy in the form of an instance of CommStrat.CommStrat, or `None' if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
+        @return: the comm strategy in the form of an instance of
+            CommStrat.CommStrat, or `None' if there is no strategy yet
+            (which can happen in practice because you haven't found a
+            relayer to announce yet)
         """
         return self._listenermanager.get_comm_strategy_and_newflag()[0]
 
@@ -609,7 +612,9 @@ class MojoTransactionManager:
         """
         Invoke the appropriate server func.
 
-        @return: the full msg body to be sent back in response (containing a 'mojo header' and/or 'mojo message' subdict) in dict form, or None, or std.ASYNC_RESPONSE
+        @return: the full msg body to be sent back in response
+            (containing a 'mojo header' and/or 'mojo message' subdict)
+            in dict form, or None, or std.ASYNC_RESPONSE
 
         @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 
@@ -743,7 +748,7 @@ class MojoTransactionManager:
 
         timeout = min(self.max_timeout, timeout)
 
-        def collect_timings(counterparty_id=counterparty_id, start_time=time.time(), conversationtype=conversationtype, self=self):
+        def collect_timings(counterparty_id=counterparty_id, start_time=timeutil.time(), conversationtype=conversationtype, self=self):
             """
             Update timing statistics then call outcome_func
 
@@ -757,7 +762,7 @@ class MojoTransactionManager:
             it takes about 10 packets to learn aout the timeouts.
             This may be too high; it should be a configuration option.
             """
-            elapsed_time = time.time() - start_time
+            elapsed_time = timeutil.time() - start_time
             time_constant = self.averaging_timescale
             default_sigma = elapsed_time
 
