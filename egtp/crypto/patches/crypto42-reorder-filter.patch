@@ -1,0 +1,32 @@
+diff -u filters.h-orig filters.h
+--- filters.h-orig	Tue Nov  6 05:52:16 2001
++++ filters.h	Mon Apr 22 20:16:27 2002
+@@ -146,7 +146,7 @@
+ public:
+ 	StreamCipherFilter(StreamCipher &c,
+ 					   BufferedTransformation *outQueue = NULL)
++		: Filter(outQueue), cipher(c) {}
+-		: cipher(c), Filter(outQueue) {}
+ 
+ 	void Put(byte inByte)
+ 		{AttachedTransformation()->Put(cipher.ProcessByte(inByte));}
+@@ -207,7 +207,7 @@
+ {
+ public:
+ 	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *outQueue = NULL)
++		: Filter(outQueue), m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewMessageAccumulator()) {}
+-		: m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewMessageAccumulator()), Filter(outQueue) {}
+ 
+ 	void MessageEnd(int propagation);
+ 
+@@ -228,8 +228,8 @@
+ {
+ public:
+ 	VerifierFilter(const PK_Verifier &verifier, BufferedTransformation *outQueue = NULL)
++		: Filter(outQueue), m_verifier(verifier), m_messageAccumulator(verifier.NewMessageAccumulator())
++		, m_signature(verifier.SignatureLength()) {}
+-		: m_verifier(verifier), m_messageAccumulator(verifier.NewMessageAccumulator())
+-		, m_signature(verifier.SignatureLength()), Filter(outQueue) {}
+ 
+ 	// this function must be called before MessageEnd()
+ 	void PutSignature(const byte *sig);

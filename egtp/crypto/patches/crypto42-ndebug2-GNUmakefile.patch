@@ -1,0 +1,14 @@
+--- GNUmakefile-orig	Sat Dec  1 07:14:58 2001
++++ GNUmakefile	Sat Dec  1 07:16:05 2001
+@@ -1,9 +1,8 @@
+ # can't use -fno-rtti yet because it causes problems with exception
+ # handling in GCC 2.95.2
+ # CXXFLAGS = -g
+-# uncomment the next two lines to do a release build
+-CXXFLAGS = -O2 -DNDEBUG -ffunction-sections -fdata-sections
+-LDFLAGS = -Wl,--gc-sections
++CXXFLAGS = -O2 -DNDEBUG
++# LDFLAGS = -Wl,--gc-sections
+ ARFLAGS = -cr	# ar needs the dash on OpenBSD
+ RANLIB = ranlib
+ UNAME = $(shell uname)

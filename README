@@ -1,0 +1,35 @@
+How to install:
+
+You simply need to check out the source from public cvs and run "make" to build 
+it.  For step-by-step directions, please read "cvsinstall.sh" in the egtp/ 
+directory, or at this URL:
+
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/egtp/egtp/cvsinstall.sh?content-type=text/plain
+
+
+How to learn the API:
+
+0.  Read the file named "Tutorial.txt" in the egtp/ directory.
+
+1.  The example: Look at EGTPunittest.py, in the function named 
+`_help_test_EGTP_send_and_receive()' to see basic operation of creating nodes 
+and sending and receiving messages.
+
+2.  The interface that provides messaging:  Look at the interface of class Node in Node.py.
+
+3.  The interfaces that provide lookup and discovery:  Look at the interfaces for lookup managers, 
+lookup handlers, discovery managers, and discovery handlers in interfaces.py.
+
+3.a.
+    You can see implementations of the manager classes (local, non-distributed, for-testing-only) in 
+    EGTPtest.py.
+
+3.b.
+    You can see how EGTP uses the manager classes in MojoTransaction.py (see how it uses the 
+    `self._lookupman' member) and RelayListener.py (see how it uses the `self._discoveryman' member).
+
+3.c.
+    You can see how EGTP defines and uses handler classes in MojoTransaction.py 
+    (class LookupHand) and in RelayListener.py (class ShoppingResultsHand).
+
+
