@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: test_system.py,v 1.2 2002/12/02 19:58:56 myers_carpenter Exp $"
+__revision__ = "$Id: test_system.py,v 1.3 2002/12/15 20:06:57 myers_carpenter Exp $"
 
 # standard Python modules
 import threading, types, unittest, tempfile, os, shutil
@@ -142,6 +142,7 @@ class EGTPTestCaseTemplate(unittest.TestCase):
 
             # Make a listener.  He will announce his EGTP address to the lookupman `lm'.
             d['n1'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir=self.testdir)
+            d['n1'].start()
 
             # Set a handler func: if any messages come in with message type "ping", the EGTP Node will call this function.
             def l_ping_handler(sender, msg, finishedflag=finishedflag, start=start, self=self):
@@ -153,6 +154,7 @@ class EGTPTestCaseTemplate(unittest.TestCase):
 
             # Make a sender.  He'll keep a reference to `lm' for later use.
             d['n2'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir=self.testdir)
+            d['n2'].start()
 
         DoQ.doq.do(setup)
 

@@ -106,30 +106,27 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
         if not os.path.isfile(os.path.join('build', 'crypto50.zip')):
             raise SystemExit, "couldn't get zip file"
 
-        if not os.path.isdir(os.path.join('build', 'crypto++-5.0')):
+        if not os.path.isdir(os.path.join('build', 'crypto50')):
             print "Extracting crypto++..."
-            cmd = 'unzip -d %s -a %s' % (os.path.join('build', 'crypto++-5.0'), os.path.join('build', 'crypto50.zip'))
+            cmd = 'unzip -d %s -a %s' % (os.path.join('build', 'crypto50'), os.path.join('build', 'crypto50.zip'))
             print cmd
             os.system(cmd)
-            """
             # same effect as 'touch'
-            file(os.path.join('build', 'crypto++-5.0', 'unpatched'),'w').close()
-            """
+            file(os.path.join('build', 'crypto50', 'unpatched'),'w').close()
 
-        """
-        if os.path.isfile(os.path.join('build', 'crypto++-4.2', 'unpatched')):
-            print "Patching crypto++..."
-            os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-4.2'))
+        if os.path.isfile(os.path.join('build', 'crypto50', 'unpatched')):
+            print "Patching crypto50..."
+            os.chdir(os.path.join(self.base_dir, 'build', 'crypto50'))
             patchlist = os.listdir(os.path.join(self.base_dir, 'egtp', 'crypto', 'patches'))
             patchlist = filter(lambda x: x[0].islower(), patchlist)
             for ii in patchlist:
                 os.system('patch -p0 < %s' % os.path.join(self.base_dir, 'egtp', 'crypto', 'patches', ii))
             os.chdir(self.base_dir)
-            os.unlink(os.path.join('build', 'crypto++-4.2', 'unpatched'))
-        """
-        if not os.path.isfile(os.path.join('build', 'crypto++-5.0', 'libcryptopp.a')):
+            os.unlink(os.path.join('build', 'crypto50', 'unpatched'))
+
+        if not os.path.isfile(os.path.join('build', 'crypto50', 'libcryptopp.a')):
             print "Building crypto++..."
-            os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-5.0'))
+            os.chdir(os.path.join(self.base_dir, 'build', 'crypto50'))
             os.system('make libcryptopp.a')
             os.chdir(self.base_dir)
 
@@ -161,12 +158,11 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.cryptopp_dir = os.environ['CRYPTOPP_DIR']
             if not os.path.isdir(self.cryptopp_dir) :
                 raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
-        elif os.path.isdir(os.path.join('build', 'crypto++-5.0')) and os.path.isfile(os.path.join('build', 'crypto++-5.0', 'libcryptopp.a')):
-            self.cryptopp_dir = os.path.join('build', 'crypto++-5.0')
+        elif os.path.isdir(os.path.join('build', 'crypto50')) and os.path.isfile(os.path.join('build', 'crypto50', 'libcryptopp.a')):
+            self.cryptopp_dir = os.path.join('build', 'crypto50')
         else:
             raise SystemExit, """\
-Your CRYPTOPP_DIR environment variable must be set,
-or for Debian unstable do 'apt-get install libcrypto++-dev'
+You don't have a copy of crypto++ version 5.0.  Try runing 'python setup.py download'...
 """
 
         if sys.platform == 'win32':
@@ -185,35 +181,7 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
             self.include_dirs.extend([self.cryptopp_dir])
             self.libraries.insert(0, 'cryptopp')
 
-        # find out the crypto++ version from the include files
-        tmp = None
-        if os.path.isfile(os.path.join(self.cryptopp_dir, 'Readme.txt')):
-            ff = open(os.path.join(self.cryptopp_dir, 'Readme.txt'), 'r')
-            tmp = ff.readlines()
-            ff.close()
-            # try to find a string like this: Version 4.2 11/5/2001
-            tmp = re.findall(r'Version ([.0-9]+)', tmp[1])
-        elif os.path.isfile(os.path.join(self.cryptopp_dir, 'local.h')):
-            ff = open(os.path.join(self.cryptopp_dir, 'local.h'), 'r')
-            tmp = ff.read()
-            ff.close()
-            tmp = re.findall(r'\#define\s+VERSION\s+\"([^"]+)\"', tmp)
-
-        try:
-            cryptoppversion = tmp[0]
-        except IndexError:
-            raise SystemExit, "Couldn't find Crypto++ version from the 'README.txt' / 'local.h'"
-
-        if cryptoppversion == "3.2":
-            self.define.extend([('CRYPTOPP_32', None),])
-        elif cryptoppversion == "4.0":
-            self.define.extend([('CRYPTOPP_40', None),])
-        elif cryptoppversion == "4.1":
-            self.define.extend([('CRYPTOPP_41', None),])
-        elif cryptoppversion == "4.2":
-            self.define.extend([('CRYPTOPP_42', None),])
-        elif cryptoppversion == "5.0":
-            self.define.extend([('CRYPTOPP_50', None),])
+        self.define.extend([('CRYPTOPP_50', None),])
 
         # On FreeBSD we -finally- found that -lgcc was the magic needed linker flag to
         # prevent the "undefined symbol: __pure_virtual" problem when attempting to
@@ -225,7 +193,6 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
 
     def build_extension(self, ext):
         fullname = self.get_ext_fullname(ext.name)
-        print fullname
 
         # Skip win_entropy if platform is not windows.
         if (sys.platform != 'win32') and (fullname == 'egtp.crypto.win_entropy'):

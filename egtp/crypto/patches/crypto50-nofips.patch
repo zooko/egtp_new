@@ -1,0 +1,54 @@
+# This patch removes FIPS-140-compliance-testing stuff so that we can avoid compiling modules we don't use.
+--- rsa.cpp.orig	2002-09-03 13:56:26.000000000 -0400
++++ rsa.cpp	2002-12-02 15:23:08.000000000 -0500
+@@ -7,7 +7,6 @@
+ #include "nbtheory.h"
+ #include "sha.h"
+ #include "algparam.h"
+-#include "fips140.h"
+ 
+ #include "oaep.cpp"
+ 
+@@ -121,17 +120,6 @@
+ 	m_dq = m_d % (m_q-1);
+ 	m_n = m_p * m_q;
+ 	m_u = m_q.InverseMod(m_p);
+-
+-	if (FIPS_140_2_ComplianceEnabled())
+-	{
+-		RSASSA<PKCS1v15, SHA>::Signer signer(*this);
+-		RSASSA<PKCS1v15, SHA>::Verifier verifier(signer);
+-		SignaturePairwiseConsistencyTest(signer, verifier);
+-
+-		RSAES<OAEP<SHA> >::Decryptor decryptor(*this);
+-		RSAES<OAEP<SHA> >::Encryptor encryptor(decryptor);
+-		EncryptionPairwiseConsistencyTest(encryptor, decryptor);
+-	}
+ }
+ 
+ void InvertibleRSAFunction::Initialize(RandomNumberGenerator &rng, unsigned int keybits, const Integer &e)
+--- cryptlib.cpp.orig	2002-12-02 15:46:07.000000000 -0500
++++ cryptlib.cpp	2002-12-02 15:45:56.000000000 -0500
+@@ -5,7 +5,6 @@
+ #include "misc.h"
+ #include "filters.h"
+ #include "algparam.h"
+-#include "fips140.h"
+ #include "argnames.h"
+ 
+ #include <memory>
+@@ -31,14 +30,6 @@
+ 
+ Algorithm::Algorithm(bool checkSelfTestStatus)
+ {
+-	if (checkSelfTestStatus && FIPS_140_2_ComplianceEnabled())
+-	{
+-		if (GetPowerUpSelfTestStatus() == POWER_UP_SELF_TEST_NOT_DONE && !PowerUpSelfTestInProgressOnThisThread())
+-			throw SelfTestFailure("Cryptographic algorithms are disabled before the power-up self tests are performed.");
+-
+-		if (GetPowerUpSelfTestStatus() == POWER_UP_SELF_TEST_FAILED)
+-			throw SelfTestFailure("Cryptographic algorithms are disabled after power-up a self test failed.");
+-	}
+ }
+ 
+ void SimpleKeyingInterface::SetKeyWithRounds(const byte *key, unsigned int length, int rounds)

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Node.py,v 1.7 2002/12/02 19:58:49 myers_carpenter Exp $"
+__revision__ = "$Id: Node.py,v 1.8 2002/12/15 20:06:57 myers_carpenter Exp $"
 
 # standard modules
 import types
@@ -49,6 +49,8 @@ class Node:
             raise "sorry, incomplete"
             # lookupman = MetaTrackerLookupMan.MetaTrackerLookupMan()
         self.mtm = MojoTransaction.MojoTransactionManager(lookupman=lookupman, discoveryman=discoveryman, datadir=datadir, allownonrouteableip=allownonrouteableip)
+
+    def start(self):
         self.mtm.start_listening()
 
     def get_address(self):
