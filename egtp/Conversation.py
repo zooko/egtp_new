@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.12 2003/02/02 19:31:37 myers_carpenter Exp $"
+__revision__ = "$Id: Conversation.py,v 1.13 2003/02/02 22:12:49 myers_carpenter Exp $"
 
 # Python standard library modules
 import threading
@@ -104,9 +104,6 @@ class ConversationManager:
         self._map_cid_to_freshness_proof = Cache.LRUCache(maxsize=512)
 
         self._in_message_num = 0L   # used only in debugging
-
-        if DEBUG_MODE:
-            DebugDiagLoop(self) # this will spew a debug diags line every 60 seconds
 
     def shutdown(self):
         debugprint("self._map_inmsgid_to_info: %s\n", args=(self._map_inmsgid_to_info,), v=6, vs="debug")
