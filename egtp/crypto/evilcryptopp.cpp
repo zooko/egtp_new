@@ -2,7 +2,7 @@
 // A module that merges randsource and modval into one external
 // module to keep dynamic linking happy.
 //
-// $Id: evilcryptopp.cpp,v 1.2 2002/10/27 20:38:25 zooko Exp $
+// $Id: evilcryptopp.cpp,v 1.3 2003/03/22 20:51:00 myers_carpenter Exp $
 
 
 #include "integer.h"
@@ -22,16 +22,19 @@ extern "C"
   extern PyMethodDef randsource_functions[];
   extern PyMethodDef modval_module_functions[];
   extern PyMethodDef tripledescbc_functions[];
+  extern PyMethodDef aesctr_functions[];
 
 #ifndef __APPLE__
   extern char* module_doc;
 #endif
   extern char* randsource_doc;
   extern char* tripledescbc_doc;
+  extern char* aesctr_doc;
 
   
   extern PyObject *ModValError;
   extern PyObject *TripleDESCBCError;
+  extern PyObject *AESCTRError;
 
 #ifndef WIN32
 #ifdef __cplusplus
@@ -90,7 +93,7 @@ initevilcryptopp()
          * until we build everything in one binary */
         static struct PyMethodDef allfunctions[MAX_METHODS];
         static char ourdoc[] =
-            "The evilcryptopp module contains modval, randsource and tripledescbc\n"
+            "The evilcryptopp module contains modval, randsource, aesctr, and tripledescbc\n"
             "all merged into a single C module for dynamic linking reasons\n\n"
             "The original doc strings are available:\n"
             "  _modval_doc\n  _randsource_doc\n  _tripledescbc_doc\n\n"
@@ -105,16 +108,19 @@ initevilcryptopp()
         total = copy_py_func_defs(allfunctions, total, MAX_METHODS, "_randsource_", randsource_functions);
         total = copy_py_func_defs(allfunctions, total, MAX_METHODS, "_modval_", modval_module_functions);
         total = copy_py_func_defs(allfunctions, total, MAX_METHODS, "_tripledescbc_", tripledescbc_functions);
+        total = copy_py_func_defs(allfunctions, total, MAX_METHODS, "_aesctr_", aesctr_functions);
 
         m = Py_InitModule3("evilcryptopp", allfunctions, ourdoc);
 
         d = PyModule_GetDict(m);
         ModValError = PyErr_NewException("evilcryptopp.ModValError", NULL, NULL);
         TripleDESCBCError = PyErr_NewException("evilcryptopp.TripleDESCBCError", NULL, NULL);
+        AESCTRError = PyErr_NewException("evilcryptopp.AESCTRError", NULL, NULL);
 
         // errors
         PyDict_SetItemString(d, "ModValError", ModValError);
         PyDict_SetItemString(d, "TripleDESCBCError", TripleDESCBCError);
+        PyDict_SetItemString(d, "AESCTRError", AESCTRError);
 
         // original doc string
 	#ifdef __APPLE__
@@ -124,6 +130,7 @@ initevilcryptopp()
 	#endif
         PyDict_SetItemString(d, "_randsource_doc", PyString_FromString(randsource_doc));
         PyDict_SetItemString(d, "_tripledescbc_doc", PyString_FromString(tripledescbc_doc));
+        PyDict_SetItemString(d, "_aesctr_doc", PyString_FromString(aesctr_doc));
 
         PyDict_SetItemString(d, "cryptopp_version", PyString_FromString("5.0"));
 }

@@ -483,6 +483,7 @@ setup_args = {
                 os.path.join('egtp', 'crypto', 'randsource_methods.cpp'),
                 os.path.join('egtp', 'crypto', 'evilcryptopp.cpp'),
                 os.path.join('egtp', 'crypto', 'tripledescbc.cpp'),
+                os.path.join('egtp', 'crypto', 'aesctr.cpp'),
                 os.path.join('egtp', 'crypto', 'randsource.cpp'),
             ],
         ),

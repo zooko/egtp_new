@@ -5,7 +5,7 @@
  endif
  
 -OBJS = $(SRCS:.cpp=.o)
-+OBJS = dessp.o rsa.o asn.o modes.o des.o cryptlib.o integer.o nbtheory.o misc.o filters.o pubkey.o sha.o algparam.o queue.o pkcspad.o simple.o iterhash.o mqueue.o
++OBJS = dessp.o pch.o rijndael.o rsa.o asn.o modes.o des.o cryptlib.o integer.o nbtheory.o misc.o filters.o pubkey.o sha.o algparam.o queue.o pkcspad.o simple.o iterhash.o mqueue.o
 +
  # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
  TESTOBJS = bench.o test.o validat1.o validat2.o validat3.o
