@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # CVS:
-__cvsid = '$Id: base32id.py,v 1.1 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: base32id.py,v 1.2 2002/10/27 21:44:43 myers_carpenter Exp $'
 
 # Python standard library modules
 import string
@@ -15,8 +15,8 @@ import string
 # pyutil modules
 from pyutil.humanreadable import BetterRepr
 
-# libbase32 modules
-from libbase32 import base32
+# base32 modules
+import base32
 
 printableascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=+!@#$%^&*()`~[]\{}|;':\",./<>? \t" # I just typed this in by looking at my keyboard.  It probably doesn't matter much if I missed some, because I only use it to guess whether a 20-byte string should be represented as a string or as an ID.  If all of the characters in the string are found `printableascii', then we guess that it is a string, not an id.
 nulltrans = string.maketrans('', '')

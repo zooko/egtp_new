@@ -13,7 +13,7 @@ import types
 true = 1
 false = 0
 from egtp.MojoErrors import BadFormatError
-from egtp import mojosixbit, std
+from egtp import mojosixbit, std, humanreadable
 
 def NONEMPTY(thing, verbose):
     pass
@@ -115,7 +115,7 @@ class OptionMarker :
     def __init__(self, template) :
         self.template = template
     def __repr__(self):
-        return "OptionMarker: <%s>" % std.hr(self.template)
+        return "OptionMarker: <%s>" % humanreadable.hr(self.template)
 
 def AndMarker(templs):
     """
@@ -157,7 +157,7 @@ def ListMarker(template, ListType=types.ListType, TupleType=types.TupleType):
                         inner_check_noverbose(thing[i], template)
                     i = i + 1
             except BadFormatError, reason:
-                raise BadFormatError, 'mismatch at index ' + std.hr(i) + ': ' + str(reason)
+                raise BadFormatError, 'mismatch at index ' + humanreadable.hr(i) + ': ' + str(reason)
         else:
             for i in thing :
                 if verbose:
@@ -185,7 +185,7 @@ def check_template(thing, templ):
     try:
         inner_check_verbose(thing, templ)
     except BadFormatError, reason:
-        raise BadFormatError, 'failed template check because: (' + str(reason) + ') template was: (' + std.hr(templ) + ') target was: (' + std.hr(thing) + ')'
+        raise BadFormatError, 'failed template check because: (' + str(reason) + ') template was: (' + humanreadable.hr(templ) + ') target was: (' + humanreadable.hr(thing) + ')'
 
 def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodType=types.MethodType, DictType=types.DictType, StringType=types.StringType, LongType=types.LongType, IntType=types.IntType, ListType=types.ListType, TupleType=types.TupleType):
     # The following isn't really used right now, but I'm leaving the commented-out code for evidence.  --Zooko 2001-06-07
@@ -202,7 +202,7 @@ def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodTyp
         for key in templ.keys():
             if not thing.has_key(key):
                 if not isinstance(templ[key], OptionMarker) :
-                    raise BadFormatError, "lacks required key: (" + std.hr(key) + ")"
+                    raise BadFormatError, "lacks required key: (" + humanreadable.hr(key) + ")"
             else:
                 try:
                     if isinstance(templ[key], OptionMarker) :
@@ -210,7 +210,7 @@ def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodTyp
                     else :
                         inner_check_verbose(thing[key], templ[key])
                 except BadFormatError, reason:
-                    raise BadFormatError, 'mismatch in key (' + std.hr(key) + '): ' + str(reason)
+                    raise BadFormatError, 'mismatch in key (' + humanreadable.hr(key) + '): ' + str(reason)
     elif templtype is StringType:
         if type(thing) is not StringType:
             raise BadFormatError, "no match - target is not a string"
@@ -229,7 +229,7 @@ def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodTyp
             if thing <= 0:
                 raise BadFormatError, 'template called for strictly positive value'
     elif templtype is ListType or templtype is TupleType:
-        failure_reason = 'did not match any of the ' + std.hr(len(templ)) + ' possible templates;'
+        failure_reason = 'did not match any of the ' + humanreadable.hr(len(templ)) + ' possible templates;'
         index = -1
         for i in templ:
             try:
@@ -237,13 +237,13 @@ def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodTyp
                 inner_check_verbose(thing, i)
                 return
             except BadFormatError, reason:
-                failure_reason = failure_reason + ' failed template' + std.hr(i) + ' at index ' + std.hr(index) + ' on thing ' + std.hr(thing) + ' because (' + str(reason) + ')'
+                failure_reason = failure_reason + ' failed template' + humanreadable.hr(i) + ' at index ' + humanreadable.hr(index) + ' on thing ' + humanreadable.hr(thing) + ' because (' + str(reason) + ')'
         raise BadFormatError, failure_reason
     elif templ is None:
         if thing is not None:
             raise BadFormatError, 'expected None'
     else:
-        assert false, "bad template - " + std.hr(templ)
+        assert false, "bad template - " + humanreadable.hr(templ)
 
 def checkTemplate(thing, templ):
     """
@@ -302,7 +302,7 @@ def inner_check_noverbose(thing, templ, FunctionType=types.FunctionType, MethodT
         if thing is not None:
             raise BadFormatError, 'expected None'
     else:
-        assert false, "bad template - " + std.hr(templ)
+        assert false, "bad template - " + humanreadable.hr(templ)
 
 def test_not_on_rejection():
     check_template('a', NotMarker('b'))

@@ -33,6 +33,9 @@ class download(Command):
             os.mkdir('build')
         self.download_bsddb3()
         self.download_pyutil()
+        #self.download_libzutil()
+        #self.download_libzstr()
+        self.download_libbase32()
         self.download_cryptopp()
 
     def download_bsddb3(self):
@@ -41,7 +44,8 @@ class download(Command):
         except ImportError:
             raise SystemExit, """\
 The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.  
-(on Debian unstable you can do 'apt-get install python2.2-bsddb3')
+(on Debian unstable you can do 'apt-get install python2.2-bsddb3'
+ for RedHat see http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html)
 """
 
     def download_pyutil(self):
@@ -50,18 +54,45 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             # TODO verison testing
         except ImportError:   
             print "Downloading 'pyutil' ... "
-            pyutil_build_dir = os.path.join('build', 'pyutil')
-            fetch_anon_cvs(':pserver:anonymous@cvs.pyutil.sourceforge.net:/cvsroot/pyutil', 'pyutil_new', pyutil_build_dir)
-            print os.getcwd()
-            os.chdir(pyutil_build_dir)
+            my_build_dir = os.path.join('build', 'pyutil')
+            fetch_anon_cvs(':pserver:anonymous@cvs.pyutil.sourceforge.net:/cvsroot/pyutil', 'pyutil_new', my_build_dir)
+            os.chdir(my_build_dir)
+            os.system('python setup.py install --install-lib %s' % self.base_dir)
+            os.chdir(self.base_dir)
+
+    def download_libzutil(self):
+        if not os.path.isdir(os.path.join('build', 'libzutil')):
+            print "Downloading 'libzutil' ... "
+            my_build_dir = os.path.join('build', 'libzutil')
+            fetch_anon_cvs(':pserver:anonymous@cvs.libzutil.sourceforge.net:/cvsroot/libzutil', 'libzutil', my_build_dir)
+            os.chdir(my_build_dir)
+            os.system('make')
+
+    def download_libzstr(self):
+        if not os.path.isdir(os.path.join('build', 'libzstr')):
+            print "Downloading 'libzstr' ... "
+            my_build_dir = os.path.join('build', 'libzstr')
+            fetch_anon_cvs(':pserver:anonymous@cvs.libzstr.sourceforge.net:/cvsroot/libzstr', 'libzstr', my_build_dir)
+            os.chdir(my_build_dir)
+            os.system('make')
+
+    def download_libbase32(self):
+        try:
+            import base32
+            # TODO version testing
+        except ImportError:   
+            print "Downloading 'libbase32' ... "
+            my_build_dir = os.path.join('build', 'libbase32')
+            fetch_anon_cvs(':pserver:anonymous@cvs.libbase32.sourceforge.net:/cvsroot/libbase32', 'libbase32', my_build_dir)
+            os.chdir(my_build_dir)
             os.system('python setup.py install --install-lib %s' % self.base_dir)
             os.chdir(self.base_dir)
 
     def download_cryptopp(self):        
         def get_cryptopp():
-            CRYPTOPP_URL = 'http://www.eskimo.com/~weidai/crypto42.zip'
+            CRYPTOPP_URL = 'http://www.eskimo.com/~weidai/crypto50.zip'
             print "Downloading cryptopp from %s ... " % CRYPTOPP_URL
-            out = file(os.path.join('build', 'crypto42.zip'), 'wb')
+            out = file(os.path.join('build', 'crypto50.zip'), 'wb')
             out.write(urllib.urlopen(CRYPTOPP_URL).read())
             out.close()
         
@@ -69,25 +100,28 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             print "crypto++ is installed system wide, no need to download"
             return
         
-        if not os.path.isfile(os.path.join('build', 'crypto42.zip')):
+        if not os.path.isfile(os.path.join(os.getcwd(), 'build', 'crypto50.zip')):
             get_cryptopp()
 
         m = md5.new()
-        m.update(file(os.path.join('build', 'crypto42.zip'), 'rb').read())
-        if m.hexdigest().upper() != 'C1700E6E15F3189801E7EA47EEE83078':
+        m.update(file(os.path.join('build', 'crypto50.zip'), 'rb').read())
+        if m.hexdigest().lower() != 'fe8d4ef49b69874763f6dab30cbb6292':
             raise SystemExit, "File %r is incomplete or corrupt" % os.path.join('build', 'crypto42.zip')
 
-        if not os.path.isfile(os.path.join('build', 'crypto42.zip')):
+        if not os.path.isfile(os.path.join('build', 'crypto50.zip')):
             raise SystemExit, "couldn't get zip file"
         
-        if not os.path.isdir(os.path.join('build', 'crypto++-4.2')):
+        if not os.path.isdir(os.path.join('build', 'crypto++-5.0')):
             print "Extracting crypto++..."
-            cmd = 'unzip -d %s -a %s' % (os.path.join('build', 'crypto++-4.2'), os.path.join('build', 'crypto42.zip'))
+            cmd = 'unzip -d %s -a %s' % (os.path.join('build', 'crypto++-5.0'), os.path.join('build', 'crypto50.zip'))
             print cmd 
             os.system(cmd)
+            """
             # same effect as 'touch'
-            file(os.path.join('build', 'crypto++-4.2', 'unpatched'),'w').close()
+            file(os.path.join('build', 'crypto++-5.0', 'unpatched'),'w').close()
+            """
             
+        """
         if os.path.isfile(os.path.join('build', 'crypto++-4.2', 'unpatched')):
             print "Patching crypto++..."
             os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-4.2'))
@@ -97,10 +131,10 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
                 os.system('patch -p0 < %s' % os.path.join(self.base_dir, 'egtp', 'crypto', 'patches', ii))
             os.chdir(self.base_dir)
             os.unlink(os.path.join('build', 'crypto++-4.2', 'unpatched'))
-
-        if not os.path.isfile(os.path.join('build', 'crypto++-4.2', 'libcryptopp.a')):
+        """
+        if not os.path.isfile(os.path.join('build', 'crypto++-5.0', 'libcryptopp.a')):
             print "Building crypto++..."
-            os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-4.2'))
+            os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-5.0'))
             os.system('make libcryptopp.a')
             os.chdir(self.base_dir)
         
@@ -132,8 +166,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.cryptopp_dir = os.environ['CRYPTOPP_DIR']
             if not os.path.isdir(self.cryptopp_dir) :
                 raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
-        elif os.path.isdir(os.path.join('build', 'crypto++-4.2')) and os.path.isfile(os.path.join('build', 'crypto++-4.2', 'libcryptopp.a')):
-            self.cryptopp_dir = os.path.join('build', 'crypto++-4.2')
+        elif os.path.isdir(os.path.join('build', 'crypto++-5.0')) and os.path.isfile(os.path.join('build', 'crypto++-5.0', 'libcryptopp.a')):
+            self.cryptopp_dir = os.path.join('build', 'crypto++-5.0')
         elif os.path.isdir('/usr/include/crypto++'):
             self.cryptopp_dir = '/usr/include/crypto++'
         elif os.path.isdir('/usr/local/include/crypto++'):
@@ -162,8 +196,8 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
 
         # find out the crypto++ version from the include files
         tmp = None
-        if os.path.isfile(os.path.join(self.cryptopp_dir, 'README.txt')):
-            ff = file(os.path.join(self.cryptopp_dir, 'README.txt'), 'r')
+        if os.path.isfile(os.path.join(self.cryptopp_dir, 'Readme.txt')):
+            ff = file(os.path.join(self.cryptopp_dir, 'Readme.txt'), 'r')
             tmp = ff.readlines()
             ff.close()
             # try to find a string like this: Version 4.2 11/5/2001
@@ -187,6 +221,8 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
             self.define.extend([('CRYPTOPP_41', None),])
         elif cryptoppversion == "4.2":
             self.define.extend([('CRYPTOPP_42', None),])
+        elif cryptoppversion == "5.0":
+            self.define.extend([('CRYPTOPP_50', None),])
         
         # On FreeBSD we -finally- found that -lgcc was the magic needed linker flag to
         # prevent the "undefined symbol: __pure_virtual" problem when attempting to
@@ -275,14 +311,14 @@ def fetch_anon_cvs(cvsroot, module, directory_name):
             write_cvs_pass = 0
     if write_cvs_pass:
         ff = file(os.path.expandvars('${HOME}/.cvspass'), 'a')
-        ff.write("%s A" % cvsroot)
+        ff.write("%s A\n" % cvsroot)
     if os.path.isdir(directory_name):
         print "Updating %r..." % module
         os.chdir(directory_name)
         os.system('cvs -z3 -d%s update -Pd' % cvsroot)
     else:
         print "Checking out %r..." % module
-        subdir, final_dir = os.path.split(directory_name)
+        subdir, final_dir = os.path.split(os.path.abspath(directory_name))
         os.chdir(subdir)
         cmd = 'cvs -z3 -d%s checkout -d%s -P %s' % (cvsroot, final_dir, module)
         os.system(cmd)
