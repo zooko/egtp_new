@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: OurMessagesCommStrat.py,v 1.4 2002/12/02 19:58:50 myers_carpenter Exp $"
+__revision__ = "$Id: OurMessagesCommStrat.py,v 1.5 2003/01/06 03:00:25 myers_carpenter Exp $"
 
 from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
 
@@ -11,7 +11,8 @@ from egtp.OurMessagesPublicKey import *
 
 BASE_COMM_STRAT_TEMPL = {
     'broker id': OptionMarker(UNIQUE_ID),
-    'comm strat sequence num': NON_NEGATIVE_INTEGER,
+    'comm strat sequence num': OptionMarker(NON_NEGATIVE_INTEGER),
+    #  'comm strat sequence num': NON_NEGATIVE_INTEGER,
     }
 
 TCP_COMM_STRAT_TEMPL = {}

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.20 2003/01/05 19:33:24 zooko Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.21 2003/01/06 03:00:20 myers_carpenter Exp $"
 
 true = 1
 false = 0
@@ -81,10 +81,15 @@ class Widget:
         return idlib.make_id_from_uniq(uniq=self._firstmsgId, thingtype='conversation')
         
 
-class Error(exceptions.StandardError): pass
-class FailureError(Error): pass # FailureError is for failures in the conversation/transaction layer
+class Error(exceptions.StandardError): 
+    pass
+class FailureError(Error): 
+    """FailureError is for failures in the conversation/transaction layer
+    """
+    pass 
 
-class ResponseMarker: pass
+class ResponseMarker: 
+    pass
 
 # The following symbols really just belong here in MojoTransaction.py, but
 # Python's inability to do mutually recursive modules means that I can't
@@ -140,19 +145,27 @@ class MojoTransactionManager:
     call `MojoTransactionManager.initiate()', passing the id of the remote
     broker, the contents of the query message, and optionally a callback
     function that will be called when the transaction completes or fails.
-
-    For an example of server behavior, see "server/merchant/BlockServerEGTP.py".  For an example
-    of client behavior, see "common/Paytool.py".
     """
     def __init__(self, lookupman, discoveryman, datadir, use_dynamic_timing = true, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, ip_bind=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
         """
-        @param lookupman: an object which implements the ILookupManager interface;  MojoTransaction uses the lookupman to get fresh EGTP addresses for counterparty_id's (i.e. to find out the current IP address or current relay server of a given public key ID).
-        @param discoveryman: an object which implements the IDiscoveryManager interface;  MojoTransaction passes this to RelayListener, which uses the discoveryman to find relay servers.
-        @param datadir: directory to store data files created and used by this object
-        
-        @param dontbind: `true' if and only if you don't want to bind and listen to a port
+        @param lookupman: an object which implements the ILookupManager
+            interface; MojoTransaction uses the lookupman to get fresh EGTP
+            addresses for counterparty_id's (i.e. to find out the current IP
+            address or current relay server of a given public key ID).
+        @param discoveryman: an object which implements the
+            IDiscoveryManager interface; MojoTransaction passes this to
+            RelayListener, which uses the discoveryman to find relay
+            servers.
+        @param keyID: This node's egtp id
+        @param datadir: directory to store data files created and used by
+            this object
+        @param dontbind: `true' if and only if you don't want to bind and
+            listen to a port
         @param neverpoll: `true' if you don't want to poll relayers
-        @param allownonrouteableip: `true' if you want the MTM to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
+        @param allownonrouteableip: `true' if you want the MTM to ignore the
+            fact that its detected IP address is non-routeable and go ahead and
+            report it as a valid comm strategy; This is for testing, although
+            it might also be useful some day for routing within a LAN.
 
         @precondition: `announced_service_dicts' must be a list.: type(announced_service_dicts) == types.ListType: "announced_service_dicts: %s" % humanreadable.hr(announced_service_dicts)
         @precondition: `handler_funcs' must be a dict.: type(handler_funcs) == types.DictType: "handler_funcs: %s" % humanreadable.hr(handler_funcs)
@@ -211,7 +224,9 @@ class MojoTransactionManager:
                 self._mesgen=mesgen.MessageMaker(dir=os.path.join(dbparentdir, keyID), recoverdb=recoverdb)
                 ready = true
             except:
-                # We sometimes get exceptions here because of corrupted db.  "ready" has not yet been set, which means we'll create a whole new db below.
+                # We sometimes get exceptions here because of corrupted db. 
+                # "ready" has not yet been set, which means we'll create a
+                # whole new db below.
                 debugprint("Got exception trying to instantiate mesgen db.  Exception and traceback follows:\n");
                 traceback.print_exc(file=debugstream)
                 pass

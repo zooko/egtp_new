@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.9 2002/12/17 05:35:02 zooko Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.10 2003/01/06 03:00:19 myers_carpenter Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -15,6 +15,7 @@ import string
 # pyutil modules
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint
+from pyutil.humanreadable import hr
 
 # our modules
 from egtp import DataTypes, OurMessages, idlib

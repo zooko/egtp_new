@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Node.py,v 1.8 2002/12/15 20:06:57 myers_carpenter Exp $"
+__revision__ = "$Id: Node.py,v 1.9 2003/01/06 03:00:23 myers_carpenter Exp $"
 
 # standard modules
 import types
@@ -37,25 +37,32 @@ def shutdown_and_block_until_finished():
     DoQ.doq = None
 
 class Node:
-    def __init__(self, lookupman=None, discoveryman=None, datadir=None, allownonrouteableip=false):
+    def __init__(self, lookupman=None, discoveryman=None, datadir=None, nodeId=None, allownonrouteableip=false):
         """
-        @param lookupman: a Lookup Manager, or `None' to use the default one (MetaTrackerLookupMan)
-        @param discoveryman: a Discovery Manager, or `None' to use the default one (MetaTrackerDiscoveryMan)
-        @param datadir: directory to story data files created and used by this object
-        @param allownonrouteableip: `true' if you want the Node to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid address;  This is for testing, although it might also be useful some day for routing within a LAN.
+        @param lookupman: a Lookup Manager, or `None' to use the default one
+            (MetaTrackerLookupMan)
+        @param discoveryman: a Discovery Manager, or `None' to use the
+            default one (MetaTrackerDiscoveryMan)
+        @param datadir: directory to story data files created and used by
+            this object
+        @param allownonrouteableip: `true' if you want the Node to ignore
+            the fact that its detected IP address is non-routeable and go ahead
+            and report it as a valid address; This is for testing, although it
+            might also be useful some day for routing within a LAN.
         """
         if lookupman is None:
             # XXX incomplete
             raise "sorry, incomplete"
             # lookupman = MetaTrackerLookupMan.MetaTrackerLookupMan()
-        self.mtm = MojoTransaction.MojoTransactionManager(lookupman=lookupman, discoveryman=discoveryman, datadir=datadir, allownonrouteableip=allownonrouteableip)
+        self.mtm = MojoTransaction.MojoTransactionManager(lookupman=lookupman, discoveryman=discoveryman, datadir=datadir, keyID=nodeId, allownonrouteableip=allownonrouteableip)
 
     def start(self):
         self.mtm.start_listening()
 
     def get_address(self):
         """
-        @return: the current EGTP address used to contact this Node or `None' if it isn't currently known
+        @return: the current EGTP address used to contact this Node or
+            `None' if it isn't currently known
         """
         return self.mtm._get_our_hello_msgbody()
 
