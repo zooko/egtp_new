@@ -1,6 +1,6 @@
 Introduction to the EGTP version 2 Architecture:
 
-document version 0.0.0
+document version 0.0.1
 
 I. Background Material
 
@@ -45,6 +45,11 @@ secure protocols. In R. K. Iyer, M. Morganti, Fuchs W. K, and V. Gligor,
 editors, Dependable Computing for Critical Applications 5, pages 79--100. IEEE 
 Computer Society, 1998.
 http://citeseer.nj.nec.com/gong95failstop.html
+
+[Zooko: write argument that EGTPv2 implements full fail-stop/fail-safe layer and 
+any application-level user of EGTPv2 that uses EGTPv2 solely through EGTPv2's 
+API automatically has a fail-stop/fail-safe protocol.  See if Li Gong and Paul 
+Syverson will review it for you. :-)  --Zooko]
 
 D. EGTPv1
 
