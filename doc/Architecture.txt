@@ -119,3 +119,10 @@ bandwidth throttling.
 Questions:
 How do we know if a message was sent successfully or not? Do we get ack messages?
 What if a relay server is involved?
+
+
+Ok, Explain Lookup vs. Discovery again.
+
+Lookup is verifiable while Discovery is not?
+
+Does this mean that in a DHT a lookup might find which node should have a peice of data? While a discovery might be which IP address a node was reachable at? (Since you cant prove the later from its key.) 
