@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.6 2002/09/09 21:15:14 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.7 2002/09/09 21:47:48 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -44,8 +44,6 @@ from pyutil import dictutil
 from pyutil import fileutil
 from pyutil import humanreadable
 from pyutil import timeutil
-print sys.path
-print compat.__file__
 from pyutil.xor import xor
 
 true = 1

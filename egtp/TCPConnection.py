@@ -228,7 +228,7 @@ class TCPConnection(asyncore.dispatcher):
         # (Note that it is possible for us to be closing now even though we tested just a few lines up because we are operating on the DoQ thread here and the asyncore thread can cause us to become closing.)
         if not self._closing and not self._writethrottled and not self._writable:
             self._writable = 1 # `true'
-            pyutilasync.selector.wake_select()
+            Asyncore.selector.wake_select()
 
         self._nummsgs = self._nummsgs + 1
 

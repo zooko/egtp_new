@@ -45,8 +45,7 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
     def download_pyutil(self):
         try:
             import pyutil
-            # TODO verison test
-            ing
+            # TODO verison testing
         except ImportError:   
             print "Downloading 'pyutil' ... "
             pyutil_build_dir = os.path.join('build', 'pyutil')

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.4 2002/09/09 21:15:13 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.5 2002/09/09 21:47:48 myers_carpenter Exp $'
 
 true = 1
 false = 0
@@ -47,7 +47,6 @@ from egtp.interfaces import *
 from egtp import MojoKey, MojoMessage, RelayListener, TCPCommsHandler
 from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
 from egtp import confutils, counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
-
 
 # make users throttle a lot less than the metatracker
 if confman.is_true_bool(('YES_NO', 'RUN_META_TRACKER',)):
@@ -115,17 +114,35 @@ class PricerError(Error): pass
 
 class ResponseMarker: pass
 
-# The following symbols really just belong here in MojoTransaction.py, but Python's inability to do mutually recursive modules means that I can't access ConversationManager from here and also have ConversationManager access these symbols from Conversation.py.  So I'll just shove them into std.  Bleah.  --Zooko 2000-09-28
+# The following symbols really just belong here in MojoTransaction.py, but
+# Python's inability to do mutually recursive modules means that I can't
+# access ConversationManager from here and also have ConversationManager
+# access these symbols from Conversation.py.  So I'll just shove them into
+# std.  Bleah.  --Zooko 2000-09-28
 
 # possible return value from an incoming message handler. # `ASYNC_RESPONSE' means I'll provide the response later.
 ASYNC_RESPONSE = ResponseMarker()
 
-# possible return value from an incoming message handler. # `NO_RESPONSE' means that the correct, permanent, immutable response to the incoming message is to send no response.  Mappings from incoming messages to responses are immutable: you MUST NOT change your mind and send a response later after you have returned `NO_RESPONSE'.  If you mean "I have no response right now, but later I'll come up with the correct, permanent, immutable response.", then return `ASYNC_RESPONSE'.
+# possible return value from an incoming message handler. # `NO_RESPONSE'
+# means that the correct, permanent, immutable response to the incoming
+# message is to send no response.  Mappings from incoming messages to
+# responses are immutable: you MUST NOT change your mind and send a response
+# later after you have returned `NO_RESPONSE'.  If you mean "I have no
+# response right now, but later I'll come up with the correct, permanent,
+# immutable response.", then return `ASYNC_RESPONSE'.
+
 NO_RESPONSE = ResponseMarker()
 
-# Currently, handlers that handles _responding_ messages are assumed to have no response (that is: every transaction is a two-move protocol), so if you return `None' (the default return value in Python, same as what happens if you have no return statement at all), then it translates to `NO_RESPONSE' for you.  It wouldn't hurt to go ahead and return `NO_RESPONSE' from those handlers, if you wish to emphasize that they are there are no more moves in the protocol.
+# Currently, handlers that handles _responding_ messages are assumed to have
+# no response (that is: every transaction is a two-move protocol), so if you
+# return `None' (the default return value in Python, same as what happens if
+# you have no return statement at all), then it translates to `NO_RESPONSE'
+# for you.  It wouldn't hurt to go ahead and return `NO_RESPONSE' from those
+# handlers, if you wish to emphasize that they are there are no more moves
+# in the protocol.
 
-# XXX this is very bad to be adding member to another module at run time!  please use this module's references to the above instead -g
+# XXX this is very bad to be adding member to another module at run time! 
+# please use this module's references to the above instead -g
 std.ASYNC_RESPONSE = ASYNC_RESPONSE
 std.NO_RESPONSE = NO_RESPONSE
 
@@ -625,12 +642,12 @@ class MojoTransactionManager:
         # Okay, now invoke the server func:
         result = serverfunc(widget, msgbody['mojo message'])
 
-        if result is MojoTransaction.NO_RESPONSE:
+        if result is NO_RESPONSE:
             self._cm.drop_request_state(firstmsgId)
             return NO_RESPONSE
 
-        if result is MojoTransaction.ASYNC_RESPONSE:
-            return MojoTransaction.ASYNC_RESPONSE
+        if result is ASYNC_RESPONSE:
+            return ASYNC_RESPONSE
 
         if (type(result) in (types.TupleType, types.ListType,)) and (len(result) == 2) and Conversation.is_mojo_message(result[0]) and CommHints.is_hint(result[1]):
             result = result[0]
