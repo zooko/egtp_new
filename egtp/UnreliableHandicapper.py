@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: UnreliableHandicapper.py,v 1.8 2002/12/02 21:20:46 myers_carpenter Exp $"
+__revision__ = "$Id: UnreliableHandicapper.py,v 1.9 2003/02/09 17:52:13 zooko Exp $"
 
 # pyutil modules
 from pyutil.humanreadable import hr
@@ -38,7 +38,7 @@ class UnreliableHandicapper:
                 reliability = MIN_RELIABILITY
                 cpty.set_reliability(reliability)
 
-        if message_type == "put blob":
+        if message_type in ('pub block', 'put blob'): # "put block" is the way it will be spelled in the future, "put blob" is the way it was spelled in the past
             return (TUNING_FACTOR * PUB_TUNING_FACTOR) / reliability
         else:
             return TUNING_FACTOR / reliability

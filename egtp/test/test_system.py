@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 #
-#  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
+#  Copyright (c) 2002, 2003 Bryce "Zooko" Wilcox-O'Hearn
 #  portions Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: test_system.py,v 1.3 2002/12/15 20:06:57 myers_carpenter Exp $"
+__revision__ = "$Id: test_system.py,v 1.4 2003/02/09 17:52:13 zooko Exp $"
 
 # standard Python modules
-import threading, types, unittest, tempfile, os, shutil
+import os, shutil, threading, types, tempfile, unittest
+
+# libbase32 modules
+from libbase32.humanreadable import hr
 
 # pyutil modules
 from pyutil import DoQ
 from pyutil import config
 from pyutil.debugprint import debugprint
 from pyutil.timeutil import timer
+from pyutil import assertutil
+assertutil.hr = hr
+from pyutil.assertutil import _assert, precondition
 
 from egtp import idlib, CommStrat, Node, humanreadable
 from egtp.NodeMappingVerifier import NodeMappingVerifier
@@ -29,7 +35,7 @@ config.MAX_VERBOSITY = 1
 
 HARDCODED_GOOD_EGTP_ADDRESS={'sequence num': 3, 'connection strategies': [{'lowerstrategy': {'IP address': '192.168.0.2', 'port number': '15233', 'comm strat sequence num': 1, 'comm strategy type': 'TCP'}, 'pubkey': {'key header': {'usage': 'only for communication security', 'type': 'public', 'cryptosystem': 'RSA'}, 'key values': {'public modulus': 'l2RaTKzSJNJyC5EpdVy1nzxW49QIetRILxilog9OgHm-LRHCMcZRstrGBKRYK_yZPJ7f9Nx9-nTLup1coWjH43R1ib16xgSZ3P2ZsWFgPC5-3nJcm1HuE0cdupMr-HY3OG2p6LP-Yywf3G6F0pPWLG8wZZICZzAXIoV2jZVspqc', 'public exponent': '3'}}, 'comm strat sequence num': 1, 'comm strategy type': 'crypto'}]}
 
-assert (type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "precondition: `HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s" % (humanreadable.hr(HARDCODED_GOOD_EGTP_ADDRESS), humanreadable.hr(type(HARDCODED_GOOD_EGTP_ADDRESS)),)
+precondition((type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "`HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s", (HARDCODED_GOOD_EGTP_ADDRES, type(HARDCODED_GOOD_EGTP_ADDRESS,)))
 
 class LocalLookupMan(ILookupManager):
     """ 
@@ -52,9 +58,10 @@ class LocalLookupMan(ILookupManager):
         @precondition egtpaddr must be a dict.: type(egtpaddr) is types.DictType: "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
         @precondition egtpid must match egtpaddr.: idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)): "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
         """
-        assert idlib.is_id(egtpid), "precondition: egtpid must be an id." + " -- " + "egtpid: %s :: %s" % (humanreadable.hr(egtpid), humanreadable.hr(type(egtpid)),)
-        assert type(egtpaddr) is types.DictType, "precondition: egtpaddr must be a dict." + " -- " + "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
-        assert idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)), "precondition: egtpid must match egtpaddr." + " -- " + "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
+#         precondition(idlib.is_id(egtpid), "egtpid must be an id.", egtpip=egtpip)# XXX Zooko: come back and fix me.  --Zooko 2003-02-08
+#         precondition
+#         assert type(egtpaddr) is types.DictType, "precondition: egtpaddr must be a dict." + " -- " + "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
+#         assert idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)), "precondition: egtpid must match egtpaddr." + " -- " + "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
 
         self.data[egtpid] = egtpaddr
 

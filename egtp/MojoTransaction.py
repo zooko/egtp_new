@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.23 2003/02/02 19:31:37 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.24 2003/02/09 17:52:12 zooko Exp $"
 
 true = 1
 false = 0
@@ -266,12 +266,10 @@ class MojoTransactionManager:
         # being added.  The "@return:" doco below is _before_ squaring.  All "@return:" numbers
         # below are additives unless specified to be multipliers.
 
-        # for all msgtypes
         #  @return: 1000 if counterparty is "unreliable";  With default settings, you are unreliable if you have dropped more than 30% of queries or more than 2000 queries throughout all history.
         # DISQUALIFIES counterparties.  The above line is incorrect.
         self.get_handicapper().add_handicapper(UnreliableHandicapper(self._keeper, self.get_id()))
 
-        # for msgtype in ('are there messages',)
         #  @return: 500 if counterparty is not the currently preferred (== most recently advertised) relay server.
         self.get_handicapper().add_handicapper(self._listenermanager._relayl.compute_handicap_prefer_current, mtypes=('are there messages',))
 

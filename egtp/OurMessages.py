@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: OurMessages.py,v 1.5 2002/12/14 04:50:21 myers_carpenter Exp $"
+__revision__ = "$Id: OurMessages.py,v 1.6 2003/02/09 17:52:13 zooko Exp $"
 
 from egtp.DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BOOLEAN
 
@@ -18,19 +18,25 @@ from egtp.OurMessagesPublicKey import *
 # `templs' is a dict from message types to templates that messages of that type must match.
 
 
-templs['do you have blobs'] = {'block id list': ListMarker(UNIQUE_ID), 'do not recurse': OptionMarker("true")}
+templs['do you have blocks'] = {'block id list': ListMarker(UNIQUE_ID), 'do not recurse': OptionMarker("true")}
+templs['do you have blobs'] = templs['do you have blocks'] # "do you have blocks" is the way it will be spelled in the future, "do you have blobs" is the way it was spelled in the past.
 # Include 'do not recurse: true' when doing block wholesaling.  Else, leave it off.
-templs['do you have blobs response'] = ListMarker(UNIQUE_ID)
+templs['do you have blocks response'] = ListMarker(UNIQUE_ID)
+templs['do you have blobs response'] = templs['do you have blocks response']
 
-templs['request blob'] = {'blob id': UNIQUE_ID, 'do not recurse': OptionMarker("true")}
-templs['request blob response'] = [{'result': "success", 'data': ANY}, {'result': "failure"}]
+templs['request block'] = {'blockId': OptionMarker(UNIQUE_ID), 'blob id': OptionMarker(UNIQUE_ID), 'do not recurse': OptionMarker("true")}
+templs['request blob'] = templs['request block'] # "request block" is the way it will be spelled in the future, "request blob" is the way it was spelled in the past.
+templs['request block response'] = [{'result': "success", 'data': ANY}, {'result': "failure"}]
+templs['request blob response'] = templs['request block response']
 
-templs['put blob'] = {'blob id': UNIQUE_ID, 'data': ANY, 'passalong': OptionMarker(0)}
-templs['put blob response'] = {'result': ["success", "failure"]}
+templs['put block'] = {'blockId': OptionMarker(UNIQUE_ID), 'blob id': OptionMarker(UNIQUE_ID), 'data': ANY, 'passalong': OptionMarker(0)}
+templs['put blob'] = templs['put block'] # "put block" is the way it will be spelled in the future, "put blob" is the way it was spelled in the past.
+templs['put block response'] = {'result': ["success", "failure"]}
+templs['put blob response'] = templs['put block response']
 
 
 
-IDMASK_TEMPL={'mask': ASCII_ARMORED_DATA, 'bits': NON_NEGATIVE_INTEGER}
+IDMASK_TEMPL={'mask': ASCII_ARMORED_DATA, 'bits': NON_NEGATIVE_INTEGER} # deprecated long ago, and probably safely removable?  --Zooko 2003-02-08
 
 
 # Relay Server messages
@@ -100,7 +106,7 @@ templs['get bad block list response'] = [
         'nonce': UNIQUE_ID, # This is always the server's current nonce.  If it doesn't match the clients nonce, the client should notice the discrepancy.
         'start': NON_NEGATIVE_INTEGER, # This is the true starting index on the server side (which might be different than what the client asked for).
         'end': NON_NEGATIVE_INTEGER, # This is the true ending index on the server side (which might be different than what the client asked for).
-        'bad block list': ListMarker(UNIQUE_ID), # These are block/blob IDs.
+        'bad block list': ListMarker(UNIQUE_ID), # These are blockIds.
     }, {
         'result': 'failure',
         'failure reason': OptionMarker(STRING),
@@ -110,7 +116,8 @@ HELLO_SERVICE_TEMPL={ 'type': STRING }   # don't be explicit here, that would di
 
 # These are templates for service descriptions within hello messages
 #
-HELLO_SERVICE_BLOB_SERVER_TEMPL={ 'type': "blob server", 'publishing allowed': [BOOLEAN, "yes", "no"], 'mask list': OptionMarker(ListMarker(IDMASK_TEMPL)), 'stddev': OptionMarker(NON_NEGATIVE_INTEGER), 'centerpoint': OptionMarker(NON_NEGATIVE_INTEGER)} # We *could* type-check centerpoint more specifically to be >= 0 and < 2**24  --Zooko 2001-07-28 # `publishing allowed' will be required to be BOOLEAN in the future.  For backwards compatibility we are allowing "yes", "no".  --Zooko 2001-07-28
+HELLO_SERVICE_BLOCK_SERVER_TEMPL={ 'type': "block server", 'publishing allowed': BOOLEAN, 'mask list': OptionMarker(ListMarker(IDMASK_TEMPL)), 'stddev': OptionMarker(NON_NEGATIVE_INTEGER), 'centerpoint': OptionMarker(NON_NEGATIVE_INTEGER)}
+HELLO_SERVICE_BLOB_SERVER_TEMPL={ 'type': "blob server", 'publishing allowed': BOOLEAN, 'mask list': OptionMarker(ListMarker(IDMASK_TEMPL)), 'stddev': OptionMarker(NON_NEGATIVE_INTEGER), 'centerpoint': OptionMarker(NON_NEGATIVE_INTEGER)}
 HELLO_SERVICE_META_TRACKER_TEMPL={ 'type': "meta tracker", 'seconds until expiration': NON_NEGATIVE_INTEGER}
 HELLO_SERVICE_CONTENT_TRACKER_TEMPL={ 'type': "content tracker", 'content types': OptionMarker(ListMarker(ANY)), 'supports smart queries': OptionMarker('yes')}
 HELLO_SERVICE_RELAY_SERVER_TEMPL={ 'type': ["relay server v2", "relay server"]}
@@ -122,6 +129,7 @@ HELLO_SERVICE_RELAY_SERVER_TEMPL={ 'type': ["relay server v2", "relay server"]}
 #
 HELLO_SERVICE_TEMPL_TYPE_MAP = {
     'blob server' : HELLO_SERVICE_BLOB_SERVER_TEMPL,
+    'block server' : HELLO_SERVICE_BLOCK_SERVER_TEMPL,
     'meta tracker' : HELLO_SERVICE_META_TRACKER_TEMPL,
     'content tracker' : HELLO_SERVICE_CONTENT_TRACKER_TEMPL,
     'relay server v2' : HELLO_SERVICE_RELAY_SERVER_TEMPL,

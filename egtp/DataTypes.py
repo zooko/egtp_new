@@ -3,16 +3,17 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: DataTypes.py,v 1.8 2002/12/02 19:58:47 myers_carpenter Exp $"
+__revision__ = "$Id: DataTypes.py,v 1.9 2003/02/09 17:52:12 zooko Exp $"
 
-# standard modules
+# Python Standard Library modules
 import types, pprint
 
-# our modules
+# egtp modules
+from egtp.MojoErrors import BadFormatError
+from egtp import EGTPConstants, idlib, mojosixbit, std, humanreadable
+
 true = 1
 false = 0
-from egtp.MojoErrors import BadFormatError
-from egtp import mojosixbit, std, humanreadable
 
 def NONEMPTY(thing, verbose):
     pass
@@ -88,26 +89,32 @@ def ASCII_ARMORED_DATA(thing, verbose, StringType=types.StringType):
     ### !!!!! XXXXXX need to make this canonical!  --Zooko 2000-08-20
 
 def UNIQUE_ID(thing, verbose, StringType=types.StringType):
-    if type(thing) is not StringType or not std.is_sloppy_id(thing):
+    if type(thing) is not StringType or not idlib.is_sloppy_id(thing):
         raise BadFormatError, "not an unique id"
+    if idlib.is_mojosixbitencoded_id(thing):
+        # XXX someday soon this will reject mojosixbit encoded UNIQUE_IDs...  --Zooko 2003-02-08
+        debugprint("warning: found mojosixbitencoded id in protocol.  These should be converted to flat binary encoding.  id: %s\n", args=(thing,), v=5, vs="protocol")
 
 def ASCII_ID(thing, verbose, StringType=types.StringType):
-    if type(thing) is not StringType or not std.is_mojosixbitencoded_id(thing):
+    if type(thing) is not StringType or not idlib.is_mojosixbitencoded_id(thing):
         raise BadFormatError, "not an ascii id"
 
 def MOD_VAL(thing, verbose, StringType=types.StringType):
     if type(thing) is not StringType:
         raise BadFormatError, "not proper modval - not a string"
     try:
-        if not std.is_canonical_modval(mojosixbit.a2b(thing)):
+        if len(mojosixbit.a2b(thing)) != EGTPConstants.SIZE_OF_MODULAR_VALUES:
             raise BadFormatError, "not a proper modval"
     except mojosixbit.Error:
         raise BadFormatError, "not a proper modval - not even proper ascii-encoded data"
 
 def BINARY_SHA1(thing, verbose, StringType=types.StringType):
+    """
+    @deprecated: in favor of UNIQUE_ID
+    """
     if type(thing) is not StringType:
         raise BadFormatError, "not proper binary sha1 - not a string"
-    if not std.is_canonical_uniq(thing):
+    if not idlib.is_canonical_uniq(thing):
         raise BadFormatError, "not a sha1 value - it does not have a length of 20" 
 
 class OptionMarker :

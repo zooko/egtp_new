@@ -11,16 +11,13 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.11 2003/02/04 03:43:02 zooko Exp $"
+__revision__ = "$Id: idlib.py,v 1.12 2003/02/09 17:52:13 zooko Exp $"
 
 # Python Standard Library modules
 import re, sha, struct, types
 
-# pyutil modules
-from pyutil.xor.xor import xor
-
 # egtp modules
-from egtp import std, mojosixbit, std
+from egtp import EGTPConstants, std, mojosixbit, std
 from egtp.crypto import randsource
 
 true = 1
@@ -69,42 +66,25 @@ def distance(id1, id2):
  
     return min(dif1, dif2)
 
-def xor_distance(id1, id2):
-    """
-    @param id1 an id
-    @param id2 an id
-
-    @returns the distance between the two == the native-int representation of the XOR of the two ids
-
-    @precondition id1 must be an id.: is_id(id1): "id1: %s :: %s" % tuple(map(humanreadable.hr (id1, type(id1),)))
-    @precondition id2 must be an id.: is_id(id2): "id2: %s :: %s" % tuple(map(humanreadable.hr (id2, type(id2),)))
-    """
-    assert is_id(id1), "precondition: id1 must be an id." + " -- " + "id1: %s :: %s" % tuple(map(humanreadable.hr (id1, type(id1),)))
-    assert is_id(id2), "precondition: id2 must be an id." + " -- " + "id2: %s :: %s" % tuple(map(humanreadable.hr (id2, type(id2),)))
-
-    return id_to_native_int(xor(id1[:3], id2[:3]))
-
-def sort_ids(refid, ids):
-    """
-    @param refid the reference id
-    @param a list of ids
-
-    @returns a copy of the list `ids', sorted according to their XOR distance from `refid'.
-    """
-    l = map(lambda id, refid=refid: (xor_distance(refid, id), id,), ids)
-    l.sort()
-    return map(lambda x: x[1], l)
-
 def id_to_native_int(id, IntType=types.IntType, LongType=types.LongType, FloatType=types.FloatType):
     """
-    This uses only the first 24 bits of `id', in order to be fast.  (If we used 32 bits, it would be slower due to using Python longs instead of a native int.)
+    This uses only the first 24 bits of `id', in order to be fast.
+    (If we used 32 bits, it would be slower due to using Python longs
+    instead of a native int.)
 
-    @param: id can be one of the following four options: a native-int representation of an id, a float representation of a native-int, a full 160-bit id in either straight binary or mojosixbit-encoded form, or the prefix of an id, as long as it contains at least 24 bits of information and is in straight binary form, *not* in mojosixbit encoded form
+    @param: id can be one of the following four options: a native-int
+        representation of an id, a float representation of a native-int,
+        a full 160-bit id in either straight binary or mojosixbit-
+        encoded form, or the prefix of an id, as long as it contains at
+        least 24 bits of information and is in straight binary form,
+        *not* in mojosixbit encoded form
 
-    @precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix.: is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= 20)): "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
+    @precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix.: is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= EGTPConstants.SIZE_OF_UNIQS)): "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
     """
-    assert is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= 20)), "precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix." + " -- " + "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
+    assert is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= EGTPConstants.SIZE_OF_UNIQS)), "precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix." + " -- " + "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
 
+    if is_mojosixbitencoded_id(id):
+        debugprint("warning: mojosixbitencoded id encountered.  Should be converted to flat binary.  id: %s\n", args=(id,))
     typ = type(id)
     if typ is IntType or typ is LongType or typ is FloatType:
         return int(id)
@@ -147,7 +127,7 @@ def is_canonical_uniq(thing, _strtypes=_strtypes):
     """slightly slower than is_binary_id, but more accurate due to the type check"""
     if type(thing) not in _strtypes:
         return false
-    return len(thing) == 20
+    return len(thing) == EGTPConstants.SIZE_OF_UNIQS
 
 def identifies(id, thing, thingtype=None):
     """
@@ -193,11 +173,13 @@ def make_id(thing, thingtype=None):
 
 def canonicalize(id, thingtype=None):
     """
-    Use this function to canonicalize an id of one of the "bare" forms (a 20-byte binary string
-    or the mojosixbit encoding thereof) into the canonical form.  Useful for calling on ids
-    received from other brokers over the wire.
+    Use this function to canonicalize an id of one of the "bare" forms
+    (a EGTPConstants.SIZE_OF_UNIQS-byte binary string or the mojosixbit
+    encoding thereof) into the canonical form.  Useful for calling on
+    ids received from other brokers over the wire.
 
-    @param id: an id, which may be a bare binary or bare mojosixbit encoded id, or a full canonical id
+    @param id: an id, which may be a bare binary or bare mojosixbit encoded id,
+        or a full canonical id
     @param thingtype: optional type of the thing that is identified (ignored)
 
     @return: the full canonical id
@@ -208,7 +190,7 @@ def canonicalize(id, thingtype=None):
 
     # NOTE: this method is also known as idlib.to_binary
     # implemented for speed not maintainability:
-    if len(id) == 20:
+    if len(id) == EGTPConstants.SIZE_OF_UNIQS:
         return id
     else:
         return mojosixbit.a2b(id)
@@ -230,11 +212,11 @@ def equal(id1, id2):
         return id1 == id2
 
     if len(id1) == 27:
-        assert len(id2) == 20
+        assert len(id2) == EGTPConstants.SIZE_OF_UNIQS
         return to_binary(id1) == id2
     else:
         assert len(id2) == 27
-        assert len(id1) == 20
+        assert len(id1) == EGTPConstants.SIZE_OF_UNIQS
         return id1 == to_binary(id2)
 
 # alternate name
@@ -265,14 +247,14 @@ def id_to_abbrev(str):
     """
     if (len(str) == 27) and (_asciihash_re.match(str)):
         return "<" + str[:4] + ">"
-    elif len(str) == 20:
+    elif len(str) == EGTPConstants.SIZE_OF_UNIQS:
         return "<" + mojosixbit.b2a(str[:3]) + ">"
     else:
         assert is_sloppy_id(str), "precondition: `str' must be an id." + " -- " + "str: %s" % repr(str)
 
 # this gets called a -lot-, it must be fast!
-def is_sloppy_id(astr, thingtype=None, _strtypes=_strtypes, _asciihash_re=_asciihash_re):
-    return (type(astr) in _strtypes) and ((len(astr) == 20) or ((len(astr) == 27) and (_asciihash_re.match(astr))))
+def is_sloppy_id(astr, thingtype=None, _strtypes=_strtypes, _asciihash_re=_asciihash_re, SIZE_OF_UNIQS=EGTPConstants.SIZE_OF_UNIQS):
+    return (type(astr) in _strtypes) and ((len(astr) == SIZE_OF_UNIQS) or ((len(astr) == 27) and (_asciihash_re.match(astr))))
 
 # this gets called a -lot-, it must be fast!
 def is_mojosixbitencoded_id(str, thingtype=None, _asciihash_re=_asciihash_re):
@@ -281,15 +263,16 @@ def is_mojosixbitencoded_id(str, thingtype=None, _asciihash_re=_asciihash_re):
 is_ascii_id = is_mojosixbitencoded_id
 
 # this gets called a -lot-, it must be fast!
-def is_binary_id(str, thingtype=None):
+def is_binary_id(str, thingtype=None, EGTPConstants.SIZE_OF_UNIQS):
     try:
-        return len(str) == 20
+        return len(str) == SIZE_OF_UNIQS
     except:
         return None # 'false'
 
-def is_id(str, thingtype=None):
+# this gets called a -lot-, it must be fast!
+def is_id(str, thingtype=None, SIZE_OF_UNIQS=EGTPConstants.SIZE_OF_UNIQS):
     try:
-        return len(str) == 20
+        return len(str) == SIZE_OF_UNIQS
     except:
         return None # 'false'
 
@@ -303,7 +286,7 @@ def to_mojosixbit(sid):
     if _asciihash_re.match(sid):
         return sid
 
-    assert len(sid) == 20, "`sid' must be a mojosixbit or binary id." + " -- " + "sid: %s" % repr(sid)
+    assert len(sid) == EGTPConstants.SIZE_OF_UNIQS, "`sid' must be a mojosixbit or binary id." + " -- " + "sid: %s" % repr(sid)
 
     # then it must be binary, encode it
     return mojosixbit.b2a(sid)
@@ -318,7 +301,7 @@ def newRandomUniq():
 
     @deprecated: in favor of `new_random_uniq()'
     """
-    return randsource.get(20)
+    return randsource.get(EGTPConstants.SIZE_OF_UNIQS)
 
 new_random_uniq = newRandomUniq
 
