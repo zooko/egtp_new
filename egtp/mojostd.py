@@ -12,10 +12,10 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.12 2002/11/22 04:53:25 zooko Exp $'
+__cvsid = '$Id: mojostd.py,v 1.13 2002/11/22 05:34:43 zooko Exp $'
 
 
-# Python standard library modules
+# Python Standard Library modules
 import sys, os, exceptions,  re, glob, operator, Queue, cStringIO, sha, stat
 import string, threading, time, traceback, types, re, whrandom
 import UserDict, copy, binascii, exceptions
@@ -676,7 +676,7 @@ dictutil.deep_update(confman["PATH"], mypathdict)
 ### Constants:
 # As the heading implies, these values should not be altered.
 
-import egtp
+from egtp import version
 
 from egtp.crypto import evilcryptopp
 if hasattr(evilcryptopp, "cryptopp_version"):
@@ -835,7 +835,7 @@ def gen_per_kb_price_dict(onekbprice, scalingfactor=0.95) : # XXX Shouldn't this
 ## Application Data:
 dictutil.deep_update(confdefaults,
                      dictutil.UtilDict({
-            "EGTP_VERSION_STR" : egtp.version.versionstr_full,
+            "EGTP_VERSION_STR" : version.versionstr_full,
             
             # for General Preferences
             "AUTO_LAUNCH_BROWSER": "yes",
@@ -1248,8 +1248,8 @@ class ConfManager(UserDict.UserDict):
         if compat.is_dict(filedict):
             dictutil.deep_update(self.dict, filedict)
         file.close()
-        if VersionNumber(self.get("EGTP_VERSION_STR")) != VersionNumber(egtp.version.versionstr_full):
-            mojolog.write("NOTE: Loading '%s' version config file while running '%s' version confutils\n" % (self.get("EGTP_VERSION_STR"), egtp.version.versionstr_full))
+        if VersionNumber(self.get("EGTP_VERSION_STR")) != VersionNumber(version.versionstr_full):
+            mojolog.write("NOTE: Loading '%s' version config file while running '%s' version confutils\n" % (self.get("EGTP_VERSION_STR"), version.versionstr_full))
 
         if platform == 'win32': 
             confdefaults['TCP_MAX_CONNECTIONS'] = 50
@@ -1283,7 +1283,7 @@ class ConfManager(UserDict.UserDict):
             mojolog.write("ConfMan: NOT saving due to transience.\n")
             return
 
-        self.dict["EGTP_VERSION_STR"] = egtp.version.versionstr_full
+        self.dict["EGTP_VERSION_STR"] = version.versionstr_full
         debugprint('saving conf file %s (%s); PATH section:\n%s\n', args=(self.dict["PATH"]["BROKER_CONF"], os.path.expandvars(self.dict["PATH"]["BROKER_CONF"]), self.dict["PATH"],), v=6, vs='conf')
         file = open(os.path.expandvars(self.dict["PATH"]["BROKER_CONF"]), 'w')
         file.writelines(dict_to_lines(self.dict))
