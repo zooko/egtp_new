@@ -7,14 +7,16 @@
 
 WrappedRSAFunction::WrappedRSAFunction(const Integer &n,const Integer &e)
 {
-	func = new RSAFunction(n,e);
+	func = new RSAFunction();
+	func->Initialize(n, e);
 	invertibleFunction = NULL;
 }
 
 WrappedRSAFunction::WrappedRSAFunction(BufferedTransformation& bt)
 {
-	invertibleFunction = new InvertibleRSAFunction(bt);
-        func = invertibleFunction;
+	invertibleFunction = new InvertibleRSAFunction();
+	invertibleFunction->BERDecode(bt);
+	func = invertibleFunction;
 }
 
 WrappedRSAFunction::~WrappedRSAFunction()
@@ -30,8 +32,9 @@ WrappedRSAFunction::WrappedRSAFunction(unsigned int keybits,const Integer &e)
 	while(true)
 	{
 		RandsourceRandomNumberGenerator rand = RandsourceRandomNumberGenerator();
-		invertibleFunction = new InvertibleRSAFunction(rand,keybits,e);
-		if(invertibleFunction->GetExponent() == e)
+		invertibleFunction = new InvertibleRSAFunction();
+		invertibleFunction->Initialize(rand,keybits,e);
+		if(invertibleFunction->GetPublicExponent() == e)
 		{
 			break;
 		}
@@ -47,7 +50,7 @@ const Integer& WrappedRSAFunction::GetModulus() const
 
 const Integer& WrappedRSAFunction::GetExponent() const
 {
-	return func->GetExponent();
+	return func->GetPublicExponent();
 }
 
 Integer WrappedRSAFunction::Multiply(const Integer &x,const Integer &y) const
@@ -61,7 +64,7 @@ Integer WrappedRSAFunction::Divide(const Integer &numerator,const Integer &denom
 	Integer inverse = denominator.InverseMod(modulus);
 	if(inverse == Integer::Zero())
 	{
-		throw Exception("can't divide by a value with no inverse");
+		throw Exception(Exception::INVALID_ARGUMENT, "can't divide by a value with no inverse");
 	}
 	return numerator * inverse % modulus;
 }
@@ -75,21 +78,21 @@ Integer WrappedRSAFunction::CalculateInverse(const Integer &x)
 {
 	if(invertibleFunction == NULL)
 	{
-		throw Exception("WrappedRSAFunction: Private key not available");
+		throw Exception(Exception::OTHER_ERROR, "WrappedRSAFunction: Private key not available");
 	}
 	return invertibleFunction->CalculateInverse(x);
 }
 
-std::string WrappedRSAFunction::PrivateKeyEncoding(int *len)
+std::string WrappedRSAFunction::PrivateKeyEncoding()
 {
 	if(invertibleFunction == NULL)
-        {
-		throw Exception("WrappedRSAFunction: Private key not available");
-        }
-        std::string str;
-        StringSink bt(str);
-        invertibleFunction->DEREncode(bt);
-        return str;
+	{
+		throw Exception(Exception::OTHER_ERROR, "WrappedRSAFunction: Private key not available");
+	}
+	std::string str;
+	StringSink bt(str);
+	invertibleFunction->DEREncode(bt);
+	return str;
 }
 
 bool WrappedRSAFunction::Equals(const WrappedRSAFunction &other) const

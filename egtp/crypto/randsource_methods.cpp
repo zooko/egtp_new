@@ -43,19 +43,7 @@ SHA *randsource_pool = new SHA();
 static const unsigned int CHUNK_SIZE = 80;
 
 
-#ifdef CRYPTOPP_42
 byte RandsourceRandomNumberGenerator::GenerateByte() {
-#else
-#ifdef CRYPTOPP_41
-byte RandsourceRandomNumberGenerator::GenerateByte() {
-#else
-#ifdef CRYPTOPP_40
-byte RandsourceRandomNumberGenerator::GenerateByte() {
-#else
-byte RandsourceRandomNumberGenerator::GetByte() {
-#endif
-#endif
-#endif
         byte r;
         if(!randsource_get(&r,1)) {
                 throw NotEnoughEntropyException();
@@ -63,19 +51,7 @@ byte RandsourceRandomNumberGenerator::GetByte() {
         return r;
 }
 
-#ifdef CRYPTOPP_42
 void RandsourceRandomNumberGenerator::GenerateBlock(byte *output,unsigned int size) {
-#else
-#ifdef CRYPTOPP_41
-void RandsourceRandomNumberGenerator::GenerateBlock(byte *output,unsigned int size) {
-#else
-#ifdef CRYPTOPP_40
-void RandsourceRandomNumberGenerator::GenerateBlock(byte *output,unsigned int size) {
-#else
-void RandsourceRandomNumberGenerator::GetBlock(byte *output,unsigned int size) {
-#endif
-#endif
-#endif
         if(!randsource_get(output,size)) {
                 throw NotEnoughEntropyException();
         }

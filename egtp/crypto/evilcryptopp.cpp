@@ -2,7 +2,7 @@
 // A module that merges randsource and modval into one external
 // module to keep dynamic linking happy.
 //
-// $Id: evilcryptopp.cpp,v 1.1 2002/07/26 18:56:39 myers_carpenter Exp $
+// $Id: evilcryptopp.cpp,v 1.2 2002/10/27 20:38:25 zooko Exp $
 
 
 #include "integer.h"
@@ -125,19 +125,7 @@ initevilcryptopp()
         PyDict_SetItemString(d, "_randsource_doc", PyString_FromString(randsource_doc));
         PyDict_SetItemString(d, "_tripledescbc_doc", PyString_FromString(tripledescbc_doc));
 
-#ifdef CRYPTOPP_42
-        PyDict_SetItemString(d, "cryptopp_version", PyString_FromString("4.2"));
-#else
-#ifdef CRYPTOPP_41
-        PyDict_SetItemString(d, "cryptopp_version", PyString_FromString("4.1"));
-#else
-#ifdef CRYPTOPP_40
-        PyDict_SetItemString(d, "cryptopp_version", PyString_FromString("4.0"));
-#else
-        PyDict_SetItemString(d, "cryptopp_version", PyString_FromString("3.2"));
-#endif
-#endif
-#endif
+        PyDict_SetItemString(d, "cryptopp_version", PyString_FromString("5.0"));
 }
 #ifdef __cplusplus
 }

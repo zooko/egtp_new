@@ -2,6 +2,8 @@
 #include "wrappedrsa.h"
 #include "stdio.h"
 #include "randsource_methods.h"
+#include "cryptlib.h"
+#include <iostream>
 
 USING_NAMESPACE(CryptoPP)
 
@@ -19,13 +21,39 @@ void spew(char* vname,Integer val)
 	printf("\n");
 }
 
+int encode_and_decode()
+{
+	printf("encode_and_decode() 0\n");
+	byte buf[20] = { 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X' };
+	randsource_add(buf, 20, 160);
+	Integer e(3);
+	WrappedRSAFunction func(88,e);
+	std::string s = func.PrivateKeyEncoding();
+	printf("encode_and_decode() 1\n");
+	StringStore bt(s);
+	printf("encode_and_decode() 2\n");
+	WrappedRSAFunction* f2 = new WrappedRSAFunction(bt);
+	printf("(func.GetModulus() == f2->GetModulus()); ");
+	printf("%d\n", (func.GetModulus() == f2->GetModulus()));
+	assert (func.GetModulus() == f2->GetModulus());
+	printf("(func.GetExponent() == f2->GetExponent()); ");
+	printf("%d\n", (func.GetExponent() == f2->GetExponent()));
+	assert (func.GetExponent() == f2->GetExponent());
+	std::string s2 = f2->PrivateKeyEncoding();
+	printf("(s == s2);");
+	printf("%d\n", (s == s2));
+	assert (s == s2);
+	printf("encode_and_decode() finished\n");
+}
+
 int main(int argc,char *argv[])
 {
+	encode_and_decode();
 	byte buf[20] = { 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X' };
 	randsource_add(buf, 20, 160);
 
 	Integer e(3);
-	printf("start\n");
+	printf("start HELLO\n");
 	WrappedRSAFunction func(88,e);
 	Integer n = func.GetModulus();
 	spew("e",func.GetExponent());

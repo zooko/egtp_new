@@ -248,7 +248,6 @@ static PyObject *exposed_modular_value_decrypt(modular_value *self, PyObject *ar
 static PyObject *exposed_modular_value_get_private_key_encoding(modular_value *self, PyObject *args)
 {
 	PyObject *result = NULL;
-        int len;
 	try
 	{
 		if(!PyArg_ParseTuple(args, ""))
@@ -256,7 +255,7 @@ static PyObject *exposed_modular_value_get_private_key_encoding(modular_value *s
 		        PyErr_SetString(PyExc_ValueError, "incorrect parameter types");
 		        return NULL;
 		}
-                std::string str = self->func->PrivateKeyEncoding(&len);
+		std::string str = self->func->PrivateKeyEncoding();
 		result = PyString_FromStringAndSize(str.data(), str.length());
 		if(!result)
 		{
@@ -408,7 +407,7 @@ static PyObject *exposed_modular_value_set_value_string(modular_value *self, PyO
 		Integer newval = Integer(value, valuelength);
 		if(newval >= self->func->GetModulus())
 		{
-		    	throw Exception("new value must be less than modulus");
+		    	throw Exception(Exception::INVALID_ARGUMENT, "new value must be less than modulus");
 		}
     		// assignment is overridden
 	    	*self->val = newval;
@@ -475,19 +474,19 @@ static modular_value *new_modular_value_with_value(const byte *n, int keybytes, 
 	modular_value *self = NULL;
 	if(keybytes < 2)
 	{
-	    	throw Exception("key must be at least two bytes long");
+	    	throw Exception(Exception::INVALID_ARGUMENT, "key must be at least two bytes long");
 	}
 	if((e & 0x1) == 0)
 	{
-	    	throw Exception("encryption exponent must be odd");
+	    	throw Exception(Exception::INVALID_ARGUMENT, "encryption exponent must be odd");
 	}
 	if(e < 3)
 	{
-	    	throw Exception("encryption exponent must be at least 3");
+	    	throw Exception(Exception::INVALID_ARGUMENT, "encryption exponent must be at least 3");
     	}	
 	if(valbytes > keybytes)
 	{
-		throw Exception("stored value can't be greater than modulus");
+		throw Exception(Exception::INVALID_ARGUMENT, "stored value can't be greater than modulus");
 	}
 	if(!(self = PyObject_NEW(modular_value, &Modular_type)))
 	{
@@ -501,11 +500,11 @@ static modular_value *new_modular_value_with_value(const byte *n, int keybytes, 
 	self->func = new WrappedRSAFunction(Integer(n, (unsigned int)keybytes), Integer(e));
 	if(!(n[0] & ((byte)0x80)))
 	{
-		throw Exception("key didn't start with a 1 bit");
+		throw Exception(Exception::INVALID_ARGUMENT, "key didn't start with a 1 bit");
 	}
 	if((keybytes == valbytes) && (*(self->val) >= self->func->GetModulus()))
 	{
-		throw Exception("stored value can't be greater than modulus");
+		throw Exception(Exception::INVALID_ARGUMENT, "stored value can't be greater than modulus");
 	}
 	return self;
 }
@@ -520,7 +519,7 @@ static modular_value *new_modular_value_serialized(byte *bytes, int numbytes)
 	// to make deletion still work if there's an exception in construction
 	self->val = NULL;
 	self->func = NULL;
-        StringStore bt(bytes, numbytes);
+	StringStore bt(bytes, numbytes);
 	self->func = new WrappedRSAFunction(bt);
 	self->val = new Integer(NULL, 0, CryptoPP::Integer::UNSIGNED);
 	return self;
@@ -530,15 +529,15 @@ static modular_value *new_modular_value_random(int keybytes, int e)
 {
     	if(keybytes < 2)
 	{
-	    	throw Exception("key must be at least two bytes long");
+	    	throw Exception(Exception::INVALID_ARGUMENT, "key must be at least two bytes long");
     	}
 	if((e & 0x1) == 0)
 	{
-	    	throw Exception("encryption exponent must be odd");
+	    	throw Exception(Exception::INVALID_ARGUMENT, "encryption exponent must be odd");
 	}
 	if(e < 3)
 	{
-	    	throw Exception("encryption exponent must be at least 3");
+	    	throw Exception(Exception::INVALID_ARGUMENT, "encryption exponent must be at least 3");
     	}	
 	modular_value *self = NULL;
 	if(!(self = PyObject_NEW(modular_value, &Modular_type)))
@@ -694,7 +693,7 @@ static void modular_value_multiply(modular_value *self, const modular_value *oth
 {
 	if(!self->func->Equals(*other->func))
 	{
-		throw Exception("Can only multiply values in the same modulus and exponent");
+		throw Exception(Exception::INVALID_ARGUMENT, "Can only multiply values in the same modulus and exponent");
 	}
 	// assignment is overridden
 	*self->val = self->func->Multiply(*self->val, *other->val);
@@ -704,7 +703,7 @@ static void modular_value_divide(modular_value *self, const modular_value *other
 {
 	if(!self->func->Equals(*other->func))
 	{
-		throw Exception("Can only divide values in the same modulus and exponent");
+		throw Exception(Exception::INVALID_ARGUMENT, "Can only divide values in the same modulus and exponent");
 	}
 	*self->val = self->func->Divide(*self->val, *other->val);
 }
@@ -735,7 +734,7 @@ static void modular_value_set_value(modular_value *self, const modular_value *ot
 {
 	if(!self->func->Equals(*other->func))
 	{
-		throw Exception("Can't assign value from a group with a different modulus or exponent");
+		throw Exception(Exception::INVALID_ARGUMENT, "Can't assign value from a group with a different modulus or exponent");
 	}
 	// assignment is overridden
 	*self->val = *other->val;

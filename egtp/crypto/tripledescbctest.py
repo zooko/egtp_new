@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
@@ -6,8 +7,9 @@
 #
 from egtp.crypto import tripledescbc
 
-x = tripledescbc.new("hegonugetonugetorgcronig")
-iv = "oeugoteg"
+
+x = tripledescbc.new("THIS IS A 24 BYTE KEYxyz")
+iv = "IM 8B IV"
 plaintext = "this is a plaintext message testing testing 1 2 3"
 print "plaintext =",plaintext
 ciphertext = x.encrypt(iv,plaintext)

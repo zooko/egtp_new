@@ -8,23 +8,8 @@ USING_NAMESPACE(CryptoPP)
 
 class RandsourceRandomNumberGenerator : public RandomNumberGenerator {
 public:
-#ifdef CRYPTOPP_42
         byte GenerateByte();
         void GenerateBlock(byte *output,unsigned int size);
-#else
-#ifdef CRYPTOPP_41
-        byte GenerateByte();
-        void GenerateBlock(byte *output,unsigned int size);
-#else
-#ifdef CRYPTOPP_40
-        byte GenerateByte();
-        void GenerateBlock(byte *output,unsigned int size);
-#else
-        byte GetByte();
-        void GetBlock(byte *output,unsigned int size);
-#endif
-#endif
-#endif
 };
 
 class NotEnoughEntropyException : public std::exception {

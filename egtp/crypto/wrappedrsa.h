@@ -47,7 +47,7 @@ public:
 	
         // returns an encoded version of the private key, if known
         // otherwise throws an Exception
-        std::string PrivateKeyEncoding(int *len);
+        std::string PrivateKeyEncoding();
         
 protected:
 	RSAFunction *func;
