@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.11 2003/01/20 19:39:39 zooko Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.12 2003/01/28 01:59:36 zooko Exp $"
 
 # Python standard library modules
 import re, string, types
@@ -23,7 +23,7 @@ from egtp import humanreadable, idlib, mencode
 CURRENT_MOJO_VER="0.9991"
 
 # Accept messages of the version 0.9991 number or later, up to 2.0 exclusive (reject messages of version 2.0 or later).
-VER_RE=re.compile("(0[.,]999[1-9][0-9]*|1([.,][0-9]*)?")
+VER_RE=re.compile("(0[.,]999[1-9][0-9]*|1([.,][0-9]*)?)")
 
 # Note that we initialize `templs' in "OurMessages.py".
 import OurMessages

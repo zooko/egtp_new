@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: version.py,v 1.12 2003/01/12 20:19:15 zooko Exp $"
+__revision__ = "$Id: version.py,v 1.13 2003/01/28 01:59:37 zooko Exp $"
 
 # Python Standard Library modules
 import string
@@ -13,7 +13,7 @@ import string
 from pyutil import VersionNumber
 
 # major, minor, micro (== bugfix release), nano (== not-publically-visible patchlevel), flag (== not-publically-visible UNSTABLE or STABLE flag)
-versiontup = (0, 0, 3, 16,)
+versiontup = (0, 0, 3, 17,)
 versionflag = 'UNSTABLE'
 versionobj = VersionNumber.VersionNumber(string.join(map(str, versiontup), '.') + '-' + versionflag)
 versionstr_full = versionobj.full_string()
