@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: std.py,v 1.3 2002/12/14 04:50:21 myers_carpenter Exp $"
+__revision__ = "$Id: std.py,v 1.4 2003/02/02 22:21:14 myers_carpenter Exp $"
 
 """ 
 This is a silly hack to get around Python's circular import limitation.
@@ -14,6 +14,6 @@ import each other, but should be in separate modules. (The loathsome
 same purpose.) The `std.py' klooge is that each of those modules imports std
 at module import time, but then pokes a reference to its standard features
 *into* std so that other people can use those features (at runtime), with
-e.g. `std.hr()', `std.mojolog', `std.is_sloppy_id()', etc. 
+e.g. `std.hr()', `std.is_sloppy_id()', etc. 
 
 """

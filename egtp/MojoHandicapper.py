@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoHandicapper.py,v 1.8 2002/12/17 05:35:02 zooko Exp $"
+__revision__ = "$Id: MojoHandicapper.py,v 1.9 2003/02/02 22:21:12 myers_carpenter Exp $"
 
 # Python standard library modules
 import bisect
@@ -168,7 +168,7 @@ class MojoHandicapper :
         assert type(counterparties) is types.DictType, "precondition: `counterparties' must be a dict." + " -- " + "counterparties: %s :: %s" % (hr(counterparties), hr(type(counterparties)),)
         assert type(message_type) == types.StringType, "precondition: `message_type' must be a string."
 
-        # debug.mojolog.write("sort_by_preference_from_dict_of_Peers(counterparties: %s, message_type:%s, message_body: %s)\n", args=(counterparties, message_type, message_body,), v=2, vs="MojoHandicapper")
+        # debugprint("sort_by_preference_from_dict_of_Peers(counterparties: %s, message_type:%s, message_body: %s)\n", args=(counterparties, message_type, message_body,), v=2, vs="MojoHandicapper")
 
         # contains (cost, Peer Object,)
         workinglist = []

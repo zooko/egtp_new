@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.13 2003/02/02 22:12:49 myers_carpenter Exp $"
+__revision__ = "$Id: Conversation.py,v 1.14 2003/02/02 22:21:12 myers_carpenter Exp $"
 
 # Python standard library modules
 import threading
@@ -216,8 +216,6 @@ class ConversationManager:
 
         if idlib.equal(counterparty_id, self._MTM.get_id()):
             extrametainfo = None
-        else:
-            extrametainfo = MetaTrackerLib.get_preencoded_extra_metainfo_for(counterparty_id, self._MTM)
         msgstr = MojoMessage.makeResponseMessage(inmsgtype + ' response', msgbody, prevmsgId, freshnessproof=self._map_cid_to_freshness_proof.get(counterparty_id), mymetainfo=mymetainfo, extrametainfo=None)
         self._MTM.send_message_with_lookup(counterparty_id, msgstr, hint=hint | HINT_THIS_IS_A_RESPONSE)
 
@@ -257,32 +255,6 @@ class ConversationManager:
         recipient_id = MojoMessage.getRecipient(msg)
         senders_metainfo = MojoMessage.getSendersMetaInfo(msg)
         extra_metainfo = MojoMessage.getExtraMetaInfo(msg)
-
-        if senders_metainfo and senders_metainfo.has_key('connection strategies') and self._MTM._allow_send_metainfo:  # (the allow_send also means allow_receive, bad name..)
-            try:
-                metainfo_id = MetaTrackerLib.metainfo_dict_to_id(senders_metainfo)
-                # verify that counterparty_id is the id of the info described in senders_metainfo
-                if idlib.equal(counterparty_id, metainfo_id):
-                    # if it is, we'll accept it as authentic
-                    debugprint("received contact info for counterparty %s in a message from them: %s\n", args=(counterparty_id, senders_metainfo,), v=4, vs="conversation")
-                    # fully trust the sender 100% to tell us its own metainfo
-                    MetaTrackerLib.cache_meta_tracker_responses([senders_metainfo], trustmetric=1.0)
-                else:
-                    debugprint("counterparty %s sent us unauthenticated metainfo for %s, ignoring.\n", args=(counterparty_id, metainfo_id), v=3, vs="conversation")
-            except:
-                debugprint("non-fatal error parsing metainfo in message from %s: %s\n", args=(counterparty_id, senders_metainfo,), v=3, vs="conversation")
-                if int(confman.dict.get('MAX_VERBOSITY', 0)) >= 3:
-                    traceback.print_exc(file=debugstream)
-
-        if extra_metainfo and ((type(extra_metainfo) in (types.ListType, types.TupleType,)) or (isinstance(extra_metainfo, mencode.PreEncodedThing))) and self._MTM._allow_send_metainfo:  # (the allow_send also means allow_receive, bad name..) # the type checking here should be moved into a template.  --Zooko 2001-11-14
-            try:
-                # don't fully trust gossip supplied metainfo
-                MetaTrackerLib.cache_meta_tracker_responses(extra_metainfo, trustmetric=0.5)
-                debugprint("received %s extra metainfo entries from counterparty %s.\n", args=(len(extra_metainfo), counterparty_id), v=4, vs="conversation")
-            except:
-                debugprint("non-fatal error caching extra metainfo in message from %s: %s\n", args=(counterparty_id, extra_metainfo,), v=3, vs="conversation")
-                if int(confman.dict.get('MAX_VERBOSITY', 0)) >= 3:
-                    traceback.print_exc(file=debugstream)
 
         if nonce is not None :
             # this is a first message

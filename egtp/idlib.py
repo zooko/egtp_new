@@ -11,13 +11,10 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.7 2003/02/02 19:31:38 myers_carpenter Exp $"
+__revision__ = "$Id: idlib.py,v 1.8 2003/02/02 22:21:13 myers_carpenter Exp $"
 
 # standard modules
 import re, sha, struct, types
-
-# pyutil modules
-from pyutil.config import DEBUG_MODE
 
 # egtp modules
 from egtp import std, mojosixbit, std
@@ -107,7 +104,7 @@ def id_to_native_int(id, IntType=types.IntType, LongType=types.LongType, FloatTy
         return int(id)
 
     try:
-        # std.mojolog.write("id: %s, %s, %s, %s\n" % (id, str(id), repr(id), std.hr(id),))
+        # debugprint.debugprint("id: %s, %s, %s, %s\n" % (id, str(id), repr(id), std.hr(id),))
         nid = mojosixbit.a2b(id)
         if len(nid) < 3:
             # Hm.  More than likely this was actually a binary, but short, string that happened to look like a mojosixbit encoded string.  Let's just put it back without complaining.

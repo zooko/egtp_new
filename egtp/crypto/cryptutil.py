@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: cryptutil.py,v 1.6 2003/02/02 19:31:39 myers_carpenter Exp $"
+__revision__ = "$Id: cryptutil.py,v 1.7 2003/02/02 22:21:15 myers_carpenter Exp $"
 
 import sha, types
 
@@ -132,13 +132,13 @@ def oaep(m, emLen, p=""):
 
     hLen = EGTPConstants.SIZE_OF_UNIQS
 
-    # mojolog.write("mojoutil.oaep(): -- -- -- -- -- -- m: %s\n" % humanreadable.hr(m))
-    # mojolog.write("mojoutil.oaep(): -- -- -- -- -- -- emLen: %s\n" % humanreadable.hr(emLen))
+    # debugprint("mojoutil.oaep(): -- -- -- -- -- -- m: %s\n" % humanreadable.hr(m))
+    # debugprint("mojoutil.oaep(): -- -- -- -- -- -- emLen: %s\n" % humanreadable.hr(emLen))
     ps = '\000' * (emLen - len(m) - (2 * hLen) - 1)
-    # mojolog.write("mojoutil.oaep(): -- -- -- -- -- -- ps: %s\n" % humanreadable.hr(ps))
+    # debugprint("mojoutil.oaep(): -- -- -- -- -- -- ps: %s\n" % humanreadable.hr(ps))
     pHash = sha.new(p).digest()
     db = pHash + ps + '\001' + m
-    # mojolog.write("mojoutil.oaep(): -- -- -- -- -- -- db: %s\n" % humanreadable.hr(db))
+    # debugprint("mojoutil.oaep(): -- -- -- -- -- -- db: %s\n" % humanreadable.hr(db))
     seed = randsource.get(hLen)
     dbMask = mgf1(seed, emLen - hLen)
     maskedDB = xor(db, dbMask)
@@ -148,7 +148,7 @@ def oaep(m, emLen, p=""):
 
     assert len(em) == emLen
 
-    # mojolog.write("mojoutil.oaep(): -- -- -- -- -- -- em: %s\n" % humanreadable.hr(em))
+    # debugprint("mojoutil.oaep(): -- -- -- -- -- -- em: %s\n" % humanreadable.hr(em))
     return em
 
 def oaep_decode(em, p=""):
@@ -165,25 +165,25 @@ def oaep_decode(em, p=""):
     """
     assert len(p) <= ((2^61)-1), "The length of `p' must be less than or equal to the input limitation for SHA-1."
 
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- em: %s\n" % humanreadable.hr(em))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- em: %s\n" % humanreadable.hr(em))
 
     if len(em) < (2 * EGTPConstants.SIZE_OF_UNIQS) + 1:
         raise OAEPError, "decoding error: `em' is not long enough."
 
     hLen = EGTPConstants.SIZE_OF_UNIQS
     maskedSeed = em[:hLen]
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- maskedSeed: %s\n" % humanreadable.hr(maskedSeed))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- maskedSeed: %s\n" % humanreadable.hr(maskedSeed))
     maskedDB = em[hLen:]
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- maskedDB: %s\n" % humanreadable.hr(maskedDB))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- maskedDB: %s\n" % humanreadable.hr(maskedDB))
     assert len(maskedDB) == (len(em) - hLen)
     seedMask = mgf1(maskedDB, hLen)
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- seedMask: %s\n" % humanreadable.hr(seedMask))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- seedMask: %s\n" % humanreadable.hr(seedMask))
     seed = xor(maskedSeed, seedMask)
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- seed: %s\n" % humanreadable.hr(seed))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- seed: %s\n" % humanreadable.hr(seed))
     dbMask = mgf1(seed, len(em) - hLen)
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- dbMask: %s\n" % humanreadable.hr(dbMask))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- dbMask: %s\n" % humanreadable.hr(dbMask))
     db = xor(maskedDB, dbMask)
-    # mojolog.write("mojoutil.oaep_decode(): -- -- -- -- -- -- db: %s\n" % humanreadable.hr(db))
+    # debugprint("mojoutil.oaep_decode(): -- -- -- -- -- -- db: %s\n" % humanreadable.hr(db))
     pHash = sha.sha(p).digest()
 
     pHashPrime = db[:hLen]
