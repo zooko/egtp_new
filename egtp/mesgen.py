@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.10 2002/12/02 21:20:46 myers_carpenter Exp $"
+__revision__ = "$Id: mesgen.py,v 1.11 2002/12/18 19:56:57 zooko Exp $"
 
 
 # Python standard library modules
@@ -87,7 +87,7 @@ class SessionKeeper:
             self.counterparty_map = counterparty_map
 
         def __del__(self):
-            debugprint("%s.__del__()\n", args=(self,))
+            # debugprint("%s.__del__()\n", args=(self,))
             if self.session_map is not None :
                 self.session_map.close()
                 self.session_map = None
