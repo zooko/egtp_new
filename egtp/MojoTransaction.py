@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.24 2003/02/09 17:52:12 zooko Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.25 2003/02/10 03:44:22 zooko Exp $"
 
 true = 1
 false = 0
@@ -96,6 +96,11 @@ class ResponseMarker:
 # access ConversationManager from here and also have ConversationManager
 # access these symbols from Conversation.py.  So I'll just shove them into
 # std.  Bleah.  --Zooko 2000-09-28
+
+class ResponseAndCommHints: 
+    def __init__(self, response=None, commhints=HINT_NO_HINT):
+        self.response = response
+        self.commhints = commhints
 
 # possible return value from an incoming message handler. 
 # `ASYNC_RESPONSE' means I'll provide the response later.
