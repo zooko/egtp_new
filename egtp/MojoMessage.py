@@ -75,9 +75,8 @@ class UnknownMessageTypeError(MojoMessageError):
 # We're pretty mono-threaded.  A low number is fine as most calls to MojoMessage functions will be
 # sequential calls using the same msgString.  This cache is intended to speed up the common case
 # of sequential calls to MojoMessage.getSPAM with the same msgString.
-# XXX NOTE: Cache() doesn't do well if given a maxsize and an item > maxsize bytes is inserted;
-#           don't make these size based caches
-_MAX_MEMOIZE_CACHE_ITEMS = 2
+# _MAX_MEMOIZE_CACHE_ITEMS = 16
+_MAX_MEMOIZE_CACHE_ITEMS = 1 # reducing to 1 to see if it reduces memory usage significantly.
 # used to memoize our mdecode(msgString) results
 global _internal_msgString_mdecode_cache
 _internal_msgString_mdecode_cache = None
@@ -87,7 +86,7 @@ _internal_checkMsg_cache = None
 
 def init():
     global _internal_msgString_mdecode_cache 
-    _internal_msgString_mdecode_cache = Cache.CacheSingleThreaded(maxitems=_MAX_MEMOIZE_CACHE_ITEMS)
+    _internal_msgString_mdecode_cache = Cache.LRUCacheLocked(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
     global _internal_checkMsg_cache
     _internal_checkMsg_cache = Cache.CacheSingleThreaded(maxitems=_MAX_MEMOIZE_CACHE_ITEMS)
 
@@ -128,7 +127,7 @@ def getType(msgString):
     """
     @param msgString: the string containing the message in canonical form
 
-    @raises BadFormatError: if `msgString' is badly formed or of an incompatible version of the
+    @raise: BadFormatError if `msgString' is badly formed or of an incompatible version of the
         Mojo protocol
 
     @memoizable
@@ -347,7 +346,7 @@ def checkMessageType(msgString, requiredmsgtype):
     @param requiredmsgtype: the required type of the message in a human readable string or `None'
         if any type is acceptable
 
-    @raises WrongMessageTypeError: if `requiredmsgtype' is not `None' and `msgString' is not of
+    @raise: WrongMessageTypeError if `requiredmsgtype' is not `None' and `msgString' is not of
         `requiredmsgtype'
 
     @memoizable
@@ -407,7 +406,7 @@ def __internal_checkMojoVersion(msgdict, minVer=MIN_MOJO_VER, nextVer=NEXT_MOJO_
     @param minVer: we don't accept messages of less than this version number
     @param nextVer: we don't accept messages of a this version number or greater
 
-    @raises IncompatibleVersionError: if `eDict' is of an incompatible version of the Mojo 
+    @raise: IncompatibleVersionError if `eDict' is of an incompatible version of the Mojo 
         protocol
 
     @memoizable
@@ -431,18 +430,3 @@ def __internal_getMojoVersion(msgdict):
     # print "protStr[6:] " + protStr[6:] + ", verNum " + `verNum` # DEBUGPRINT
 
     return verNum
-
-
-mojo_test_flag = 1
-
-
-def run():
-    import RunTests
-    RunTests.runTests(["MojoMessage"])
-    pass
-
-
-#### this runs if you import this module by itself
-if __name__ == '__main__':
-    run()
-
