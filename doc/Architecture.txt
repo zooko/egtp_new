@@ -173,7 +173,7 @@ proceed.  Throttling simply artificially enforces this situation: when
 throttled, the TCPConnection will not try to send any data until unthrottled.  
 
 
-III. Classes
+III. Specific Implementation Stuff (Classes)
 
 A. CommStrat
 
@@ -198,9 +198,9 @@ behavior is good enough to justify the performance, but on the other hand it
 is the product of three years of evolution, and it works, so please don't 
 break it unless you need to.
 
-* How does TCPCommsHandler and TCPConnection interact? Does
-  CommsHandler (CH) just have a list of connections? Does the CH just
-  get called on the DoQ every once in a while to do cleanup? 
+TCPCommsHandler holds a set of TCPConnection instances (one TCPConnection object 
+per open TCP connection).  It gets called on the DoQ every once in a while to 
+clean up idle connections.
 
 C. TCPConnection
 
@@ -212,20 +212,33 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
-* Why would we fast fail? By couldn't be sent, do we mean throttling,
-  no route to node, either? My guess, is that throttling does not
-  fail, it just blocks... but no known comm strat leads to a fast
-  fail. Is that right?
+When do we fast fail?  In general, you fast fail if and only if you couldn't 
+figure out how to transport the data off of your own local machine.  For 
+example, if the only known comm strat to reach the recipient is a CommStrat.TCP, 
+and nobody is accepting connections at that IP address, then you give up.
 
-* Is this correct?
+In contrast, if you are sending via Relay then once you have sent the message 
+off to the Relay Server you cannot then fast fail, because you can't know for 
+sure that your message won't eventually reach the recipient (even if the Relay 
+Server tells you that it couldn't deliver).  Fast fail is a local operation that 
+is not allowed to be vulnerable to failure or misbehavior on the part of any 
+other agent including your Relay Server.
 
-I send a packet.
-It may be relayed, so I do not know if it was successfully sent until I
-get an ack.
-Does this mean that EGTP deals with ACKS? What happens if a message were
-dropped that contained part of a data block. Or a whole block? How would
-this be caught.
 
-(Example: I ask Alice for a file. She sends me the file. Eve drops all
-packets of that file. Now, will I assume she did not send it? Will I ask
-her to resend? Will Alice know that I did not receive the file? )
+IV. Advanced Stuff
+
+A. Retrying
+
+In EGTP v2, both sides will be safe from replay attacks.  Therefore, both sides 
+can safely *retry* messages in order to get more reliable delivery.  In EGTP v1 
+this isn't true, in general, and operations that should be retried are coded to 
+do so at the application level.  For example, when trying to reconstruct a file, 
+you might ask the same block server a second time for a given block.  It 
+wouldn't be safe for EGTP to do the message-retrying *for* you, because EGTP 
+doesn't know whether it is safe for the recipient to perform the requested 
+action twice or not.  (Safe: "send me a copy the block with this blockId" 
+(except for bandwidth resource management issues), unsafe: "Take 10 nanobux out 
+of my account and put them into the account with this accountId".)
+
+In EGTP v2, the EGTP layer will be able to automatically retry for you 
+regardless of the application-layer content of the messages.
