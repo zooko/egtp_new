@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.1 2002/07/26 18:56:36 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.2 2002/07/27 00:31:22 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -38,25 +38,23 @@ import re
 import whrandom
 
 # pyutil modules
-from xor import xor
+from pyutil.xor import xor
+from pyutil import humanreadable
+from pyutil.VersionNumber import VersionNumber
+from pyutil import dictutil
+from pyutil import fileutil
+from pyutil import timeutil
 
-# EGTP modules
-import EGTPConstants
-
-# Mnet modules
-import HashRandom
 true = 1
 false = 0
-from VersionNumber import VersionNumber
-import dictutil
-import fileutil
-import humanreadable
-import mencode
-import modval
-import mojosixbit
-import randsource
-import timeutil
-import time
+
+# EGTP modules
+from egtp import EGTPConstants
+from egtp import HashRandom
+from egtp import mencode
+from egtp import mojosixbit
+from egtp.crypto import randsource
+from egtp.crypto import modval
 
 
 def iso_utc_time(t=None):
@@ -423,7 +421,7 @@ def rotate_mojolog(doq=None, delay=87600):
 
 ########################################## HERE IS THE humanreadable.py PART OF mojostd.py
 
-from humanreadable import hr
+from pyutil.humanreadable import hr
 
 ########################################## HERE IS THE idlib.py PART OF mojostd.py
 
@@ -938,7 +936,7 @@ dictutil.deep_update(confman["PATH"], mypathdict)
 import EGTPVersion
 
 # XXX until this is autodetected, don't have it misreport
-import evilcryptopp
+from egtp.crypto import evilcryptopp
 if hasattr(evilcryptopp, "cryptopp_version"):
     CRYPTOPP_VERSION_STR = evilcryptopp.cryptopp_version
 else:
@@ -1000,10 +998,6 @@ confdefaults["PATH"] = {}
 
 confdefaults["PATH"]["HOME_DIR"] = HOME_DIR
 
-if not os.environ.has_key('EGTPDIR'):
-    # We need to know where sourcedir is in order to set up webroot_dir and other things:
-    raise SystemExit, 'Please set the Environment Variable "EGTPDIR" to refer to your source root directory.'
-
 ### Broker paths:
 # BROKER_DIR is the root directory of all client-side configuration and data files.
 # For now we just use the value of the environment variable "EGTPCONFDIR",
@@ -1053,12 +1047,6 @@ confdefaults["PATH"]["CONTENT_TRACKER_DB_DIR"] = os.path.normpath(
         os.path.join(confdefaults["PATH"]["BROKER_DIR"], "contenttracker")
     )
 
-# CONTENT_TYPEDEF_DIR is used by clients and content trackers for
-# storing content tracker content type definition (".mct") xml files.
-confdefaults["PATH"]["CONTENT_TYPEDEF_DIR"] = os.path.normpath(
-        os.path.join("${EGTPDIR}", "contenttypes")
-    )
-
 # MOJO_TRANSACTION_MANAGER_DB_DIR is used for storing persistent info
 # about messages in MojoTransaction.py.
 confdefaults["PATH"]["MOJO_TRANSACTION_MANAGER_DB_DIR"] = os.path.normpath(
@@ -1078,40 +1066,8 @@ confdefaults["PATH"]["PID_FILE"] = os.path.normpath(
         os.path.join(confdefaults["PATH"]["BROKER_DIR"], "processfile")
     )
 
-confdefaults["PATH"]["WEBROOT_DIR"] = os.path.normpath(
-        os.path.join("${EGTPDIR}", "localweb", "webroot")
-    )
-
-confdefaults["PATH"]["WEB_TEMPLATE_DIR"] = os.path.normpath(
-        os.path.join("${EGTPDIR}", "localweb", "templates")
-    )
-
-confdefaults["PATH"]["INTRO_PAGE_v2"] = os.path.normpath(
-        os.path.join(confdefaults["PATH"]["BROKER_DIR"], "intropage.html")
-    )
-
-confdefaults["PATH"]["BASE_URL_FILE"] = os.path.normpath(
-        os.path.join(confdefaults["PATH"]["BROKER_DIR"], "base.url")
-    )
-
-#  For MetaTrackers:
 confdefaults["PATH"]["BOOT_PAGE"] = os.path.normpath(
         os.path.join(confdefaults["PATH"]["BROKER_DIR"], "bootpage.txt")
-    )
-
-confdefaults["PATH"]["QUICKSTART"] = os.path.normpath(
-        os.path.join("${EGTPDIR}", "quickstart.txt")
-    )
-
-readmename = 'README'
-if sys.platform == 'win32':
-    readmename = 'README.txt'
-confdefaults["PATH"]["README_FILE_v2"] = os.path.normpath(
-        os.path.join("${EGTPDIR}", readmename)
-    )
-
-confdefaults["PATH"]["FAQ_FILE"] = os.path.normpath(
-        os.path.join("${EGTPDIR}", "faq.txt")
     )
 
 confdefaults["PATH"]["MOJOMOD_DIR"] = os.path.normpath(

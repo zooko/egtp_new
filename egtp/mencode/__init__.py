@@ -1,5 +1,5 @@
 # empty file to make this directory a module
 
-import _c_mencode_help
+import egtp.mencode._c_mencode_help
 
-from mencode import *
+from egtp.mencode import *

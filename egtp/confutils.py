@@ -10,24 +10,24 @@
 #
 # BirthDate: 2000-06-08
 # CVS:
-__cvsid = '$Id: confutils.py,v 1.1 2002/07/26 18:56:28 myers_carpenter Exp $'
+__cvsid = '$Id: confutils.py,v 1.2 2002/07/27 00:31:22 myers_carpenter Exp $'
 
 
 # standard modules
 import os.path
 import sys
+import types
 
 # pyutil modules
-from config import DEBUG_MODE
-from debugprint import debugprint
+from pyutil.config import DEBUG_MODE
+from pyutil.debugprint import debugprint
+from pyutil import humanreadable
 
 true = 1
 false = 0
 
 # our modules
-import humanreadable
-from mojostd import CRYPTOPP_VERSION_STR, confdefaults,  platform_map, platform, gen_per_kb_price_dict, DictFileException, lines_to_dict, dict_to_lines, ConfManager, confman
-import types
+from egtp.mojostd import CRYPTOPP_VERSION_STR, confdefaults,  platform_map, platform, gen_per_kb_price_dict, DictFileException, lines_to_dict, dict_to_lines, ConfManager, confman
 
 
 if int(confman.get('MAX_VERBOSITY', 0)) >= 6:

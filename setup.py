@@ -33,18 +33,6 @@ class build_ext(distutils.command.build_ext.build_ext):
         self.define = []
         self.library_dir = []
         
-        ### the following code is to make it use `g++' instead of `gcc' to compile and link.
-        ### It is a very ugly way to do it, but I can't figure out a nice way to do it.   --Zooko 2001-09-16
-        ### I got this code from http://mail.python.org/pipermail/python-list/2001-March/032381.html
-        from distutils import sysconfig
-        save_init_posix = sysconfig._init_posix
-        def my_init_posix():
-            # print 'my_init_posix: changing gcc to g++'
-            save_init_posix()
-            g = sysconfig._config_vars
-            g['CC'] = 'g++'
-            g['LDSHARED'] = 'g++ -shared'
-        sysconfig._init_posix = my_init_posix
 
         if self.cryptopp_dir:
             pass
@@ -52,6 +40,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.cryptopp_dir = os.environ['CRYPTOPP_DIR']
             if not os.path.isdir(self.cryptopp_dir) :
                 raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
+        elif os.path.isdir('crypto++-4.2') and os.path.isfile(os.path.join('crypto++-4.2', 'libcrypto++.a')):
+            self.cryptopp_dir = 'crypto++-4.2'
         elif os.path.isdir('/usr/include/crypto++'):
             self.cryptopp_dir = '/usr/include/crypto++'
         elif os.path.isdir('/usr/local/include/crypto++'):
@@ -75,12 +65,12 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
 
             self.library_dirs.extend([self.cryptopp_dir])
             self.include_dirs.extend([self.cryptopp_dir])
-            self.libraries.insert(0, 'cryptopp')
+            self.libraries.insert(0, 'crypto++')
 
         # find out the crypto++ version from the include files
         tmp = None
         if os.path.isfile(os.path.join(self.cryptopp_dir, 'README.txt')):
-            ff = file(os.path.join(self.cryptopp_dir, 'local.h'), 'r')
+            ff = file(os.path.join(self.cryptopp_dir, 'README.txt'), 'r')
             tmp = ff.readlines()
             ff.close()
             # try to find a string like this: Version 4.2 11/5/2001
@@ -112,6 +102,43 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
             libgcc_dir = os.path.dirname( os.popen("gcc -print-libgcc-file-name").readline()[:-1] )
             self.library_dirs.append(libgcc_dir)
             self.libraries.append('gcc')
+
+    def build_extension(self, ext):
+        fullname = self.get_ext_fullname(ext.name)
+        print fullname
+        if fullname == 'egtp.crypto.evilcryptopp':
+            print "subverting the norm"
+            save_compiler = self.compiler
+            print self.compiler.executables
+            print self.compiler.linker_so
+            self.compiler.compiler = ['g++']
+            self.compiler.linker_exe = ['g++']
+            self.compiler.compiler_so = ['g++']
+            self.compiler.linker_so = ['g++', '-shared']
+            print self.compiler.executables
+            
+            """
+            ### the following code is to make it use `g++' instead of `gcc' to compile and link.
+            ### It is a very ugly way to do it, but I can't figure out a nice way to do it.   --Zooko 2001-09-16
+            ### I got this code from http://mail.python.org/pipermail/python-list/2001-March/032381.html
+            from distutils import sysconfig
+            
+            save_init_posix = sysconfig._init_posix
+            def my_init_posix():
+                # print 'my_init_posix: changing gcc to g++'
+                save_init_posix()
+                g = sysconfig._config_vars
+                g['CC'] = 'g++'
+                g['LDSHARED'] = 'g++ -shared'
+            sysconfig._init_posix = my_init_posix
+            sysconfig.customize_compiler(self.compiler)
+            """        
+
+        tmp = distutils.command.build_ext.build_ext.build_extension(self, ext)
+        if fullname == 'egtp.crypto.evilcryptopp':
+            self.compiler = save_compiler
+            print self.compiler.executables
+        return tmp
         
 class test(Command):
     """
@@ -203,7 +230,7 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             print "Building crypto++..."
             os.system('unzip -d crypto++-4.2 -a crypto42.zip')
             os.chdir('crypto++-4.2')
-            os.system('cat ../src/evilcryptopp/patches/* |patch -p0')
+            os.system('cat ../egtp/crypto/patches/[a-z]* |patch -p0')
             os.system('make')
             os.chdir('..')
         
@@ -239,6 +266,7 @@ setup (
     author          = 'Mnet Project',
     author_email    = 'mnet-devel@lists.sourceforge.net',
     licence         = 'LGPL',
+    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode'],
     cmdclass        = {
         'build_ext':    build_ext,
         'test':         test,

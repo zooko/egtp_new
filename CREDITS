@@ -65,10 +65,10 @@ N: Raph Levien
 D: optimized information dispersal algorithm
 
 N: Myers W. Carpenter
-E: myers@fil.org
-W: http://maski.org/wxBroker/
-D: wrote the wxBroker GUI 
-P: 1024D/6CC865C5 F8BC 977B 1AFF 20DB F5CF  E362 915D 00A6 6CC8 65C5
+E: icepick@icepick.info
+W: http://icepick.info/
+D: Reorganized the layout, tests w32 stuff 
+P: 0xE0E91AEC, DFC8 25ED E870 6D4A 5E12  CC68 E067 0614 E0E9 1AEC
 
 N: Faried Nawaz
 E: fn@hungry.org
