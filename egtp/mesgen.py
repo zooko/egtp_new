@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.12 2003/01/13 06:24:29 myers_carpenter Exp $"
+__revision__ = "$Id: mesgen.py,v 1.13 2003/01/18 20:46:35 zooko Exp $"
 
 
 # Python standard library modules
@@ -96,9 +96,13 @@ class SessionKeeper:
                 self.counterparty_map.close()
                 self.counterparty_map = None
             if self.db_env is not None:
+                debugprint("%s.__del__(): self.db_env.nosyncerror_txn_checkpoint(0)\n", args=(self,))
                 self.db_env.nosyncerror_txn_checkpoint(0)
+                debugprint("%s.__del__(): self.db_env.close()\n", args=(self,))
                 self.db_env.close()
+                debugprint("%s.__del__(): self.db_env = None\n", args=(self,))
                 self.db_env = None
+            debugprint("%s.__del__(): done\n", args=(self,))
 
     def __init__(self, dbparentdir=None, dir=None, serialized = None, maxitems = 1000, recoverdb=true):
         """
