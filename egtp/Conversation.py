@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.10 2002/12/02 21:20:45 myers_carpenter Exp $"
+__revision__ = "$Id: Conversation.py,v 1.11 2003/02/01 23:31:58 myers_carpenter Exp $"
 
 # Python standard library modules
 import threading
@@ -73,7 +73,8 @@ class ConversationManager:
     def shutdown(self):
         debugprint("self._map_inmsgid_to_info: %s\n", args=(self._map_inmsgid_to_info,), v=6, vs="debug")
         self.__callback_functions = {}
-        self._posttimeout_callback_functions.clear()
+        # TODO: del this No other ref to this --icepick 2002-02-01
+        # self._posttimeout_callback_functions.clear()
         self._map_inmsgid_to_info = {}
         self._map_cid_to_freshness_proof.clear()
    

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: RelayListener.py,v 1.7 2002/12/02 19:58:50 myers_carpenter Exp $"
+__revision__ = "$Id: RelayListener.py,v 1.8 2003/02/01 23:31:58 myers_carpenter Exp $"
 
 # standard modules
 import os, traceback, types
@@ -133,7 +133,10 @@ class RelayListener(LazySaver.LazySaver):
             self._schedule_poll(self._preferredrelayers[i], delay=(MIN_POLL_DELAY * (2**i) - MIN_POLL_DELAY))
 
     def shutdown(self):
-        LazySaver.LazySaver.shutdown(self)
+        # TODO: del this ?  no shutdown method -- icepick 2003-02-01
+        # LazySaver.LazySaver.shutdown(self)
+        self._mtm = None
+        pass
 
     def start_listening(self, inmsg_handler_func):
         """
