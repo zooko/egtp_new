@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: ipaddresslib.py,v 1.9 2002/12/02 19:58:53 myers_carpenter Exp $"
+__revision__ = "$Id: ipaddresslib.py,v 1.10 2002/12/18 15:24:59 myers_carpenter Exp $"
 
 """
 A library for determining the IP addresses of the local machine.
@@ -40,6 +40,7 @@ platform_map = {
     "irix6-n64": "irix",
     "irix6": "irix",
     "openbsd2": "bsd",
+    "darwin": "bsd",       # Mac OS X
     "freebsd4": "bsd",
     "netbsd1": "bsd",
     "sunos5": "sunos",
@@ -53,8 +54,8 @@ except KeyError:
     # To be cautious, if platform is not in platforms, warn the developer.
     # (By release time this should gracefully explain to the user that the
     # platform is not supported, but of course that will never happen.  -Nate
-    debugprint.write("WARNING: %s is not a supported platform.\n" % platform)
-    debugprint.write("Supported platforms include:\n" + str(platform_map))
+    debugprint("WARNING: %s is not a supported platform.\n" % platform)
+    debugprint("Supported platforms include:\n" + str(platform_map))
 
 # These work in Redhat 6.x and Debian 2.2 potato
 __linux_ifconfig_path = '/sbin/ifconfig'

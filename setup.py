@@ -151,6 +151,7 @@ class build_ext(distutils.command.build_ext.build_ext):
 
         self.define = []
         self.library_dir = []
+        self.extra_link_args = []
 
         if self.cryptopp_dir:
             pass
@@ -172,6 +173,16 @@ You don't have a copy of crypto++ version 5.0.  Try runing 'python setup.py down
             self.library_dirs.extend([self.cryptopp_dir])
             self.include_dirs.extend([self.cryptopp_dir])
             self.libraries.append('cryptopp')
+
+        elif string.find(sys.platform, 'darwin') != -1:
+            self.extra_link_args.extend(['-framework', 'Python'])
+            #self.extra_link_args.append('-lstdc++')
+            self.extra_link_args.append('-bundle')
+            self.extra_link_args.extend(['-bundle_loader', sys.executable])
+            self.library_dirs.append(self.cryptopp_dir)
+            self.include_dirs.append(self.cryptopp_dir)
+            self.libraries.insert(0, 'cryptopp')
+
         else:
             self.define.extend([('PYTHON_MODULE', None),])
             # self.extra_compile_args.extend(['-w',])
@@ -201,11 +212,16 @@ You don't have a copy of crypto++ version 5.0.  Try runing 'python setup.py down
 
         # Deal with cryptopp and its need for C++
         if fullname == 'egtp.crypto.evilcryptopp':
+            ext.extra_link_args.extend(self.extra_link_args)
             save_compiler = self.compiler
             self.compiler.compiler = ['g++']
             self.compiler.linker_exe = ['g++']
             self.compiler.compiler_so = ['g++']
-            self.compiler.linker_so = ['g++', '-shared']
+            if string.find(sys.platform, 'darwin') != -1:
+                self.compiler.linker_so = ['g++']
+            else:
+                self.compiler.linker_so = ['g++', '-shared']
+            
 
         tmp = distutils.command.build_ext.build_ext.build_extension(self, ext)
         if fullname == 'egtp.crypto.evilcryptopp':
@@ -237,13 +253,12 @@ class test(Command):
         old_path = sys.path[:]
         sys.path.insert(0, os.path.abspath(self.build_purelib))
         sys.path.insert(0, os.path.abspath(self.build_platlib))
-        pprint.pprint(sys.path)
+
         runner = unittest.TextTestRunner()
         testFiles = glob.glob(os.path.join(self.test_dir, 'test_*.py'))
         testSuites = []
         for ff in testFiles:
-            if ff[-3:] != ".py":
-                continue
+            ff = ff.replace(os.sep, '.')
             MOD = __import__(ff[:-3], globals(), locals(), [''])
             if not hasattr(MOD, 'suite'):
                 print "Skipping %r as it has no 'suite' function" % ff
