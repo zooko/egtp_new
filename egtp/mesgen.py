@@ -201,7 +201,7 @@ class SessionKeeper:
         counterparty_map.open('counterparty_map', db.DB_BTREE, db.DB_CREATE | db.DB_THREAD )
         self.extres = SessionKeeper.ExtRes(db_env, session_map, counterparty_map)
         # maps header ids to content of headers for memoization
-        self.__cached_headers = Cache.CacheSingleThreaded(maxitems)
+        self.__cached_headers = Cache.LRUCache(maxitems)
 
         self.store_key(self.__my_public_key)
 
