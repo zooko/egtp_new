@@ -153,12 +153,12 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         self._cid_to_activation = None
 
     def stop_listening(self):
+        # The following try: block is to work around weirdness/bugs in Python Standard Library asyncore.
         # ignore an AttributeError in asyncore when this TCPCommsHandler is a dummy for outgoing only without a socket
-        so = self
         try:
-            while hasattr(so, 'socket'):
-                so = getattr(so, 'socket')
-            so.close()
+            if not hasattr(self, 'socket'):
+                self.socket = None
+            self.close()
         except AttributeError:
             # whoops.  Well, nevermind.
             pass
@@ -189,7 +189,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
         if self._pickyport:
             try:
-                self.bind(("", self._requested_listenport))
+                self.bind(('', self._requested_listenport,))
             except socket.error:
                 raise CommsError.CannotListenError, "couldn't bind to port, and I'm picky about which port I listen on"
 
@@ -207,7 +207,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
 
             while not newlistenport:
                 try:
-                    self.bind(("", try_listenport))
+                    self.bind(('', try_listenport,))
                     debugprint("successfully bound to port %s.\n", args=(try_listenport,), v=1, vs="TCPCommsHandler")
                     newlistenport = try_listenport
 
@@ -543,7 +543,7 @@ class TCPConnCache(Cache.SimpleCache):
         @param maintained_connections: the number of connections which have "probably will be
             used again someday" hints to keep open, or `-1' if all of them should be kept open
         @param max_connections: the maximum number of conns to keep open (this is the
-            absolute max, a `-1' in `TCP_MAINTAINED_CONNECTIONS' notwithstanding)
+            absolute max, a `-1' in `maintained_connections' notwithstanding)
         @param timeout: the number of seconds to give a connection even if we have no hint to
             keep it
         """
