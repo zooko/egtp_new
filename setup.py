@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import os, sys, string, re, urllib, md5, glob
+import os, sys, string, re, urllib, md5, glob, pprint
+#import egtp.version
 
 try:
     from distutils.core import setup, Extension, Command
@@ -269,17 +270,20 @@ class test(Command):
         old_path = sys.path[:]
         sys.path.insert(0, os.path.abspath(self.build_purelib))
         sys.path.insert(0, os.path.abspath(self.build_platlib))
-
+        pprint.pprint(sys.path)
         runner = unittest.TextTestRunner()
-        test_files = glob.glob(os.path.join(self.test_dir, 'test_*.py'))
-        for ff in test_files:
-            print "Importing %r..." % ff
-            TEST = __import__(os.path.splitext(ff)[0], globals(), locals(), [''])
-            if hasattr(TEST, 'suite'):
-                print "Running tests found in %r..." % ff
-                runner.run(TEST.suite())
-            else:
+        testFiles = glob.glob(os.path.join(self.test_dir, 'test_*.py'))
+        testSuites = []
+        for ff in testFiles:
+            if ff[-3:] != ".py":
+                continue
+            MOD = __import__(ff[:-3], globals(), locals(), [''])
+            if not hasattr(MOD, 'suite'):
                 print "Skipping %r as it has no 'suite' function" % ff
+            else:
+                testSuites.append(MOD.suite())
+            
+        runner.run(unittest.TestSuite(tuple(testSuites)))
 
         sys.path = old_path[:]
 
@@ -316,7 +320,7 @@ def fetch_anon_cvs(cvsroot, module, directory_name):
 
 setup_args = {
     'name': "egtp",
-    'version': "0.0.2",
+#    'version': egtp.version.versionstr_full,
     'description': "EGTP is a system for sending messages between nodes in a peer to peer network.",
     'author': "Mnet Project",
     'author_email': "mnet-devel@lists.sourceforge.net",

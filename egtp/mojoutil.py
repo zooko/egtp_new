@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mojoutil.py,v 1.10 2002/12/02 21:20:46 myers_carpenter Exp $"
+__revision__ = "$Id: mojoutil.py,v 1.11 2002/12/14 04:50:21 myers_carpenter Exp $"
 
 # standard modules
 import binascii, copy, math, operator, os, profile, pstats, re
@@ -35,8 +35,6 @@ from pyutil.dictutil import *
 from egtp.crypto.cryptutil import *
 from egtp.mojosixbit import *
 from egtp.canon import *
-from egtp.mojostd import iso_utc_time, iso_utc_time_to_localseconds, test_iso8601_utc_time, test_iso_utc_time_to_localseconds
-
 
 def bool(thingie):
     if thingie:

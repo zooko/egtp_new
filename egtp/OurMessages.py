@@ -3,9 +3,8 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: OurMessages.py,v 1.4 2002/12/02 19:58:49 myers_carpenter Exp $"
+__revision__ = "$Id: OurMessages.py,v 1.5 2002/12/14 04:50:21 myers_carpenter Exp $"
 
-from egtp import mojostd
 from egtp.DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BOOLEAN
 
 # `templs' is a dict from message types to templates that messages of that type must match.
