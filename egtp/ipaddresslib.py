@@ -6,7 +6,7 @@
 #
 # A library for determining the IP addresses of the local machine.
 #
-__cvsid = '$Id: ipaddresslib.py,v 1.7 2002/11/03 22:24:56 zooko Exp $'
+__cvsid = '$Id: ipaddresslib.py,v 1.8 2002/11/04 13:53:21 artimage Exp $'
 
 # standard modules
 import sys
@@ -102,9 +102,11 @@ def get_primary_ip_address(nonroutableok) :
         like 127.0.0.1 or 192.168.1.2
     """
     address = find_address_via_socket()
-    
+
     if not address:
-        address = find_address_via_config()
+        address = find_address_via_config(nonroutableok)
+
+    #print "ipaddresslib: get_primary_ip_address: ", address
     return address
             
 
@@ -128,11 +130,14 @@ def find_address_via_socket():
         address = None
     del s
 
+    if address == "0.0.0.0":  # For windows 
+        address = None
+
     return address    
 
 
 
-def find_address_via_config():
+def find_address_via_config(nonroutableok):
     global platform
     
     if platform == 'linux':
