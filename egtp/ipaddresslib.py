@@ -6,7 +6,7 @@
 #
 # A library for determining the IP addresses of the local machine.
 #
-__cvsid = '$Id: ipaddresslib.py,v 1.6 2002/11/03 21:12:54 myers_carpenter Exp $'
+__cvsid = '$Id: ipaddresslib.py,v 1.7 2002/11/03 22:24:56 zooko Exp $'
 
 # standard modules
 import sys
@@ -329,8 +329,9 @@ def get_irix_default_iface():
 
 def read_win32_default_ifaceaddr(warninglogged_boolean=[]):
     # we could use the but it causes problems with some Norton tool
-    # return _route_read_win32_default_ifaceaddr()
-    return _hostname_read_win32_default_ifaceaddr()
+    # We'll use it.  The other thing doesn't work for Art.  --Zooko 2002-11-03
+    return _route_read_win32_default_ifaceaddr()
+    # return _hostname_read_win32_default_ifaceaddr()
 
 def _hostname_read_win32_default_ifaceaddr():
     """return the IP address found by looking up our hostname"""
