@@ -55,10 +55,10 @@ class KhashmirLookupMan(interfaces.ILookupManager):
         assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
 
         val = None
-        def searchCallback():
+        def search_callback():
             pass #BUGBUG I can't remember what the callback looks like. I wrote it down somewhere.
             
-        self.lm.valueForKey(key, searchCallback)
+        self.lm.valueForKey(key, search_callback)
         lookuphand.result(val)
 
     def publish(self, key, object):
