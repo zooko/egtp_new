@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.17 2003/03/09 18:54:57 zooko Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.18 2003/03/23 15:11:59 zooko Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -189,7 +189,8 @@ class TCP(CommStrat):
         @return: `true' iff `self' and `other' are actually the same strategy
         """
         if not hasattr(other, 'asyncsock'):
-            assert hasattr(self, 'asyncsock')
+            # `other' is not a CommStrat.TCP
+            assert hasattr(self, 'asyncsock'), "self is required to be a CommStrat.TCP. self: %s :: %s" % tuple(map(hr, (self, type(self),)))
             return false
         if self.asyncsock is not None:
             return self.asyncsock is other.asyncsock
@@ -197,10 +198,12 @@ class TCP(CommStrat):
             if other.asyncsock is not None:
                 return false
         if not hasattr(other, 'host'):
-            assert hasattr(self, 'host')
+            # `other' is not a CommStrat.TCP
+            assert hasattr(self, 'host'), "self is required to be a CommStrat.TCP. self: %s :: %s" % tuple(map(hr, (self, type(self),)))
             return false
         if not hasattr(other, 'port'):
-            assert hasattr(self, 'port')
+            # `other' is not a CommStrat.TCP
+            assert hasattr(self, 'port'), "self is required to be a CommStrat.TCP. self: %s :: %s" % tuple(map(hr, (self, type(self),)))
             return false
         return (self.host == other.host) and (self.port == other.port)
 

@@ -108,7 +108,7 @@ static PyObject *tripledescbc_new(tripledescbc *self, PyObject *args) {
 		if(keylength != 24) {
 			throw Exception(Exception::INVALID_ARGUMENT, "triple DES key length must be 24");
 		}
-		if(!(newself = PyObject_NEW(tripledescbc, &tripledescbc_type))) {
+		if(!(newself = PyObject_New(tripledescbc, &tripledescbc_type))) {
 		  throw MemoryException();
 		}
 		byte *keycopy = new byte[24];

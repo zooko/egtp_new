@@ -488,7 +488,7 @@ static modular_value *new_modular_value_with_value(const byte *n, int keybytes, 
 	{
 		throw Exception(Exception::INVALID_ARGUMENT, "stored value can't be greater than modulus");
 	}
-	if(!(self = PyObject_NEW(modular_value, &Modular_type)))
+	if(!(self = PyObject_New(modular_value, &Modular_type)))
 	{
 		throw MemoryException();
 	}
@@ -512,7 +512,7 @@ static modular_value *new_modular_value_with_value(const byte *n, int keybytes, 
 static modular_value *new_modular_value_serialized(byte *bytes, int numbytes)
 {
 	modular_value *self = NULL;
-	if(!(self = PyObject_NEW(modular_value, &Modular_type)))
+	if(!(self = PyObject_New(modular_value, &Modular_type)))
 	{
 		throw MemoryException();
 	}
@@ -540,7 +540,7 @@ static modular_value *new_modular_value_random(int keybytes, int e)
 	    	throw Exception(Exception::INVALID_ARGUMENT, "encryption exponent must be at least 3");
     	}	
 	modular_value *self = NULL;
-	if(!(self = PyObject_NEW(modular_value, &Modular_type)))
+	if(!(self = PyObject_New(modular_value, &Modular_type)))
 	{
 		throw MemoryException();
 	}

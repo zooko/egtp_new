@@ -1,34 +1,51 @@
 #  Copyright (c) 2002 Autonomous Zone Industries
+#  Copyright (c) 2003 Bryce "Zooko" Wilcox-O'Hearn
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: ListenerManager.py,v 1.9 2003/02/04 03:43:02 zooko Exp $"
+"""
+@see ListenerManager class
+"""
 
-# standard modules
+__version__ = "$Revision: 1.10 $"
+# $Source: /home/zooko/playground/egtp_new/rescue-party/gw/../egtp_new/egtp_new/egtp/ListenerManager.py,v $
+
+# Python Standard Library modules
 import os
 
 # pyutil modules
-# from debugprint import debugprint
+from debugprint import debugprint
 from pyutil import LazySaver
 
 # (old-)EGTP modules
 from egtp import CommStrat, DataTypes
 
-true = 1
-false = None
+True = 1 == 1
+False = 0 == 1
 
 class ListenerManager(LazySaver.LazySaver):
     """
-    Hi!  I'm your friendly neighborhood ListenerManager.  I have a TCP listener and a RelayListener and
-    a Crypto listener and I initialize and configure them.  Also I generate "comm strategies" records
-    which tell other EGTP nodes how to reach me.  I bump the sequence number of my comm strat
-    whenever my listening strategy changes.  That's all.
+    Hi!  I'm your friendly neighborhood ListenerManager.  I have a TCP
+    listener and a RelayListener and a Crypto listener and I initialize
+    and configure them.  Also I generate "comm strategies" records which
+    tell other EGTP nodes how to reach me.  I bump the sequence number
+    of my comm strat whenever my listening strategy changes.  That's all.
     """
-    def __init__(self,cryptol, tcpl, relayl, mtm, allownonrouteableip=false): 
+    def __init__(self,cryptol, tcpl, relayl, mtm, allownonrouteableip=False): 
         """
-        @param relaylistener: The RelayListener instance which will poll relay servers and unwrap incoming "message for you" messages;  Should not be `None', even if you are not behind a firewall and you are not advertising as "contactable via relay" -- it's always possible that someone out there will send you a "message for you", for one reason or another, and there's no harm in having a relaylistener ready to hear it.
-        @param allownonrouteableip: `true' if you want the ListenerManager to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
+        @param relaylistener: The RelayListener instance which will poll
+            relay servers and unwrap incoming "message for you"
+            messages;  Should not be `None', even if you are not behind
+            a firewall and you are not advertising as "contactable via
+            relay" -- it's always possible that someone out there will
+            send you a "message for you", for one reason or another, and
+            there's no harm in having a relaylistener ready to hear it.
+        @param allownonrouteableip: true if you want the ListenerManager
+            to ignore the fact that its detected IP address is non-
+            routeable and go ahead and report it as a valid comm
+            strategy;  This is for testing, although it might also be
+            useful some day for routing within a LAN.
         """
         self._cryptol = cryptol
         self._tcpl = tcpl
@@ -81,6 +98,7 @@ class ListenerManager(LazySaver.LazySaver):
         """
         @return: a tuple of (commstrat, newflag) where `newflag' is a boolean indicating whether this comm strat differs from the last one that was returned (persistently)
         """
+        debugprint("%s.get_comm_strategy_and_newflag()\n", args=(self,))
         result = None
         if self.primary_comm_strat_is_relay():
             llstrat = self._relayl.get_comm_strategy()
@@ -109,9 +127,9 @@ class ListenerManager(LazySaver.LazySaver):
             # debugprint("ListenerManager.get_comm_strategy_and_newflag(): new comm strat seq no: %s, result: %s, self._lastannouncedcommstratdict: %s, oldstrat: %s, result.same(oldstrat): %s\n", args=(self._commstratseqno, result, self._lastannouncedcommstratdict, oldstrat, result.same(oldstrat),))
             self._lastannouncedcommstratdict = result.to_dict()
             self._lazy_save()
-            newflag = true
+            newflag = True
         else:
-            newflag = false
+            newflag = False
 
         if result is not None:
             result._commstratseqno = self._commstratseqno

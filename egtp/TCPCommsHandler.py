@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPCommsHandler.py,v 1.17 2003/02/17 09:35:21 artimage Exp $"
+__revision__ = "$Id: TCPCommsHandler.py,v 1.18 2003/03/23 15:12:00 zooko Exp $"
 
 # standard modules
 import UserDict, asyncore, os, socket, string, struct, threading, time
@@ -238,6 +238,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         # this rechecks our IP address every so often in case it has changed
         newip = ipaddresslib.get_primary_ip_address(nonroutableok=true)
         if newip != self._ip:
+            self._ip = newip
             # It changed!  Announce new one to the world.
             self._mtm.send_hello_to_meta_trackers()
             self._lazy_save()
