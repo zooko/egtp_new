@@ -111,6 +111,9 @@ reasons.  When you are talking about the nodeId of a peer (as opposed to the
 node Id of yourself), you call it a "peerId" (formerly known as 
 "counterparty Id").
 
+*Q: whats the difference between a Counterparty and a Peer?
+   (counterparty is older, still contains lots of economics stuff?)
+
 B. Relay
 
 Relay is an important feature of EGTP, but it is best understood as a layer on 
