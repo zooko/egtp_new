@@ -1,4 +1,5 @@
-PythonLibs
 *.pyc
 *.pyo
 *.flc
+pyutil
+build
