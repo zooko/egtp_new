@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.11 2002/09/29 17:51:54 zooko Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.12 2002/10/28 03:17:04 myers_carpenter Exp $'
 
 true = 1
 false = 0
@@ -45,7 +45,7 @@ from egtp.crypto import randsource
 from egtp.interfaces import *
 from egtp import MojoKey, MojoMessage, RelayListener, TCPCommsHandler
 from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
-from egtp import confutils, counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
+from egtp import counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
 
 class LookupHand(ILookupHandler):
     def __init__(self, counterparty_id, msg, ch, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=300):

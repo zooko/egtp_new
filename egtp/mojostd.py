@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.9 2002/10/28 01:56:04 zooko Exp $'
+__cvsid = '$Id: mojostd.py,v 1.10 2002/10/28 03:17:04 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -1506,9 +1506,11 @@ class ConfManager(UserDict.UserDict):
 
 # Create a ConfManager.  This is the only instance
 # that should be used per run-time.
-confman = ConfManager()
-confman.load()
-confman.save()  # This ensures the config file has the files the very first time the user runs anything.
+
+# 2002-10-27 commented out ... should no longer need it
+# confman = ConfManager()
+# confman.load()
+# confman.save()  # This ensures the config file has the files the very first time the user runs anything.
 
 try:
     vs = dictToList(confman["LOG_VS"])

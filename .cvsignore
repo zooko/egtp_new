@@ -3,3 +3,4 @@
 *.flc
 pyutil
 build
+base32

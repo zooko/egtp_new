@@ -5,13 +5,13 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: UnreliableHandicapper.py,v 1.5 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: UnreliableHandicapper.py,v 1.6 2002/10/28 03:17:04 myers_carpenter Exp $'
 
 # EGTP modules
 from humanreadable import hr
 
 # our modules
-from egtp import confutils, idlib, mojoutil
+from egtp import idlib, mojoutil
 
 # The most reliable broker is still handicapped this much.
 TUNING_FACTOR=float(2**8)

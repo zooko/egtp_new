@@ -29,12 +29,9 @@ from humanreadable import hr
 
 # (old-)EGTP modules
 from egtp.CleanLogDb import CleanLogDbEnv
-from egtp import HashRandom, MojoKey, confutils, idlib, mencode, mojosixbit, mojoutil
+from egtp import HashRandom, MojoKey, idlib, mencode, mojosixbit, mojoutil
 
-from egtp.crypto import modval
-from egtp.crypto import tripledescbc
-from egtp.crypto import cryptutil
-from egtp.crypto import randsource
+from egtp.crypto import modval, tripledescbc, cryptutil, randsource
 
 true = 1
 false = 0
