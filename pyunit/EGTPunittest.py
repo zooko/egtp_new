@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.3 2002/09/28 17:45:37 zooko Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.4 2002/11/07 03:12:36 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -163,30 +163,31 @@ class Testy(unittest.TestCase):
     def test_local_no_block_on_publish(self):
         self._help_test_no_block_on_publish(LocalLookupMan(NodeMappingVerifier()))
 
-## commenting out the Tristero tests because we don't have a Tristero server component useful for doing unit tests (i.e., tests that don't require any other manual setup by the human tester, and that don't give failures when there are problems such as networking outages that are unrelated to the source code being tested.  --Zooko 2002-04-21
-##    def test_tristero_no_block_on_construct(self):
-##        """
-##        This tests that calling `TristeroLookup()' does not block, not even for a second.
-##        The real point is that `TristeroLookup()' should not block at all, even for a microsecond, and especially not in a way that sometimes blocks for a long time (i.e. waiting for network traffic).
-##        """
-##        finishedflag = threading.Event()
-##        def doit(finishedflag=finishedflag):
-##            TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805")
-##            finishedflag.set()
-##        t = threading.Thread(target=doit)
-##        t.start()
-##        TIMELIMIT=1.0
-##        finishedflag.wait(TIMELIMIT)
-##        self.failUnless(finishedflag.isSet(), "didn't return from a call to `TristeroLookup()' within limit of %s seconds" % TIMELIMIT)
-
-##    def test_tristero_no_block_on_publish(self):
-##        self._help_test_no_block_on_publish(TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805"))
-
-##    def test_tristero_send_and_receive(self):
-##        self._help_test_EGTP_send_and_receive(TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805"))
-
     def test_local_send_and_receive(self):
         self._help_test_EGTP_send_and_receive(LocalLookupMan(NodeMappingVerifier()))
+
+    ## commenting out the Tristero tests because we don't have a Tristero server component useful for doing unit tests (i.e., tests that don't require any other manual setup by the human tester, and that don't give failures when there are problems such as networking outages that are unrelated to the source code being tested.  --Zooko 2002-04-21
+    def DISABLED_test_tristero_no_block_on_construct(self):
+        """
+        This tests that calling `TristeroLookup()' does not block, not even for a second.
+        The real point is that `TristeroLookup()' should not block at all, even for a microsecond, and especially not in a way that sometimes blocks for a long time (i.e. waiting for network traffic).
+        """
+        finishedflag = threading.Event()
+        def doit(finishedflag=finishedflag):
+            TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805")
+            finishedflag.set()
+        t = threading.Thread(target=doit)
+        t.start()
+        TIMELIMIT=1.0
+        finishedflag.wait(TIMELIMIT)
+        self.failUnless(finishedflag.isSet(), "didn't return from a call to `TristeroLookup()' within limit of %s seconds" % TIMELIMIT)
+
+    def DISABLED_test_tristero_no_block_on_publish(self):
+        self._help_test_no_block_on_publish(TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805"))
+
+    def DISABLED_test_tristero_send_and_receive(self):
+        self._help_test_EGTP_send_and_receive(TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805"))
+
 
 def suite():
     suite = unittest.makeSuite(Testy, 'test')

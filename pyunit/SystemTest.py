@@ -6,10 +6,10 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: SystemTest.py,v 1.4 2002/11/04 14:00:42 artimage Exp $'
+__cvsid = '$Id: SystemTest.py,v 1.5 2002/11/07 03:12:36 myers_carpenter Exp $'
 
 # standard Python modules
-import threading, types
+import threading, types, unittest
 
 # pyutil modules
 from pyutil import DoQ
@@ -61,38 +61,73 @@ class LocalDiscoveryMan(IDiscoveryManager):
         discoveryhand.result(self.data.get(key))
         return # `discover()' never returns any return value!
 
-def _help_test(finishedflag, numsuccessesh, lm, dm, name="a test"):
-    """
-    @param lm an object that satisfies the ILookupMan interface
-    @param dm an object that satisfies the IDiscoveryMan interface
-    """
-    start = timer.time()
 
-    # Make a listener.  He will announce his EGTP address to the lookupman `lm'.
-    n1 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
+class Testy(unittest.TestCase):
+    def setUp(self):
+        # Create the event queue for this process:
+        DoQ.doq = DoQ.DoQ()
+        # Call `init()'.
+        Node.init()
 
-    # Set a handler func: if any messages come in with message type "ping", the EGTP Node will call this function.
-    def l_ping_handler(sender, msg, finishedflag=finishedflag, numsuccessesh=numsuccessesh, start=start, name=name):
-        debugprint("%s(): passed in %s seconds: Got a message from %s.  The message says: %s\n", args=(name, "%0.1f" % (timer.time() - start), sender, msg,), v=0)
-        numsuccessesh[0] += 1
-        finishedflag.set()
+    def tearDown(self):
+        Node.shutdown_and_block_until_finished()
 
-    n1.set_handler_func(mtype="ping", handler_func=l_ping_handler)
+    def _help_test(self, finishedflag, numsuccessesh, lm, dm, name="a test"):
+        """
+        @param lm an object that satisfies the ILookupMan interface
+        @param dm an object that satisfies the IDiscoveryMan interface
+        """
+        start = timer.time()
 
-    # Make a sender.  He'll keep a reference to `lm' for later use.
-    n2 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
+        # Make a listener.  He will announce his EGTP address to the lookupman `lm'.
+        n1 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
 
-    # Have the second node ping the first, using only the first's id.
-    n2.send(CommStrat.addr_to_id(n1.get_address()), mtype="ping", msg="hello there, you crazy listener!")
+        # Set a handler func: if any messages come in with message type "ping", the EGTP Node will call this function.
+        def l_ping_handler(sender, msg, finishedflag=finishedflag, numsuccessesh=numsuccessesh, start=start, name=name):
+            debugprint("%s(): passed in %s seconds: Got a message from %s.  The message says: %s\n", args=(name, "%0.1f" % (timer.time() - start), sender, msg,), v=0)
+            numsuccessesh[0] += 1
+            finishedflag.set()
+
+        n1.set_handler_func(mtype="ping", handler_func=l_ping_handler)
+
+        # Make a sender.  He'll keep a reference to `lm' for later use.
+        n2 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
+
+        # Have the second node ping the first, using only the first's id.
+        n2.send(CommStrat.addr_to_id(n1.get_address()), mtype="ping", msg="hello there, you crazy listener!")
+
+
+    def test_local(self, finishedflag, numsuccessesh):
+        localLM = NodeLookupMan.NodeLookupMan(LocalLookupMan())
+        localDM = LocalDiscoveryMan()
+        self._help_test(finishedflag, numsuccessesh, localLM, localDM, name="test_local")
+
+    def DISABLED_test_tristero_lookup(finishedflag, numsuccessesh):
+        localLM = TristeroLookup("http://fnordovax.dyndns.org:10805")
+        print 'TristeroLookup Service:', localLM
+        localDM = LocalDiscoveryMan()
+        self._help_test(finishedflag, numsuccessesh, localLM, localDM, name="test_tristero_lookup")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def runalltests(tests, expectedfailures=0):
     if expectedfailures > 0:
         print "WARNING: this module is currently failing some of the unit tests.  Number of expected failures: %s" % expectedfailures
 
-    # Create the event queue for this process:
-    DoQ.doq = DoQ.DoQ()
-    # Call `init()'.
-    Node.init()
 
     numsuccessesh = [0]
     ts = []
@@ -113,16 +148,12 @@ def runalltests(tests, expectedfailures=0):
 
     assert numsuccessesh[0] == len(tests), "not all tests passed: num successes: %s, num failures: %s" % (numsuccessesh[0], map(lambda x: x[0], filter(lambda x: not x[1].isSet(), ts)),)
 
-def test_local(finishedflag, numsuccessesh):
-    localLM = NodeLookupMan.NodeLookupMan(LocalLookupMan())
-    localDM = LocalDiscoveryMan()
-    _help_test(finishedflag, numsuccessesh, localLM, localDM, name="test_local")
 
-def test_tristero_lookup(finishedflag, numsuccessesh):
-    localLM = TristeroLookup("http://fnordovax.dyndns.org:10805")
-    print 'TristeroLookup Service:', localLM
-    localDM = LocalDiscoveryMan()
-    _help_test(finishedflag, numsuccessesh, localLM, localDM, name="test_tristero_lookup")
+# runalltests((test_local,), expectedfailures=0)
 
-runalltests((test_local,), expectedfailures=0)
+def suite():
+    suite = unittest.makeSuite(Testy, 'test')
+    return suite
 
+if __name__ == '__main__':
+    unittest.main()

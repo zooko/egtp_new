@@ -6,17 +6,16 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: TristeroTest.py,v 1.2 2002/10/26 12:43:36 zooko Exp $'
+__cvsid = '$Id: TristeroTest.py,v 1.3 2002/11/07 03:12:36 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types
 
 # pyutil modules
-import DoQ
-import config
-from debugprint import debugprint
-from humanreadable import hr
-from timeutil import timer
+from pyutil import DoQ, config
+from pyutil.debugprint import debugprint
+from pyutil.humanreadable import hr
+from pyutil.timeutil import timer
 
 # libbase32 modules
 # from humread import hr # XXX for when we switch to base32 encoding...
@@ -25,10 +24,8 @@ from timeutil import timer
 from interfaces import *
 
 # EGTP modules
-import CommStrat
-import Node
-from TristeroLookup import TristeroLookup
-import NodeMappingVerifier
+from egtp import CommStrat, Node, NodeMappingVerifier
+from egtp.TristeroLookup import TristeroLookup
 
 true = 1
 false = 0
