@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode_unittests.py,v 1.6 2002/11/14 22:07:05 myers_carpenter Exp $'
+__cvsid = '$Id: mencode_unittests.py,v 1.7 2002/11/22 03:15:57 zooko Exp $'
 
 
 # Python standard library modules
@@ -281,21 +281,25 @@ class Testy(unittest.TestCase):
 
     def _help_test_no_byte_leakage(self, f):
         # measure one and throw it away, in order to reach a "steady state" in terms of initialization of memory state.
-        memutil.measure_mem_leakage(f, 2**4, iterspersample=2**4)
-        slope = memutil.measure_mem_leakage(f, 2**6, iterspersample=2**4)
-        
-        # print "slope: ", slope
-        MIN_SLOPE = 1.0 # If it leaks less than 1.0 bytes per iteration, then it might just be some kind of noise from the interpreter or something...
-        if slope > MIN_SLOPE:
-            raise "%s leaks memory at a rate of approximately %s system bytes per invocation" % (f, slope,)
-        
-    def _help_test_no_obj_leakage(self, f):
-        # measure one and throw it away, in order to reach a "steady state" in terms of initialization of memory state.
-        memutil.measure_obj_leakage(f, 2**4, iterspersample=2**4)
-        slope = memutil.measure_obj_leakage(f, 2**5, iterspersample=2**4)
+        memutil.measure_mem_leakage(f, 2**3, iterspersample=2**3)
+        slope = memutil.measure_mem_leakage(f, 2**3, iterspersample=2**3)
 
         # print "slope: ", slope
-        MIN_SLOPE = 0.0001
+        MIN_SLOPE = 64.0 # If it leaks less than 64.0 bytes per iteration, then it's probably just some kind of noise from the interpreter or something...
+        # MIN_SLOPE is high because samples is low, which is because doing statistically useful numbers of samples take too long.
+        # For a *good* test, turn samples up as high as you can stand (maybe 2**8 for both invocations of measure_mem_leakage()) and set MIN_SLOPE to about 1.0.
+        # For a *really* good test, add a variance measure to memutil.measure_mem_leakage(), and only consider it to be leaking if the slope is > 1.0 *and* is a "pretty good" fit for the data.
+        # print "%s leaks memory at a rate of approximately %s system bytes per invocation" % (f, "%0.3f" % slope,)
+        if slope > MIN_SLOPE:
+            raise "%s leaks memory at a rate of approximately %s system bytes per invocation" % (f, "%0.3f" % slope,)
+
+    def _help_test_no_obj_leakage(self, f):
+        # measure one and throw it away, in order to reach a "steady state" in terms of initialization of memory state.
+        memutil.measure_obj_leakage(f, 2**3, iterspersample=2**3)
+        slope = memutil.measure_obj_leakage(f, 2**3, iterspersample=2**3)
+
+        # print "slope: ", slope
+        MIN_SLOPE = 0.0000
         if slope > MIN_SLOPE:
             raise "%s leaks memory at a rate of approximately %s Python objects per invocation" % (f, slope,)
 
