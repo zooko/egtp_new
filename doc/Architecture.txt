@@ -16,12 +16,19 @@ reply to that particular message that she sent, you include a hash of the
 original message in your reply (this hash is called the "reference" -- it refers 
 to the original message).
 
+* Might there be some problems with endian's or encodings? An 64bit
+  system using Unicode might hash an EGTP message differently than an
+  8 bit palm pilot.. True or false?
+
 This allows the sender to know with certainty that your message is a reply to 
 that particular query of his.  It also serves as a cryptographically guaranteed 
 ACK, so that the sender knows his message was received by you.  This is also how 
 the sender's EGTP Node associates queries with replies, and it also provides 
 assurance that the reply messages received aren't a replay attack or some other 
 active attack.
+
+* This seems to mean that EGTP does not deal with acks, so that it is
+  un-reliable. Is this the case? We we implemented UDP over TCP?
 
 The nonces and references are included with the message, and are always present 
 regardless of what communication substrate the message is delivered over, 
@@ -34,9 +41,16 @@ protect themselves against replay attacks by remembering the hash of each
 message they have ever received, but this would require an unbounded amount of 
 storage.)
 
+* Maybe an example attack would clarify this a bit. I think I
+  understand it. Alice requests a block from Bob. Bob sends Alice the
+  Block. Mallory resends Alice's original request, thereby getting Bob
+  to resend the block to Alice. Is that correct?
+
 Fixing this problem turns out to be surprisingly subtle, at least judging by how 
 long it has taken me, Zooko, to come up with a complete solution.  That solution 
 will form the basis of EGTP v2 design.
+
+* Do tell. ;)
 
 This problem is documented as a security bug:
 http://sourceforge.net/tracker/index.php?func=detail&aid=548075&group_id=44377&atid=439350
@@ -64,7 +78,7 @@ C. Lookup and Discovery
 
 The EGTP engine depends on two other services, a Lookup Service and a Discovery 
 Service.  The Lookup Service is used to get the current "comm strategy" for a 
-give peerId.  There are two reasons that you might have a peerId but not its 
+given peerId.  There are two reasons that you might have a peerId but not its 
 associated comm strategy:  1.  Someone told you "Hey, you ought to talk to that 
 guy." and gave you the peerId but didn't give you the comm strategy.  2.  The 
 comm strategy that you had stopped working (perhaps because the peer changed IP 
@@ -86,6 +100,8 @@ the user manually updates when she wants to change relay servers.
 
 II. General Implementation Stuff
 
+* Maybe this section should be called definitions and put first?
+
 A. nodeIds 
 
 nodeIds (formerly known as "broker Ids") are universally unique 20-byte 
@@ -101,12 +117,12 @@ Relay is an important feature of EGTP, but it is best understood as a layer on
 *top* of the TCP part of EGTP.  Ignore relay on your first pass through, and 
 then once you understand EGTP-over-TCP you can understand relay as follows:
 
-To relay a message M to a recipient B through a relayer R, you simply make a 
+To relay a message M to a recipient B through a relay R, you simply make a 
 message M2, which says "recipient: B, message: M" and you send M2 to R.
 
 Now that you understand that much, you can look at CommStrat.Relay (implements 
 the sending of relayed messages), RelayServerHandlers (implements the relay 
-service) (whoops -- that file is missing from egtp -- find it in mnet), and 
+service) (whoops -- that file is missing from EGTP -- find it in mnet), and 
 RelayListener (implements receiving relayed messages).
 
 C. Threading and Event Queue
@@ -168,6 +184,10 @@ behavior is good enough to justify the performance, but on the other hand it
 is the product of three years of evolution, and it works, so please don't 
 break it unless you need to.
 
+* How does TCPCommsHandler and TCPConnection interact? Does
+  CommsHandler (CH) just have a list of connections? Does the CH just
+  get called on the DoQ every once in a while to do cleanup? 
+
 C. TCPConnection
 
 TCPConnection is responsible for: a) twiddling the socket objects and managing 
@@ -178,3 +198,20 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
+* Why would we fast fail? By couldn't be sent, do we mean throttling,
+  no route to node, either? My guess, is that throttling does not
+  fail, it just blocks... but no known comm strat leads to a fast
+  fail. Is that right?
+
+* Is this correct?
+
+I send a packet.
+It may be relayed, so I do not know if it was successfully sent until I
+get an ack.
+Does this mean that EGTP deals with ACKS? What happens if a message were
+dropped that contained part of a data block. Or a whole block? How would
+this be caught.
+
+(Example: I ask Alice for a file. She sends me the file. Eve drops all
+packets of that file. Now, will I assume she did not send it? Will I ask
+her to resend? Will Alice know that I did not receive the file? )
