@@ -2,6 +2,34 @@ How to install:
 
 We now use Python's Distutils for this package.
 
+== Mac OS X ==
+
+There are two versions of python 2.2 on OS X: 
+	1) the "unix" version.  This is shipped with OS X 10.2.  It lives at
+'/usr/bin/python'.  
+
+There is an bug in the Makefile that is shipped with this version of python
+that you will need to fix to build python extentions.  In the file
+'/usr/lib/python2.2/config/Makefile', line 934, it says:
+
+LDFLAGS=        -arch i386 -arch ppc
+
+Change it to:
+
+LDFLAGS=        -arch ppc
+
+	2) the "framework" version.  In order for python extentions like
+wxPython to work (which we use for gui stuff in Mnet) you need the framework
+version.  The diffrence has something silly to do with how OS X handles
+dynmaic libs. You can get a package from the wxPython sf.net download page [1].  
+This will install a python binary at '/usr/local/bin/python', so if you go
+this route either specify '/usr/local/bin/python setup.py' every time you
+need to call setup.py or make sure '/usr/local/bin' is before '/usr/bin' in
+your $PATH.
+
+1 - http://sourceforge.net/project/showfiles.php?group_id=10718
+
+
 == pybsddb ==
 
 pybsddb3 is required for building egtp.  If you use the version of python
@@ -12,15 +40,15 @@ Debain - 'apt-get install python-bsddb3'
 Redhat - You can get an RPM at
 http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html
 
-If you've built your python from source (like say the python 2.3 alpha) you
-will need to build pybsddb3 from source as well.  You can get the source
-from the url below:
+If you've built your python from source (like say the python 2.3 alpha), or
+your on Mac OS X you will need to build pybsddb3 from source as well.  You
+can get the source from the url below:
 
 http://pybsddb.sourceforge.net/
 
 == other requirements ==
 
-To download prerequisites (crypto++, pyutil):
+To download prerequisites (crypto++, pyutil, libbase32):
 
   python setup.py download
   

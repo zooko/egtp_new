@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __author__   = 'EGFABT'
-__revision__ = "$Id: test_mesgen.py,v 1.1 2002/12/02 19:58:56 myers_carpenter Exp $"
+__revision__ = "$Id: test_mesgen.py,v 1.2 2002/12/19 16:47:56 myers_carpenter Exp $"
 
 import unittest, tempfile, os, shutil, time
 
@@ -130,50 +130,6 @@ class MesgenTestCase(unittest.TestCase):
         pub_key_sexp, message = mesgen.parse(x)
         assert idlib.equal(idlib.make_id(pub_key_sexp, 'broker'), mesgen.get_id())
         assert message == 'spam'
-
-    def testInvalidateSession(self):
-        mesgen1 = self._createMessageMaker()
-        mesgen2 = self._createMessageMaker()
-        id1 = mesgen1.get_id()
-        id2 = mesgen2.get_id()
-        key1 = mesgen1.get_public_key()
-        key2 = mesgen2.get_public_key()
-        mesgen1.store_key(key2)
-        m1a = mesgen1.generate_message(id2, 'spam1a')
-
-        # send a message m1 -> m2
-        counterparty_pub_key_sexp, message = mesgen2.parse(m1a)
-        assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-
-        # send a message back m2 -> m1 (acts as an ACK that the session & header was received properly)
-        m2a = mesgen2.generate_message(id1, 'spam2a')
-        counterparty_pub_key_sexp, message = mesgen1.parse(m2a)
-        assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-
-        # force mesgen2 to forget the session established by m1
-        for m2_session_id_in in mesgen2._session_keeper.extres.session_map.keys():
-            print "mesgen deleting session id", `m2_session_id_in`
-            mesgen2._session_keeper.extres.session_map.delete(m2_session_id_in)
-
-        # send a message m1 -> m2, but m2 has forgotten the session that will be used
-        m1b = mesgen1.generate_message(id2, 'spam1b')
-        assert m1b[:4] == '\000\000\000\001', 'message should have used an established session'
-        assert 'm1b'
-        try:
-            mesgen2.parse(m1b)
-            assert 0, "UnknownSession should have been raised"
-        except mesgen.UnknownSession, uks:
-            try:
-                mesgen1.parse(uks.invalidate_session_msg)
-                assert 0, "SessionInvalidated should have been raised"
-            except mesgen.SessionInvalidated:
-                pass
-
-        # this should succeed normally, generating a new session
-        m1c = mesgen1.generate_message(id2, 'spam1c')
-        assert m1c[:4] == '\000\000\000\000', "message should have tried to setup a new session"
-        counterparty_pub_key_sexp, message = mesgen2.parse(m1a)
-        assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
 
     def testError(self):
         mesgenobj = self._createMessageMaker()
