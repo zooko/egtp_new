@@ -1,6 +1,6 @@
 Introduction to the EGTP Architecture:
 
-version 0.1
+version 0.2
 
 I. Overall Design
 
@@ -111,15 +111,28 @@ RelayListener (implements receiving relayed messages).
 
 C. Threading and Event Queue
 
-Almost everything has to be invoked from the DoQ.  The exceptions are that 
-TCPConnection interacts with the low-level sockets via a separate thread 
-called "the asyncore thread".  There are liberal precondition assertions to 
-help you notice right away if you make a call from the wrong thread.
+EGTP uses an event-driven architecture to simplify things.  What this means is 
+that there is an event queue, named "DoQ", and a single thread that runs it.  
+The DoQ pops the next event off of the front of the queue, executes it, and then 
+iterates.  There are no other threads in the system, so any and all code that 
+gets executed gets executed by being in an event that gets popped off the front 
+of the DoQ.
 
-* Can we get an example put in here. (I know, I should understand the DoQ by
-now, but it still confuses me why we have a seperate thread to schedule events.
-Maybe I just need a description of the DoQ and its purpose for those of us who
-are not used to event driven programing.)
+(That's not *completely* true.  the DoQ.  The exception is that the 
+TCPConnection object interacts with the low-level sockets via a separate thread 
+called "the asyncore thread".  There are liberal precondition assertions to help 
+you notice right away if you make a call from the wrong thread.)
+
+The reason event-driven programming is simpler is that when you are writing 
+code, you do not have to worry about the twin threats of deadlock and 
+thread inconsistency.  You do not have to worry about deadlock because nothing 
+ever locks.  You do not have to worry about multi-threading inconsistency, 
+because when you are writing (or reading) a function, you can look at the source 
+code and see laid out right in front of you all of the operations that might 
+effect the data during the execution of the function.
+
+These two simplifications make for a huge win in design and debugging time.  
+Learn to love them.
 
 D. Throttling and Other Delays
 
@@ -165,18 +178,3 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
-### From here on down is Q-and-A between Zooko and Art, authors of this document.
-
-# Questions:
-# How do we know if a message was sent successfully or not? Do we get ack messages?
-# What if a relay server is involved?
-
-Are these questions answered by this version?
-
-# Lookup is verifiable while Discovery is not?
-
-Yes, but maybe we can leave that out of this document, since EGTP only needs one specific kind of lookup (current comm strat for a given nodeId), and one specific kind of discovery (meet some nice new Relay Servers).
-
-# Does this mean that in a DHT a lookup might find which node should have a peice of data? While a discovery might be which IP address a node was reachable at? (Since you cant prove the later from its key.) 
-
-Good guess, but if there were a digital signature on the comm strat, then it would be verifiable.  *Or* if you used the "friends of friends" approach, then you could have a certain degree of trust that at least *one* of the 5 friends will give you the right answer.
