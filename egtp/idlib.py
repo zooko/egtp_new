@@ -11,7 +11,7 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.14 2003/02/27 03:44:17 myers_carpenter Exp $"
+__revision__ = "$Id: idlib.py,v 1.15 2003/02/28 04:35:53 artimage Exp $"
 
 # Python Standard Library modules
 import re, sha, struct, types
@@ -20,6 +20,9 @@ from pyutil.debugprint import debugprint
 # egtp modules
 from egtp import EGTPConstants, std, mojosixbit, std
 from egtp.crypto import randsource
+
+# pyutil libs
+from pyutil.debugprint import debugprint
 
 true = 1
 false = 0
@@ -259,7 +262,10 @@ def is_sloppy_id(astr, thingtype=None, _strtypes=_strtypes, _asciihash_re=_ascii
 
 # this gets called a -lot-, it must be fast!
 def is_mojosixbitencoded_id(str, thingtype=None, _asciihash_re=_asciihash_re):
-    return (len(str) == 27) and (_asciihash_re.match(str))
+    try:
+        return (len(str) == 27) and (_asciihash_re.match(str))
+    except:
+        return 0 # 'false'
 
 is_ascii_id = is_mojosixbitencoded_id
 

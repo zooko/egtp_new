@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __author__   = 'EGFABT'
-__revision__ = "$Id: test_tcpconnection.py,v 1.1 2003/02/27 22:12:20 myers_carpenter Exp $"
+__revision__ = "$Id: test_tcpconnection.py,v 1.2 2003/02/28 04:35:53 artimage Exp $"
 
 import unittest
 import struct
@@ -10,7 +10,7 @@ from egtp.TCPConnection import *
 
 class TCPConnectionTestCase(unittest.TestCase):
     def setUp(self):
-        pass
+        DoQ.doq = DoQ.DoQ()
 
     def tearDown(self):
         pass
@@ -23,7 +23,8 @@ class TCPConnectionTestCase(unittest.TestCase):
         t = TCPConnection(inmsg, idlib.new_random_uniq())
         msg = "hellbo"
         str = pack('>L', 2**30) + msg
-        t._chunkify(str)
+        DoQ.doq.do(t._chunkify, args=(str,))
+#       t._chunkify(str)
         DoQ.doq.flush()
         assert t._closing
 

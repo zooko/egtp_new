@@ -4,7 +4,7 @@ Unit test for khashmir lookup manager.
 """
 
 __author__   = 'Artimage <artimage@ishiboo.com>'
-__revision__ = "$Id: test_khashmir.py,v 1.3 2003/02/23 16:18:32 myers_carpenter Exp $"
+__revision__ = "$Id: test_khashmir.py,v 1.4 2003/02/28 04:35:53 artimage Exp $"
 
 import time
 import unittest
@@ -126,14 +126,15 @@ def _help_test_find_value(l, quiet=0):
 	def callback(self, values):
 	    try:
 		if(len(values) == 0):
+                    if not quiet:
 			if not self.found:
 				print "find                NOT FOUND"
 			else:
 				print "find                FOUND"
                         assert self.found
 		else:
-			if self.val in values:
-				self.found = 1
+                    if self.val in values:
+                        self.found = 1
 	    finally:
 		self.flag.set()
 	
@@ -155,11 +156,13 @@ def _help_test_find_nodes(l, quiet=0):
     def callback(nodes, flag=flag, id = b.node.id):
             assert(len(nodes) >0) 
             assert(nodes[0].id == id)
-
-            if (len(nodes) >0) and (nodes[0].id == id):
+            
+            if not quiet:
+                if (len(nodes) >0) and (nodes[0].id == id):
                     print "_help_test_find_nodes  PASSED"
-            else:
+                else:
                     print "_help_test_find_nodes  FAILED"
+
             flag.set()
     a.findNode(b.node.id, callback)
     flag.wait()
@@ -170,11 +173,23 @@ class KhashmirLookupManTestCase(unittest.TestCase):
     """
     This code blatently stolen from node.py in khashmir. If this turns out to be 
     a problem we can remove it. But I figured it would be nice to try this here. 
-    Really we should probably call Khashmir's unit tests from ours... maybe not.
+    I did a bit of refactoring to get these tests to work in our framework, this 
+    will provide us with some regression tests when Khashmir changes.
     """
+
+    # this is a static member variable. setUp manipulates it.
+    net = None
+
     def setUp(self):
-        self.net = _help_test_build_net(peers=8) 
-        time.sleep(3)
+        """ 
+        We test the static member net to see if it has been initialized. If it 
+        hasn't then we setup a test network. If it has, we do nothing.
+        """
+        if (KhashmirLookupManTestCase.net is None):
+           KhashmirLookupManTestCase.net = _help_test_build_net(peers=8) 
+           time.sleep(3)
+
+        pass
 
     def tearDown(self):
         pass
@@ -193,7 +208,7 @@ class KhashmirLookupManTestCase(unittest.TestCase):
         """
         print "finding nodes..."
         for i in range(10):
-	    _help_test_find_nodes(self.net)
+	    _help_test_find_nodes(KhashmirLookupManTestCase.net, quiet=1)
 
     def test_find_value(self):
         """
@@ -201,7 +216,7 @@ class KhashmirLookupManTestCase(unittest.TestCase):
         """
         print "inserting and fetching values..."
         for i in range(10):
-	    _help_test_find_value(self.net)        
+	    _help_test_find_value(KhashmirLookupManTestCase.net, quiet=1)        
         
 
 def suite():

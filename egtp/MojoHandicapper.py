@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoHandicapper.py,v 1.10 2003/02/23 16:18:30 myers_carpenter Exp $"
+__revision__ = "$Id: MojoHandicapper.py,v 1.11 2003/02/28 04:35:53 artimage Exp $"
 
 # Python standard library modules
 import bisect
@@ -15,6 +15,7 @@ import types
 from pyutil import DoQ
 from pyutil.debugprint import debugprint, debugstream
 from pyutil.compat import setdefault
+from pyutil.humanreadable import hr
 
 # egtp modules
 from egtp import idlib
@@ -100,7 +101,7 @@ class MojoHandicapper :
                 traceback.print_exc(file=debugstream)
                 return DISQUALIFIED
 
-            assert amount is DISQUALIFIED or (type(amount) is types.FloatType), "Handicapper function must return certain type. -- func: %s, result: %s, counterparty_id: %s, metainfo: %s\n" % (hr(h), hr(amount), hr(counterparty_id), hr(metainfo)) # postcondition
+            assert amount is DISQUALIFIED or (type(amount) is types.FloatType), "Handicapper function must return certain type. -- func: %s, result: %s, counterparty_id: %s, metainfo: %s type: %s\n" % (hr(h), hr(amount), hr(counterparty_id), hr(metainfo), type(amount)) # postcondition
 
             if amount is DISQUALIFIED :
                 # debugprint("Handicap %s DISQUALIFIED for %s on %s\n", args=(getnameofhandicapper(h), counterparty_id, message_type), v=2, vs="business logic")
