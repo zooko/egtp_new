@@ -56,11 +56,7 @@ then passed on to a "lower-level strategy" for actual delivery).
 I now believe that it was a mistake to make CommStrat.Crypto have the same 
 role as the actual transport strats, but oh well.
 
-Strategy objects should have a send() method, but in an older version of the 
-code they didn't, and one of the classes (CommStrat.TCP, I think) still 
-doesn't, so the current version first checks if they have a send method and if 
-so calls it, and if not it invokes the right "CommsHandler" object 
-(TCPCommsHandler I think) and asks it to send.
+Strategy objects should have a send() method. 
 
 B. TCPCommsHandler
 
@@ -81,3 +77,6 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
+Questions:
+How do we know if a message was sent successfully or not? Do we get ack messages?
+What if a relay server is involved?
