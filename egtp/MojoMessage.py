@@ -3,32 +3,27 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.10 2003/01/20 19:31:42 zooko Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.11 2003/01/20 19:39:39 zooko Exp $"
 
-# standard modules
-import string
-import types
+# Python standard library modules
+import re, string, types
 
 # pyutil modules
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint
 from pyutil import Cache
 
-# our modules
+# egtp modules
 from egtp.DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER
 from egtp.MojoErrors import MojoMessageError
 from egtp import humanreadable, idlib, mencode
 
 
 # Generate messages with the following Mojo version number.
-CURRENT_MOJO_VER=0.9991
+CURRENT_MOJO_VER="0.9991"
 
-# Accept messages of the following version number or later.
-MIN_MOJO_VER=0.99
-
-# Reject messages of the following version number or later.
-NEXT_MOJO_VER=2.0
-
+# Accept messages of the version 0.9991 number or later, up to 2.0 exclusive (reject messages of version 2.0 or later).
+VER_RE=re.compile("(0[.,]999[1-9][0-9]*|1([.,][0-9]*)?")
 
 # Note that we initialize `templs' in "OurMessages.py".
 import OurMessages
@@ -222,7 +217,7 @@ def makeInitialMessage(msgtype, msgbody, recipient_id, nonce, freshnessproof, my
     recipient_id = idlib.sloppy_id_to_bare_binary_id(recipient_id)
     nonce = idlib.sloppy_id_to_bare_binary_id(nonce)
 
-    msgdict = {'header': {'protocol': 'Mojo v'+str(CURRENT_MOJO_VER), 'message type': msgtype, 'recipient': recipient_id, 'nonce': nonce}}
+    msgdict = {'header': {'protocol': 'Mojo v'+CURRENT_MOJO_VER, 'message type': msgtype, 'recipient': recipient_id, 'nonce': nonce}}
 
     if freshnessproof is not None:
         msgdict['header']['freshness proof'] = idlib.canonicalize(freshnessproof)
@@ -279,7 +274,7 @@ def makeResponseMessage(msgtype, msgbody, reference, freshnessproof, mymetainfo=
     if freshnessproof is not None:
         freshnessproof = idlib.canonicalize(freshnessproof)
 
-    msgdict = {'header': {'protocol': 'Mojo v'+str(CURRENT_MOJO_VER), 'message type': msgtype, 'reference': reference, 'freshness proof': freshnessproof}}
+    msgdict = {'header': {'protocol': 'Mojo v'+CURRENT_MOJO_VER, 'message type': msgtype, 'reference': reference, 'freshness proof': freshnessproof}}
 
     if msgbody:
         msgdict['message body'] = msgbody
@@ -410,7 +405,7 @@ def __internal_checkMojoVersion(msgdict):
     """
     vN = __internal_getMojoVersion(msgdict)
 
-    if vN not in ("0.9991", "0,9991",):
+    if not VER_RE.match(vN):
         raise IncompatibleVersionError
 
 def __internal_getMojoVersion(msgdict):
