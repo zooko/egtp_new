@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.7 2002/09/09 21:47:48 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.8 2002/09/28 17:45:36 zooko Exp $'
 
 
 # Python standard library modules
@@ -42,7 +42,6 @@ from pyutil.VersionNumber import VersionNumber
 from pyutil import compat
 from pyutil import dictutil
 from pyutil import fileutil
-from pyutil import humanreadable
 from pyutil import timeutil
 from pyutil.xor import xor
 
@@ -56,6 +55,7 @@ from egtp import mencode
 from egtp import mojosixbit
 from egtp.crypto import randsource
 from egtp.crypto import modval
+from egtp import humanreadable
 
 
 def iso_utc_time(t=None):
@@ -423,10 +423,6 @@ def rotate_mojolog(doq=None, delay=87600):
             del basedir, linkname
 
 
-########################################## HERE IS THE humanreadable.py PART OF mojostd.py
-
-from pyutil.humanreadable import hr
-
 ########################################## HERE IS THE idlib.py PART OF mojostd.py
 
 from egtp.idlib import make_id, make_ascii_id, canonicalize, equal, equals, make_new_random_id, string_to_id, id_to_abbrev, is_sloppy_id, is_mojosixbitencoded_id, is_ascii_id, is_binary_id, sloppy_id_to_bare_binary_id, to_binary, to_mojosixbit, new_random_uniq, identifies, newRandomUniq, new_random_uniq
@@ -723,7 +719,7 @@ def oaep_decode(em, p=""):
     m = db[i+1:] # This is here instead of after the check because that's the way it is written in the PKCS doc.  --Zooko 2000-07-29
 
     if pHash != pHashPrime:
-        raise OAEPError, "decoding error: pHash: %s != pHashPrime: %s" % (humanreadable.hr(pHash), humanreadable.hr(pHashPrime))
+        raise OAEPError, "decoding error: pHash: %s != pHashPrime: %s" % tuple(map(humanreadable.hr, (pHash, pHashPrime,)))
 
     return m
 

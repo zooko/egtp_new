@@ -13,13 +13,12 @@ import types
 # pyutil modules
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint
-from pyutil import humanreadable
 from pyutil import Cache
 
 # our modules
 from egtp.DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER
 from egtp.MojoErrors import MojoMessageError
-from egtp import idlib, mencode
+from egtp import humanreadable, idlib, mencode
 
 
 # Generate messages with the following Mojo version number.

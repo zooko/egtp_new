@@ -28,9 +28,11 @@ import random
 import zlib
 
 # pyutil modules
-from pyutil.humanreadable import hr
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import fileutil
+
+# EGTP modules
+from egtp import humanreadable
 
 try:
     import trace
@@ -143,9 +145,9 @@ def _skim_with_partial_bisort(set, num):
 
     @param set: a map from keys to values
     @return: No return value, but `set' has been "skimmed" so that only the `num' items with the highest values remain.
-    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % hr(num)
+    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % humanreadable.hr(num)
     """
-    assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % hr(num)
+    assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % humanreadable.hr(num)
 
     if len(set) <= num:
         return
@@ -201,9 +203,9 @@ def _skim_with_partial_qsort(set, num):
 
     This is faster than `_skim_with_builtin()', but it is complicated and potentially brittle in the presence of different statistical distributions, weird values of `num', etc.
 
-    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % hr(num)
+    @precondition: `num' must be non-negative.: num >= 0: "num: %s" % humanreadable.hr(num)
     """
-    assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % hr(num)
+    assert num >= 0, "precondition: `num' must be non-negative." + " -- " + "num: %s" % humanreadable.hr(num)
 
     if len(set) <= num:
         return
@@ -239,8 +241,8 @@ def _skim_with_partial_qsort(set, num):
         elif i < 7:
             i = i + 1
 
-        assert i < len(rs), "i: %s, rs: %s" % (hr(i), hr(rs))
-        assert i >= 0, "i: %s" % hr(i)
+        assert i < len(rs), "i: %s, rs: %s" % (humanreadable.hr(i), humanreadable.hr(rs))
+        assert i >= 0, "i: %s" % humanreadable.hr(i)
         rs.sort()
         radix = rs[i]
 
@@ -454,9 +456,9 @@ def int_log_base_2(x):
     """
     Rounds down.
 
-    @precondition: `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % hr(x)
+    @precondition: `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % humanreadable.hr(x)
     """
-    assert x >= 1.0, "precondition: `x' must be greater than or equal to 1.0." + " -- " + "x: %s" % hr(x)
+    assert x >= 1.0, "precondition: `x' must be greater than or equal to 1.0." + " -- " + "x: %s" % humanreadable.hr(x)
 
     # Is it faster to use math.log and convert the result to base 2, or is it faster to do this?  Probably the former, but oh well...  --Zooko 2001-02-18
     y = 1
@@ -471,9 +473,9 @@ def int_log_base_10(x):
     """
     Rounds down.
 
-    @precondition: `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % hr(x)
+    @precondition: `x' must be greater than or equal to 1.0.: x >= 1.0: "x: %s" % humanreadable.hr(x)
     """
-    assert x >= 1.0, "precondition: `x' must be greater than or equal to 1.0." + " -- " + "x: %s" % hr(x)
+    assert x >= 1.0, "precondition: `x' must be greater than or equal to 1.0." + " -- " + "x: %s" % humanreadable.hr(x)
 
     # Is it faster to use len(str()), or is it faster to do this?  Probably the former, but oh well...  --Zooko 2001-02-18
     y = 1
@@ -641,7 +643,7 @@ def coverageit(func):
         debugprint("yyyyyyyyyyyyyyyyyyyy %s\n", args=(func,), v=0, vs="debug")
     finally:
         coverage.the_coverage.stop()
-        tmpfname = fileutil.mktemp(prefix=hr(func))
+        tmpfname = fileutil.mktemp(prefix=humanreadable.hr(func))
 
         debugprint("zzzzzzzzzzzzzzzzzzzz %s\n", args=(func,), v=0, vs="debug")
 
@@ -662,7 +664,7 @@ def traceorcountit(func, dotrace, docount, countfuncs):
         result = t.runfunc(func)
         debugprint("yyyyyyyyyyyyyyyyyyyy %s\n", args=(func,), v=0, vs="debug")
     finally:
-        tmpfname = fileutil.mktemp(prefix=hr(func))
+        tmpfname = fileutil.mktemp(prefix=humanreadable.hr(func))
 
         debugprint("zzzzzzzzzzzzzzzzzzzz %s\n", args=(func,), v=0, vs="debug")
 
@@ -691,7 +693,7 @@ def _dont_enable_if_you_want_speed_profit(func):
         result = p.runcall(func)
         debugprint("yyyyyyyyyyyyyyyyyyyy %s\n", args=(func,), v=0, vs="debug")
     finally:
-        tmpfname = fileutil.mktemp(prefix=hr(func))
+        tmpfname = fileutil.mktemp(prefix=humanreadable.hr(func))
 
         debugprint("zzzzzzzzzzzzzzzzzzzz %s\n", args=(tmpfname,), v=0, vs="debug")
 
@@ -777,9 +779,9 @@ def _cb_warper(icb=None):
     the callback function.  Also your `icb' function, if it exists, got called before the
     `wait()' returned.
 
-    @precondition: `icb' is None or callable.: (not icb) or callable(icb): "icb: [%s]" % hr(icb)
+    @precondition: `icb' is None or callable.: (not icb) or callable(icb): "icb: [%s]" % humanreadable.hr(icb)
     """
-    assert (not icb) or callable(icb), "`icb' is None or callable." + " -- " + "icb: [%s]" % hr(icb)
+    assert (not icb) or callable(icb), "`icb' is None or callable." + " -- " + "icb: [%s]" % humanreadable.hr(icb)
 
     res=[]
     reskw={}
@@ -848,27 +850,27 @@ def shuffleList(list):
 def test_common_substring_length():
     s = '\000\000\000'
     d = '\000\000\001'
-    assert common_substring_length(s, d) == 23, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), hr(common_substring_length(s, d)))
+    assert common_substring_length(s, d) == 23, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), humanreadable.hr(common_substring_length(s, d)))
 
     s = '\000'
     d = '\001'
-    assert common_substring_length(s, d) == 7, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), hr(common_substring_length(s, d)))
+    assert common_substring_length(s, d) == 7, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), humanreadable.hr(common_substring_length(s, d)))
 
     s = '\000'
     d = '\000'
-    assert common_substring_length(s, d) == 8, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), hr(common_substring_length(s, d)))
+    assert common_substring_length(s, d) == 8, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), humanreadable.hr(common_substring_length(s, d)))
 
     s = '\000'
     d = '\000'
-    assert common_substring_length(s, d, bitunits=false) == 1, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), hr(common_substring_length(s, d)))
+    assert common_substring_length(s, d, bitunits=false) == 1, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), humanreadable.hr(common_substring_length(s, d)))
 
     s = '\111'
     d = '\111'
-    assert common_substring_length(s, d) == 8, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), hr(common_substring_length(s, d)))
+    assert common_substring_length(s, d) == 8, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), humanreadable.hr(common_substring_length(s, d)))
 
     s = '\111' + chr(64)
     d = '\111' + chr(32)
-    assert common_substring_length(s, d) == 9, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), hr(common_substring_length(s, d)))
+    assert common_substring_length(s, d) == 9, "s: %s, d: %s, common_substring_length(s, d): %s" % (repr(s), repr(d), humanreadable.hr(common_substring_length(s, d)))
 
 class DecompressError(StandardError, zlib.error): pass
 class UnsafeDecompressError(DecompressError): pass # This means it would take more memory to decompress than we can spare.
@@ -884,11 +886,11 @@ def safe_zlib_decompress_to_retval(zbuf, maxlen=(65 * (2**20)), maxmem=(65 * (2*
     @param maxlen: the resulting text must not be greater than this
     @param maxmem: the execution of this function must not use more than this amount of memory in bytes;  The higher this number is (optimally 1032 * maxlen, or even greater), the faster this function can complete.  (Actually I don't fully understand the workings of zlib, so this function might use a *little* more than this memory, but not a lot more.)  (Also, this function will raise an exception if the amount of memory required even *approaches* `maxmem'.  Another reason to make it large.)  (Hence the default value which would seem to be exceedingly large until you realize that it means you can decompress 64 KB chunks of compressiontext at a bite.)
 
-    @precondition: `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
-    @precondition: `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % hr(maxmem)
+    @precondition: `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (humanreadable.hr(maxlen), humanreadable.hr(type(maxlen)))
+    @precondition: `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % humanreadable.hr(maxmem)
     """
-    assert ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0, "precondition: `maxlen' must be a real maxlen, geez!" + " -- " + "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
-    assert maxmem >= 2 ** 20, "precondition: `maxmem' must be at least 1 MB." + " -- " + "maxmem: %s" % hr(maxmem)
+    assert ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0, "precondition: `maxlen' must be a real maxlen, geez!" + " -- " + "maxlen: %s :: %s" % (humanreadable.hr(maxlen), humanreadable.hr(type(maxlen)))
+    assert maxmem >= 2 ** 20, "precondition: `maxmem' must be at least 1 MB." + " -- " + "maxmem: %s" % humanreadable.hr(maxmem)
 
     lenzbuf = len(zbuf)
     offset = 0
@@ -903,7 +905,7 @@ def safe_zlib_decompress_to_retval(zbuf, maxlen=(65 * (2**20)), maxmem=(65 * (2*
         lencompbite = availmem / 1032 # XXX TODO: The biggest compression ratio zlib can have for whole files is 1032:1.  Unfortunately I don't know if small chunks of compressiontext *within* a file can expand to more than that.  I'll assume not...  --Zooko 2001-05-12
         if lencompbite < 128:
             # If we can't safely attempt even a few bytes of compression text, let us give up.  This hopefully never happens.
-            raise UnsafeDecompressError, "used up roughly `maxmem' memory. maxmem: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (hr(maxmem), hr(len(zbuf)), hr(offset), hr(decomplen),)
+            raise UnsafeDecompressError, "used up roughly `maxmem' memory. maxmem: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (humanreadable.hr(maxmem), humanreadable.hr(len(zbuf)), humanreadable.hr(offset), humanreadable.hr(decomplen),)
         # I wish the following were a local function like this:
         # def proc_decomp_bite(tmpstr, lencompbite=0, decomplen=decomplen, maxlen=maxlen, availmem=availmem, decompstrlist=decompstrlist, offset=offset, zbuf=zbuf):
         # ...but until we can depend on Python 2.1 with lexical scoping, we can't update the integers like `offset'.  Oh well.  --Zooko 2001-05-12
@@ -913,12 +915,12 @@ def safe_zlib_decompress_to_retval(zbuf, maxlen=(65 * (2**20)), maxmem=(65 * (2*
             else:
                 tmpstr = decomp.decompress(zbuf[offset:offset+lencompbite])
         except zlib.error, le:
-            raise ZlibError, (offset, lencompbite, decomplen, hr(le), )
+            raise ZlibError, (offset, lencompbite, decomplen, humanreadable.hr(le), )
 
         lentmpstr = len(tmpstr)
         decomplen = decomplen + lentmpstr
         if decomplen > maxlen:
-            raise UnsafeDecompressError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (hr(maxlen), hr(len(zbuf)), hr(offset), hr(decomplen),)
+            raise UnsafeDecompressError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (humanreadable.hr(maxlen), humanreadable.hr(len(zbuf)), humanreadable.hr(offset), humanreadable.hr(decomplen),)
         availmem = availmem - lentmpstr
         offset = offset + lencompbite
         decompstrlist.append(tmpstr)
@@ -931,7 +933,7 @@ def safe_zlib_decompress_to_retval(zbuf, maxlen=(65 * (2**20)), maxmem=(65 * (2*
     lentmpstr = len(tmpstr)
     decomplen = decomplen + lentmpstr
     if decomplen > maxlen:
-        raise TooBigError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (hr(maxlen), hr(len(zbuf)), hr(offset), hr(decomplen),)
+        raise TooBigError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (humanreadable.hr(maxlen), humanreadable.hr(len(zbuf)), humanreadable.hr(offset), humanreadable.hr(decomplen),)
     availmem = availmem - lentmpstr
     offset = offset + lencompbite
     if lentmpstr > 0:
@@ -955,12 +957,12 @@ def safe_zlib_decompress_to_file(zbuf, fileobj, maxlen=(65 * (2**20)), maxmem=(6
     @param fileobj: the decompressed text will be written to it
 
     @precondition: `fileobj' must be an IO.: fileobj is not None
-    @precondition: `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
-    @precondition: `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % hr(maxmem)
+    @precondition: `maxlen' must be a real maxlen, geez!: ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0: "maxlen: %s :: %s" % (humanreadable.hr(maxlen), humanreadable.hr(type(maxlen)))
+    @precondition: `maxmem' must be at least 1 MB.: maxmem >= 2 ** 20: "maxmem: %s" % humanreadable.hr(maxmem)
     """
     assert fileobj is not None, "precondition: `fileobj' must be an IO."
-    assert ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0, "precondition: `maxlen' must be a real maxlen, geez!" + " -- " + "maxlen: %s :: %s" % (hr(maxlen), hr(type(maxlen)))
-    assert maxmem >= 2 ** 20, "precondition: `maxmem' must be at least 1 MB." + " -- " + "maxmem: %s" % hr(maxmem)
+    assert ((type(maxlen) == types.IntType) or (type(maxlen) == types.LongType)) and maxlen > 0, "precondition: `maxlen' must be a real maxlen, geez!" + " -- " + "maxlen: %s :: %s" % (humanreadable.hr(maxlen), humanreadable.hr(type(maxlen)))
+    assert maxmem >= 2 ** 20, "precondition: `maxmem' must be at least 1 MB." + " -- " + "maxmem: %s" % humanreadable.hr(maxmem)
 
     lenzbuf = len(zbuf)
     offset = 0
@@ -973,7 +975,7 @@ def safe_zlib_decompress_to_file(zbuf, fileobj, maxlen=(65 * (2**20)), maxmem=(6
         lencompbite = availmem / 1032 # XXX TODO: The biggest compression ratio zlib can have for whole files is 1032:1.  Unfortunately I don't know if small chunks of compressiontext *within* a file can expand to more than that.  I'll assume not...  --Zooko 2001-05-12
         if lencompbite < 128:
             # If we can't safely attempt even a few bytes of compression text, let us give up.  This hopefully never happens.
-            raise UnsafeDecompressError, "used up roughly `maxmem' memory. maxmem: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (hr(maxmem), hr(len(zbuf)), hr(offset), hr(decomplen),)
+            raise UnsafeDecompressError, "used up roughly `maxmem' memory. maxmem: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (humanreadable.hr(maxmem), humanreadable.hr(len(zbuf)), humanreadable.hr(offset), humanreadable.hr(decomplen),)
         # I wish the following were a local function like this:
         # def proc_decomp_bite(tmpstr, lencompbite=0, decomplen=decomplen, maxlen=maxlen, availmem=availmem, decompstrlist=decompstrlist, offset=offset, zbuf=zbuf):
         # ...but until we can use 2.1 lexical scoping we can't update the integers like `offset'.  Oh well.  --Zooko 2001-05-12
@@ -987,7 +989,7 @@ def safe_zlib_decompress_to_file(zbuf, fileobj, maxlen=(65 * (2**20)), maxmem=(6
         lentmpstr = len(tmpstr)
         decomplen = decomplen + lentmpstr
         if decomplen > maxlen:
-            raise TooBigError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (hr(maxlen), hr(len(zbuf)), hr(offset), hr(decomplen),)
+            raise TooBigError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (humanreadable.hr(maxlen), humanreadable.hr(len(zbuf)), humanreadable.hr(offset), humanreadable.hr(decomplen),)
         availmem = availmem - lentmpstr
         offset = offset + lencompbite
         fileobj.write(tmpstr)
@@ -999,7 +1001,7 @@ def safe_zlib_decompress_to_file(zbuf, fileobj, maxlen=(65 * (2**20)), maxmem=(6
     lentmpstr = len(tmpstr)
     decomplen = decomplen + lentmpstr
     if decomplen > maxlen:
-        raise UnsafeDecompressError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (hr(maxlen), hr(len(zbuf)), hr(offset), hr(decomplen),)
+        raise UnsafeDecompressError, "length of resulting data > `maxlen'. maxlen: %s, len(zbuf): %s, offset: %s, decomplen: %s" % (humanreadable.hr(maxlen), humanreadable.hr(len(zbuf)), humanreadable.hr(offset), humanreadable.hr(decomplen),)
     availmem = availmem - lentmpstr
     offset = offset + lencompbite
     fileobj.write(tmpstr)

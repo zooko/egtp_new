@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.2 2002/09/28 04:19:54 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.3 2002/09/28 17:45:37 zooko Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -16,11 +16,7 @@ import threading, types, unittest
 from pyutil import DoQ
 from pyutil import config
 from pyutil.debugprint import debugprint
-from pyutil.humanreadable import hr
 from pyutil.timeutil import timer
-
-# libbase32 modules
-# from humread import hr # XXX for when we switch to base32 encoding...
 
 # (old) MN modules
 from egtp import idlib
@@ -30,6 +26,7 @@ from egtp import CommStrat
 from egtp import Node
 from egtp.NodeMappingVerifier import NodeMappingVerifier
 from egtp.TristeroLookup import TristeroLookup
+from egtp import humanreadable
 from egtp.interfaces import *
 
 true = 1
@@ -39,7 +36,7 @@ config.MAX_VERBOSITY = 1
 
 HARDCODED_GOOD_EGTP_ADDRESS={'sequence num': 3, 'connection strategies': [{'lowerstrategy': {'IP address': '192.168.0.2', 'port number': '15233', 'comm strat sequence num': 1, 'comm strategy type': 'TCP'}, 'pubkey': {'key header': {'usage': 'only for communication security', 'type': 'public', 'cryptosystem': 'RSA'}, 'key values': {'public modulus': 'l2RaTKzSJNJyC5EpdVy1nzxW49QIetRILxilog9OgHm-LRHCMcZRstrGBKRYK_yZPJ7f9Nx9-nTLup1coWjH43R1ib16xgSZ3P2ZsWFgPC5-3nJcm1HuE0cdupMr-HY3OG2p6LP-Yywf3G6F0pPWLG8wZZICZzAXIoV2jZVspqc', 'public exponent': '3'}}, 'comm strat sequence num': 1, 'comm strategy type': 'crypto'}]}
 
-assert (type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "precondition: `HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s" % (hr(HARDCODED_GOOD_EGTP_ADDRESS), hr(type(HARDCODED_GOOD_EGTP_ADDRESS)),)
+assert (type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "precondition: `HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s" % (humanreadable.hr(HARDCODED_GOOD_EGTP_ADDRESS), humanreadable.hr(type(HARDCODED_GOOD_EGTP_ADDRESS)),)
 
 # a lookup man which uses only local data;  In a real app you need remote lookup in the form of MetaTrackers, Tristero, Chord, Plex, Alpine, or something.
 class LocalLookupMan(ILookupManager):
@@ -54,13 +51,13 @@ class LocalLookupMan(ILookupManager):
         return # `lookup()' never returns any return value!
     def publish(self, egtpid, egtpaddr):
         """
-        @precondition egtpid must be an id.: idlib.is_id(egtpid): "egtpid: %s :: %s" % (hr(egtpid), hr(type(egtpid)),)
-        @precondition egtpaddr must be a dict.: type(egtpaddr) is types.DictType: "egtpaddr: %s :: %s" % (hr(egtpaddr), hr(type(egtpaddr)),)
-        @precondition egtpid must match egtpaddr.: idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)): "egtpid: %s, egtpaddr: %s" % (hr(egtpid), hr(egtpaddr), hr(egtpaddr.get_id(),))
+        @precondition egtpid must be an id.: idlib.is_id(egtpid): "egtpid: %s :: %s" % (humanreadable.hr(egtpid), humanreadable.hr(type(egtpid)),)
+        @precondition egtpaddr must be a dict.: type(egtpaddr) is types.DictType: "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
+        @precondition egtpid must match egtpaddr.: idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)): "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
         """
-        assert idlib.is_id(egtpid), "precondition: egtpid must be an id." + " -- " + "egtpid: %s :: %s" % (hr(egtpid), hr(type(egtpid)),)
-        assert type(egtpaddr) is types.DictType, "precondition: egtpaddr must be a dict." + " -- " + "egtpaddr: %s :: %s" % (hr(egtpaddr), hr(type(egtpaddr)),)
-        assert idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)), "precondition: egtpid must match egtpaddr." + " -- " + "egtpid: %s, egtpaddr: %s" % (hr(egtpid), hr(egtpaddr), hr(egtpaddr.get_id(),))
+        assert idlib.is_id(egtpid), "precondition: egtpid must be an id." + " -- " + "egtpid: %s :: %s" % (humanreadable.hr(egtpid), humanreadable.hr(type(egtpid)),)
+        assert type(egtpaddr) is types.DictType, "precondition: egtpaddr must be a dict." + " -- " + "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
+        assert idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)), "precondition: egtpid must match egtpaddr." + " -- " + "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
 
         self.data[egtpid] = egtpaddr
 

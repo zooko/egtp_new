@@ -5,17 +5,14 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeLookupMan.py,v 1.5 2002/09/09 21:15:13 myers_carpenter Exp $'
+__cvsid = '$Id: NodeLookupMan.py,v 1.6 2002/09/28 17:45:36 zooko Exp $'
 
 # standard Python modules
 import exceptions
 import types
 
-# pyutil modules
-from pyutil.humanreadable import hr
-
 # EGTP modules
-from egtp import CommStrat, interfaces, NodeMappingVerifier
+from egtp import CommStrat, NodeMappingVerifier, humanreadable, interfaces
 
 # (old) MN modules
 from egtp import idlib
@@ -41,21 +38,21 @@ class NodeLookupMan(interfaces.ILookupManager):
 
     def lookup(self, key, lookuphand):
         """
-        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
+        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
         """
-        assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % (hr(key), hr(type(key)),)
+        assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
 
         self.lm.lookup(key, NodeLookupHand(lookuphand, key))
 
     def publish(self, key, object):
         """
-        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % (hr(key), hr(type(key)),)
-        @precondition: object must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)): "object: %s :: %s" % (hr(object), hr(type(object)),)
-        @precondition: key must match object.: idlib.equal(key, CommStrat.addr_to_id(object)): "key: %s, object: %s" % (hr(key), hr(object),)
+        @precondition: key must be an id.: idlib.is_id(key): "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
+        @precondition: object must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)): "object: %s :: %s" % tuple(map(humanreadable.hr, (object, type(object),)))
+        @precondition: key must match object.: idlib.equal(key, CommStrat.addr_to_id(object)): "key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
         """
-        assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % (hr(key), hr(type(key)),)
-        assert ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)), "precondition: object must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain, or else a CommStrat instance with a broker_id." + " -- " + "object: %s :: %s" % (hr(object), hr(type(object)),)
-        assert idlib.equal(key, CommStrat.addr_to_id(object)), "precondition: key must match object." + " -- " + "key: %s, object: %s" % (hr(key), hr(object),)
+        assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
+        assert ((type(object) is types.DictType) and (object.has_key("connection strategies")) and (object.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(object) is types.InstanceType) and (isinstance(object, CommStrat)) and (object._broker_id is not None)), "precondition: object must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain, or else a CommStrat instance with a broker_id." + " -- " + "object: %s :: %s" % tuple(map(humanreadable.hr, (object, type(object),)))
+        assert idlib.equal(key, CommStrat.addr_to_id(object)), "precondition: key must match object." + " -- " + "key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
 
         self.lm.publish(key, object)
 

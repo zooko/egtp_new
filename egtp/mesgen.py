@@ -6,7 +6,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 
-# standard modules
+# Python standard library modules
 import xdrlib
 from xdrlib import Packer,Unpacker
 from sha import sha
@@ -23,7 +23,9 @@ import types
 from pyutil.debugprint import debugprint
 from pyutil import Cache
 from pyutil import fileutil
-from pyutil.humanreadable import hr
+
+# EGTP modules
+from humanreadable import hr
 
 # (old-)EGTP modules
 from egtp.CleanLogDb import CleanLogDbEnv

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: SystemTest.py,v 1.1 2002/08/27 20:01:39 myers_carpenter Exp $'
+__cvsid = '$Id: SystemTest.py,v 1.2 2002/09/28 17:45:37 zooko Exp $'
 
 # standard Python modules
 import threading, types
@@ -15,11 +15,7 @@ import threading, types
 from pyutil import DoQ
 from pyutil import config
 from pyutil.debugprint import debugprint
-from pyutil.humanreadable import hr
 from pyutil.timeutil import timer
-
-# libbase32 modules
-# from humread import hr # XXX for when we switch to base32 encoding...
 
 # (old) MN modules
 from egtp.confutils import confman
@@ -30,6 +26,7 @@ from egtp import CommStrat
 from egtp import Node
 from egtp import NodeLookupMan
 from egtp.TristeroLookup import TristeroLookup
+from egtp import humanreadable
 from egtp.interfaces import *
 
 true = 1
@@ -50,13 +47,13 @@ class LocalLookupMan(ILookupManager):
         return # `lookup()' never returns any return value!
     def publish(self, egtpid, egtpaddr):
         """
-        @precondition egtpid must be an id.: idlib.is_id(egtpid): "egtpid: %s :: %s" % (hr(egtpid), hr(type(egtpid)),)
-        @precondition egtpaddr must be a dict.: type(egtpaddr) is types.DictType: "egtpaddr: %s :: %s" % (hr(egtpaddr), hr(type(egtpaddr)),)
-        @precondition egtpid must match egtpaddr.: idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)): "egtpid: %s, egtpaddr: %s" % (hr(egtpid), hr(egtpaddr), hr(egtpaddr.get_id(),))
+        @precondition egtpid must be an id.: idlib.is_id(egtpid): "egtpid: %s :: %s" % (humanreadable.hr(egtpid), humanreadable.hr(type(egtpid)),)
+        @precondition egtpaddr must be a dict.: type(egtpaddr) is types.DictType: "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
+        @precondition egtpid must match egtpaddr.: idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)): "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
         """
-        assert idlib.is_id(egtpid), "precondition: egtpid must be an id." + " -- " + "egtpid: %s :: %s" % (hr(egtpid), hr(type(egtpid)),)
-        assert type(egtpaddr) is types.DictType, "precondition: egtpaddr must be a dict." + " -- " + "egtpaddr: %s :: %s" % (hr(egtpaddr), hr(type(egtpaddr)),)
-        assert idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)), "precondition: egtpid must match egtpaddr." + " -- " + "egtpid: %s, egtpaddr: %s" % (hr(egtpid), hr(egtpaddr), hr(egtpaddr.get_id(),))
+        assert idlib.is_id(egtpid), "precondition: egtpid must be an id." + " -- " + "egtpid: %s :: %s" % (humanreadable.hr(egtpid), humanreadable.hr(type(egtpid)),)
+        assert type(egtpaddr) is types.DictType, "precondition: egtpaddr must be a dict." + " -- " + "egtpaddr: %s :: %s" % (humanreadable.hr(egtpaddr), humanreadable.hr(type(egtpaddr)),)
+        assert idlib.equal(egtpid, CommStrat.addr_to_id(egtpaddr)), "precondition: egtpid must match egtpaddr." + " -- " + "egtpid: %s, egtpaddr: %s" % (humanreadable.hr(egtpid), humanreadable.hr(egtpaddr), humanreadable.hr(egtpaddr.get_id(),))
 
         self.data[egtpid] = egtpaddr
 
@@ -131,5 +128,5 @@ def test_tristero_lookup(finishedflag, numsuccessesh):
     localDM = LocalDiscoveryMan()
     _help_test(finishedflag, numsuccessesh, localLM, localDM, name="test_tristero_lookup")
 
-runalltests((test_local, test_tristero_lookup,), expectedfailures=0)
+runalltests((test_local,), expectedfailures=0)
 

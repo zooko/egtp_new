@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: CryptoCommsHandler.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
+__cvsid = '$Id: CryptoCommsHandler.py,v 1.4 2002/09/28 17:45:36 zooko Exp $'
 
 # standard modules
 import traceback
@@ -18,12 +18,11 @@ from pyutil.config import DEBUG_MODE, REALLY_SLOW_DEBUG_MODE
 from pyutil.debugprint import debugprint
 from pyutil import Cache
 from pyutil import DoQ
-from pyutil import humanreadable
 
 # our modules
 from egtp import CommsError, CommStrat
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-from egtp import MojoKey, confutils, idlib, mesgen, mojosixbit, mojoutil
+from egtp import MojoKey, confutils, humanreadable, idlib, mesgen, mojosixbit, mojoutil
 
 true = 1
 false = None

@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #
 #  Copyright (c) 2001 Autonomous Zone Industries
+#  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 
-# standard modules
-import exceptions
-import time # actually just for debugging
+# Python standard library modules
+import exceptions, string, types
 import traceback # actually just for debugging
 import types
 import string
@@ -16,7 +16,6 @@ import string
 # pyutil modules
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint
-from pyutil.humanreadable import hr
 
 # our modules
 from egtp import DataTypes, OurMessages, idlib
@@ -30,6 +29,9 @@ from egtp.crypto import modval
 true = 1
 false = 0
 
+from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
+true = 1
+false = 0
 
 
 class Error(exceptions.StandardError): pass

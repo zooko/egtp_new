@@ -13,7 +13,7 @@
 # us, their reputation for coming through with their deals in our eyes,
 # etc.
 #
-__cvsid = '$Id: counterparties.py,v 1.6 2002/09/28 04:19:54 myers_carpenter Exp $'
+__cvsid = '$Id: counterparties.py,v 1.7 2002/09/28 17:45:36 zooko Exp $'
 
 
 # Python standard library modules
@@ -29,7 +29,6 @@ import math
 from pyutil import DoQ
 from pyutil.compat import setdefault
 from pyutil.debugprint import debugprint
-from pyutil.humanreadable import hr
 from pyutil import Cache
 from pyutil import fileutil
 

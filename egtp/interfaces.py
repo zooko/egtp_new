@@ -6,16 +6,13 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: interfaces.py,v 1.5 2002/09/09 21:15:14 myers_carpenter Exp $'
+__cvsid = '$Id: interfaces.py,v 1.6 2002/09/28 17:45:36 zooko Exp $'
 
 # standard Python modules
 import exceptions
 
-# pyutil modules
-from pyutil.humanreadable import hr
-
 # EGTP modules
-from egtp.IRemoteOpHandler import IRemoteOpHandler
+from egtp.IRemoteOpHandler import IRemoteOpHandler, humanreadable
 
 class ILookupManager:
     """
@@ -44,11 +41,11 @@ class ILookupManager:
             self-authenticating keys, use a discovery manager instead.)
         @param lookuphand: an object which satisfies the ILookupHandler interface
 
-        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % humanreadable.hr(key)
 
         @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
-        assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
+        assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % humanreadable.hr(key)
         raise NotImplementedError
         pass
 
@@ -62,13 +59,13 @@ class ILookupManager:
         @param object: the thing to be published
         @param publishhand: an object which satisfies the IRemoteOpHandler interface, or `None'
 
-        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % hr(key)
-        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % (hr(key), hr(object),)
+        @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % humanreadable.hr(key)
+        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
 
         @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
-        assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
-        assert self.verifier.verify_mapping(key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "key: %s, object: %s" % (hr(key), hr(object),)
+        assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % humanreadable.hr(key)
+        assert self.verifier.verify_mapping(key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
         raise NotImplementedError
         pass
 
@@ -131,11 +128,11 @@ class IVerifier:
         """
         @return: true if and only if `object' is a valid result for `key'
 
-        @precondition: key must be well-formed.: self.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed.: self.verify_key(key): "key: %s" % humanreadable.hr(key)
 
         @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
-        assert self.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % hr(key)
+        assert self.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % humanreadable.hr(key)
         raise NotImplementedError
         pass
 
@@ -157,11 +154,11 @@ class ILookupHandler(IRemoteOpHandler):
         @param key: the key that you are trying to look up
         @param verifier: a verifier object
 
-        @precondition: key must be well-formed.: verifier.verify_key(key): "key: %s" % hr(key)
+        @precondition: key must be well-formed.: verifier.verify_key(key): "key: %s" % humanreadable.hr(key)
 
         @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
-        assert verifier.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % hr(key)
+        assert verifier.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % humanreadable.hr(key)
         self.key = key
         self.verifier = verifier
         pass
@@ -172,11 +169,11 @@ class ILookupHandler(IRemoteOpHandler):
         cryptographically proven to match the self-authenticating key.  You can now do what you want
         with the results.
 
-        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(self.key, object): "self.key: %s, object: %s" % (hr(self.key), hr(object),)
+        @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(self.key, object): "self.key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
 
         @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
-        assert self.verifier.verify_mapping(self.key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "self.key: %s, object: %s" % (hr(self.key), hr(object),)
+        assert self.verifier.verify_mapping(self.key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "self.key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
         raise NotImplementedError
         pass
 

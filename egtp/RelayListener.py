@@ -14,13 +14,12 @@ import types
 # pyutil modules
 from pyutil.debugprint import debugprint
 from pyutil import DoQ
-from pyutil.humanreadable import hr
 from pyutil import dictutil
 from pyutil import LazySaver
 from pyutil import timeutil
 
 # (old-)EGTP modules
-from egtp import CommHints, CommStrat, DataTypes, MojoMessage, OurMessages, idlib
+from egtp import CommHints, CommStrat, DataTypes, MojoMessage, OurMessages, humanreadable, idlib
 
 from egtp.CommHints import HINT_EXPECT_MORE_TRANSACTIONS
 
@@ -111,9 +110,9 @@ class RelayListener(LazySaver.LazySaver):
     def __init__(self, mtm, discoveryman=None, neverpoll=false, poll_timeout=30):
         """
         @param neverpoll: `true' if you don't want poll relay servers
-        @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
+        @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % tuple(map(humanreadable.hr, (discoveryman, type(discoveryman),)))
         """
-        assert isinstance(discoveryman, IDiscoveryManager), "precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager." + " -- " + "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
+        assert isinstance(discoveryman, IDiscoveryManager), "precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager." + " -- " + "discoveryman: %s :: %s" % tuple(map(humanreadable.hr, (discoveryman, type(discoveryman),)))
 
         self._mtm = mtm
         self._islistening = false
@@ -146,9 +145,9 @@ class RelayListener(LazySaver.LazySaver):
 
     def start_listening(self, inmsg_handler_func):
         """
-        @precondition: `inmsg_handler_func' must be callable.: callable(inmsg_handler_func): "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
+        @precondition: `inmsg_handler_func' must be callable.: callable(inmsg_handler_func): "inmsg_handler_func: %s :: %s" % tuple(map(humanreadable.hr, (inmsg_handler_func, type(inmsg_handler_func))))
         """
-        assert callable(inmsg_handler_func), "precondition: `inmsg_handler_func' must be callable." + " -- " + "inmsg_handler_func: %s :: %s" % (hr(inmsg_handler_func), hr(type(inmsg_handler_func)),)
+        assert callable(inmsg_handler_func), "precondition: `inmsg_handler_func' must be callable." + " -- " + "inmsg_handler_func: %s :: %s" % tuple(map(humanreadable.hr, (inmsg_handler_func, type(inmsg_handler_func))))
 
         debugprint("start_listening()\n", v=1, vs='RelayListener')
 
@@ -200,9 +199,9 @@ class RelayListener(LazySaver.LazySaver):
         This does not schedule the poll if there is already a poll scheduled that would go off approximately before this one would.
         (Where approximately is very approximate -- within MIN_POLL_DELAY.)
 
-        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" % tuple(map(humanreadable, (relayerid, type(relayerid))))
         """
-        assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" % (hr(relayerid), hr(type(relayerid)),)
+        assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" % tuple(map(humanreadable, (relayerid, type(relayerid))))
 
         approxschedtime = timer.time() + delay
         next = self._nextscheduledpolls.get(relayerid)
@@ -239,7 +238,7 @@ class RelayListener(LazySaver.LazySaver):
         oldbest = self._get_favorite()
 
         best = self._mtm.get_handicapper().pick_best_from_dict(outcome, "are there messages", {})
-        assert (best is None) or idlib.is_binary_id(best), "best: %s :: %s" (hr(best), hr(type(best)),)
+        assert (best is None) or idlib.is_binary_id(best), "best: %s :: %s" % tuple(map(humanreadable.hr, (best, type(best),)))
         if best is None:
             debugprint("Couldn't find any relayers while shopping.  Will try again later...\n", v=2, vs="debug")
             return
@@ -286,7 +285,7 @@ class RelayListener(LazySaver.LazySaver):
         fav = self._get_favorite()
         if fav is None:
             return None
-        assert idlib.is_binary_id(fav), "self._preferredrelayers: %s" % hr(self._preferredrelayers)
+        assert idlib.is_binary_id(fav), "self._preferredrelayers: %s :: %s" % tuple(map(humanreadable.hr, (self._preferredrelayers, type(self._preferredrelayers),)))
         return CommStrat.Relay(fav, broker_id=self._mtm.get_id(), mtm=self._mtm)
 
     def compute_handicap_prefer_current(self, counterparty_id, metainfo, message_type, message_body, STICK_WITH_CURRENT_RELAYER_TUNING_FACTOR=STICK_WITH_CURRENT_RELAYER_TUNING_FACTOR):
@@ -300,9 +299,9 @@ class RelayListener(LazySaver.LazySaver):
         """
         This probabilistically increments the relayer's status in our preferredrelayers list (or adds him in if he isn't already there) and calls `_adopt_new_favorite()' if he reaches the top spot.
 
-        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" % tuple(map(humanreadable.hr, (relayerid, type(relayerid),)))
         """
-        assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" % tuple(map(humanreadable.hr, (relayerid, type(relayerid),)))
 
         if ord(randsource.get(1)) < 128:
             # 50% chance
@@ -326,10 +325,10 @@ class RelayListener(LazySaver.LazySaver):
     def _inmsg_handler(self, relayerid, msg, timer=timeutil.timer):
         """
         @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq()
-        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
+        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % tuple(map(humanreadable.hr, (self._upward_inmsg_handler, type(self._upward_inmsg_handler),)))
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
-        assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % (hr(self._upward_inmsg_handler), hr(type(self._upward_inmsg_handler)),)
+        assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % tuple(map(humanreadable.hr, (self._upward_inmsg_handler, type(self._upward_inmsg_handler),)))
 
         self._upward_inmsg_handler(msg, lowerstrategy=None, strategy_id_for_debug=None)
 
@@ -415,9 +414,9 @@ class RelayListener(LazySaver.LazySaver):
 
         `self._handle_result_of_poll' will be called one or more times with a `widget' argument whose counterparty id is the id of the relayer and with a `failure_reason' argument.  failure_reason == None means everything went well and we are done.  failure_reason == timeout means that the 97% percentile impatience time has passed, but note that you can still get incoming messages and result-of-poll callbacks, after the "timeout" has passed.
 
-        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        @precondition: `relayerid' must be an id (in binary form).: idlib.is_binary_id(relayerid): "relayerid: %s :: %s" % tuple(map(humanreadable.hr, (relayerid, type(relayerid),)))
         """
-        assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" (hr(relayerid), hr(type(relayerid)),)
+        assert idlib.is_binary_id(relayerid), "precondition: `relayerid' must be an id (in binary form)." + " -- " + "relayerid: %s :: %s" % tuple(map(humanreadable.hr, (relayerid, type(relayerid),)))
 
         dictutil.del_if_present(self._nextscheduledpolls, relayerid)
 

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.7 2002/09/28 04:19:54 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.8 2002/09/28 17:45:36 zooko Exp $'
 
 true = 1
 false = 0
@@ -34,7 +34,6 @@ from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import Cache
 from pyutil import DoQ
-from pyutil.humanreadable import hr
 from pyutil import timeutil
 
 # EGTP modules

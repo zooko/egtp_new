@@ -6,7 +6,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: TristeroLookup.py,v 1.5 2002/09/09 21:15:13 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroLookup.py,v 1.6 2002/09/28 17:45:36 zooko Exp $'
 
 # standard Python modules
 from xmlrpclib import *
@@ -15,8 +15,8 @@ from binascii import *
 from urllib import *
 from string import *
 
-# pyutil modules
-from pyutil.humanreadable import hr
+# EGTP modules
+from humanreadable import hr
 
 # egtp modules
 from egtp import interfaces 

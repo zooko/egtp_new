@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeMappingVerifier.py,v 1.3 2002/09/09 21:15:13 myers_carpenter Exp $'
+__cvsid = '$Id: NodeMappingVerifier.py,v 1.4 2002/09/28 17:45:36 zooko Exp $'
 
 # standard Python modules
 import exceptions
@@ -13,10 +13,10 @@ import types
 
 # pyutil modules
 from pyutil.debugprint import debugprint
-from pyutil.humanreadable import hr
 
 # EGTP modules
 import CommStrat
+from humanreadable import hr
 import interfaces
 
 # (old) MN modules

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoHandicapper.py,v 1.4 2002/09/09 21:15:13 myers_carpenter Exp $'
+__cvsid = '$Id: MojoHandicapper.py,v 1.5 2002/09/28 17:45:36 zooko Exp $'
 
 
 # Python standard library modules
@@ -18,7 +18,6 @@ import types
 from pyutil import DoQ
 from pyutil.debugprint import debugprint, debugstream
 from pyutil.compat import setdefault
-from pyutil import humanreadable
 
 # (old-)EGTP modules
 from egtp import idlib, mojoutil
@@ -36,7 +35,7 @@ def getnameofhandicapper(thingie):
     if hasattr(thingie, '__class__'):
         return getnameofhandicapper(thingie.__class__)
 
-    return humanreadable.hr(thingie)
+    return hr(thingie)
 
 class MojoHandicapper :
     """
@@ -74,7 +73,7 @@ class MojoHandicapper :
         @precondition: `handicapper' must be a callable.: callable(handicapper): "handicapper: %s :: %s" % (humanreadable.hr(handicapper), `type(handicapper)`)
         @precondition: `mtypes' must be None or a sequence.: (mtypes is None) or (type(mtypes) in (types.ListType, types.TupleType,))
         """
-        assert callable(handicapper), "precondition: `handicapper' must be a callable." + " -- " + "handicapper: %s :: %s" % (humanreadable.hr(handicapper), `type(handicapper)`)
+        assert callable(handicapper), "precondition: `handicapper' must be a callable." + " -- " + "handicapper: %s :: %s" % (hr(handicapper), `type(handicapper)`)
         assert (mtypes is None) or (type(mtypes) in (types.ListType, types.TupleType,)), "precondition: `mtypes' must be None or a sequence."
 
         if mtypes is None:
@@ -92,7 +91,7 @@ class MojoHandicapper :
         @precondition: `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ."
-        assert idlib.is_binary_id(counterparty_id), "precondition: `counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        assert idlib.is_binary_id(counterparty_id), "precondition: `counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
 
         handicap = 0.0
         _hmap = self.__handicappers_map
@@ -104,7 +103,7 @@ class MojoHandicapper :
                 traceback.print_exc(file=debugstream)
                 return DISQUALIFIED
 
-            assert amount is DISQUALIFIED or (type(amount) is types.FloatType), "Handicapper function must return certain type. -- func: %s, result: %s, counterparty_id: %s, metainfo: %s\n" % (humanreadable.hr(h), humanreadable.hr(amount), humanreadable.hr(counterparty_id), humanreadable.hr(metainfo)) # postcondition
+            assert amount is DISQUALIFIED or (type(amount) is types.FloatType), "Handicapper function must return certain type. -- func: %s, result: %s, counterparty_id: %s, metainfo: %s\n" % (hr(h), hr(amount), hr(counterparty_id), hr(metainfo)) # postcondition
 
             if amount is DISQUALIFIED :
                 # debugprint("Handicap %s DISQUALIFIED for %s on %s\n", args=(getnameofhandicapper(h), counterparty_id, message_type), v=2, vs="business logic")
@@ -124,7 +123,7 @@ class MojoHandicapper :
 
         @precondition: `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
         """
-        assert (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0), "precondition: `counterparties' must be a sequence of (id, infodict,) tuples." + " -- " + "counterparties: %s" % humanreadable.hr(counterparties)
+        assert (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0), "precondition: `counterparties' must be a sequence of (id, infodict,) tuples." + " -- " + "counterparties: %s" % hr(counterparties)
 
         best = None
         bestcost = None
@@ -166,7 +165,7 @@ class MojoHandicapper :
         @precondition: `counterparties' must be a dict.: type(counterparties) is types.DictType: "counterparties: %s :: %s" % (humanreadable.hr(counterparties), humanreadable.hr(type(counterparties)),)
         @precondition: `message_type' must be a string.: type(message_type) == types.StringType
         """
-        assert type(counterparties) is types.DictType, "precondition: `counterparties' must be a dict." + " -- " + "counterparties: %s :: %s" % (humanreadable.hr(counterparties), humanreadable.hr(type(counterparties)),)
+        assert type(counterparties) is types.DictType, "precondition: `counterparties' must be a dict." + " -- " + "counterparties: %s :: %s" % (hr(counterparties), hr(type(counterparties)),)
         assert type(message_type) == types.StringType, "precondition: `message_type' must be a string."
 
         # debugprint("sort_by_preference_dict(counterparties: %s, message_type:%s, message_body: %s)\n", args=(counterparties, message_type, message_body,), v=2, vs="MojoHandicapper")
@@ -192,7 +191,7 @@ class MojoHandicapper :
         @precondition: `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
         @precondition: `message_type' must be a string.: type(message_type) == types.StringType
         """
-        assert (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0), "precondition: `counterparties' must be a sequence of (id, infodict,) tuples." + " -- " + "counterparties: %s" % humanreadable.hr(counterparties)
+        assert (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0), "precondition: `counterparties' must be a sequence of (id, infodict,) tuples." + " -- " + "counterparties: %s" % hr(counterparties)
         assert type(message_type) == types.StringType, "precondition: `message_type' must be a string."
 
         # debugprint("sort_by_preference(counterparties: %s, message_type:%s, message_body: %s)\n", args=(counterparties, message_type, message_body,), v=2, vs="MojoHandicapper")
