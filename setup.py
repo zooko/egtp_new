@@ -23,10 +23,8 @@ class download(Command):
         pass
 
     def run(self):
-        try:
-            mkdir('build')
-        except:
-            pass
+        if not os.path.isdir('build'):
+            os.mkdir('build')
 
         self.base_dir = os.getcwd()
         if not os.path.isdir('build'):
@@ -57,7 +55,7 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             my_build_dir = os.path.join('build', 'pyutil')
             fetch_anon_cvs(':pserver:anonymous@cvs.pyutil.sourceforge.net:/cvsroot/pyutil', 'pyutil_new', my_build_dir)
             os.chdir(my_build_dir)
-            os.system('python setup.py install --install-lib %s' % self.base_dir)
+            distutils.core.run_setup('setup.py', ['install', '--install-lib', self.base_dir] )
             os.chdir(self.base_dir)
 
     def download_libzutil(self):
@@ -85,7 +83,7 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             my_build_dir = os.path.join('build', 'libbase32')
             fetch_anon_cvs(':pserver:anonymous@cvs.libbase32.sourceforge.net:/cvsroot/libbase32', 'libbase32', my_build_dir)
             os.chdir(my_build_dir)
-            os.system('python setup.py install --install-lib %s' % self.base_dir)
+            distutils.core.run_setup('setup.py', ['install', '--install-lib', self.base_dir] )
             os.chdir(self.base_dir)
 
     def download_cryptopp(self):
@@ -95,10 +93,6 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             out = file(os.path.join('build', 'crypto50.zip'), 'wb')
             out.write(urllib.urlopen(CRYPTOPP_URL).read())
             out.close()
-
-        if os.path.isdir('/usr/include/crypto++') or os.path.isdir('/usr/local/include/crypto++'):
-            print "crypto++ is installed system wide, no need to download"
-            return
 
         if not os.path.isfile(os.path.join(os.getcwd(), 'build', 'crypto50.zip')):
             get_cryptopp()
@@ -168,10 +162,6 @@ class build_ext(distutils.command.build_ext.build_ext):
                 raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
         elif os.path.isdir(os.path.join('build', 'crypto++-5.0')) and os.path.isfile(os.path.join('build', 'crypto++-5.0', 'libcryptopp.a')):
             self.cryptopp_dir = os.path.join('build', 'crypto++-5.0')
-        elif os.path.isdir('/usr/include/crypto++'):
-            self.cryptopp_dir = '/usr/include/crypto++'
-        elif os.path.isdir('/usr/local/include/crypto++'):
-            self.cryptopp_dir = '/usr/local/include/crypto++'
         else:
             raise SystemExit, """\
 Your CRYPTOPP_DIR environment variable must be set,

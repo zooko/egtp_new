@@ -3,15 +3,13 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: cryptutil.py,v 1.3 2002/12/02 19:58:55 myers_carpenter Exp $"
+__revision__ = "$Id: cryptutil.py,v 1.4 2002/12/09 03:29:49 myers_carpenter Exp $"
 
 # egtp modules
 from egtp.mojostd import cryptutilError, OAEPError, oaep, oaep_decode, xor, hmac, hmacish, mgf1, get_rand_lt_n, get_rand_lt_n_with_prepended_0
 
 from egtp.crypto import tripledescbc
 from egtp import hashrandom
-
-
 
 def hashexpand(inpstr, expbytes, HRClass=hashrandom.SHARandom):
     return HRClass(inpstr).get(expbytes)
