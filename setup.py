@@ -265,7 +265,7 @@ setup (
     author          = 'Mnet Project',
     author_email    = 'mnet-devel@lists.sourceforge.net',
     licence         = 'LGPL',
-    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode'],
+    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode', 'pyutil'],
     cmdclass        = {
         'build_ext':    build_ext,
         'test':         test,
@@ -282,6 +282,12 @@ setup (
             'egtp.crypto.win_entropy', 
             sources = [
                    os.path.join('egtp', 'crypto', 'win_entropy.c'),
+            ] 
+        ),
+        Extension (
+            'pyutil.c_xor', 
+            sources = [
+                   os.path.join('pyutil', 'c_xor', 'xormodule.c'),
             ] 
         ),
         Extension (
