@@ -29,6 +29,10 @@ Fixing this problem turns out to be surprisingly subtle, at least judging by how
 long it has taken me, Zooko, to come up with a complete solution.  That solution 
 will form the basis of EGTP v2 design.
 
+This problem is documented as a security bug:
+http://sourceforge.net/tracker/index.php?func=detail&aid=548075&group_id=44377&atid=439350
+
+
 B. Timeouts
 
 Each query message that has been sent is associated with one kind of timeout, a 
