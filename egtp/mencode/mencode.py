@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode.py,v 1.2 2002/08/17 21:01:43 zooko Exp $'
+__cvsid = '$Id: mencode.py,v 1.3 2002/08/20 19:37:35 myers_carpenter Exp $'
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -18,7 +18,7 @@ true = 1
 false = 0
 
 # pyutil modules
-import humanreadable
+from pyutil import humanreadable
 
 # Mnet modules
 

@@ -265,7 +265,7 @@ setup (
     author          = 'Mnet Project',
     author_email    = 'mnet-devel@lists.sourceforge.net',
     licence         = 'LGPL',
-    packages        = ['egtp', 'egtp.crypto', 'egtp.crypto.win_entropy', 'egtp.mencode'],
+    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode'],
     cmdclass        = {
         'build_ext':    build_ext,
         'test':         test,
@@ -281,7 +281,7 @@ setup (
         Extension (
             'egtp.crypto.win_entropy', 
             sources = [
-                   os.path.join('egtp', 'crypto', 'win_entropy', 'win_entropy.c'),
+                   os.path.join('egtp', 'crypto', 'win_entropy.c'),
             ] 
         ),
         Extension (
