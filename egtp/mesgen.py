@@ -29,7 +29,7 @@ from humanreadable import hr
 
 # (old-)EGTP modules
 from egtp.CleanLogDb import CleanLogDbEnv
-from egtp import HashRandom, MojoKey, idlib, mencode, mojosixbit, mojoutil
+from egtp import HashRandom, keyutil, idlib, mencode, mojosixbit, mojoutil
 
 from egtp.crypto import modval, tripledescbc, cryptutil, randsource
 
@@ -146,7 +146,7 @@ class SessionKeeper:
             skdict = mencode.mdecode(serialized)
             keyMV = modval.new_serialized(mojosixbit.a2b(skdict['private key serialized']))
   
-            self.__my_public_key = MojoKey.makePublicRSAKeyForCommunicating(keyMV)
+            self.__my_public_key = keyutil.makePublicRSAKeyForCommunicating(keyMV)
             self.__my_public_key_id = idlib.make_id(self.__my_public_key, '')
         else:
             # The dbdir is under dbparentdir, under my id, and is named "mesgen".
@@ -157,7 +157,7 @@ class SessionKeeper:
             else:
                 keyMV = modval.new_random(SIZE_OF_PUBLIC_KEYS, HARDCODED_RSA_PUBLIC_EXPONENT)
 
-            self.__my_public_key = MojoKey.makePublicRSAKeyForCommunicating(keyMV)
+            self.__my_public_key = keyutil.makePublicRSAKeyForCommunicating(keyMV)
             self.__my_public_key_id = idlib.make_id(self.__my_public_key, 'broker')
 
             myid_aa = idlib.to_mojosixbit(self.__my_public_key_id)
@@ -254,8 +254,8 @@ class SessionKeeper:
 
             # remove the header (to signify our acknowledgement of their session acceptance)
             assert len(symmetric_key) == SIZE_OF_SYMMETRIC_KEYS
-            assert MojoKey.publicRSAKeyIsSane(full_key)
-            assert MojoKey.publicKeyForCommunicationSecurityIsWellFormed(full_key)
+            assert keyutil.publicRSAKeyIsSane(full_key)
+            assert keyutil.publicKeyForCommunicationSecurityIsWellFormed(full_key)
             self.extres.counterparty_map.put(counterparty_id, dumps([session_id_in, session_id_out, symmetric_key, None, full_key], 1), txn=trans)
             trans.commit()
             trans = None
@@ -309,7 +309,7 @@ class SessionKeeper:
             u = Unpacker(decrypted)
             # the full public key of the sender
             sender_key = u.unpack_string()
-            full_key = MojoKey.makePublicRSAKeyForCommunicating(modval.new(sender_key, HARDCODED_RSA_PUBLIC_EXPONENT))
+            full_key = keyutil.makePublicRSAKeyForCommunicating(modval.new(sender_key, HARDCODED_RSA_PUBLIC_EXPONENT))
             full_key_id = idlib.make_id(full_key, 'broker')
             # the session id for messages sent 'here'
             id_in = _mix_counterparties(full_key_id, self.__my_public_key_id, u.unpack_fstring(SIZE_OF_UNIQS))
@@ -411,7 +411,7 @@ class SessionKeeper:
 
             p = Packer()
             p.pack_fstring(SIZE_OF_UNIQS, key_id)
-            x = MojoKey.makeRSAPublicKeyMVFromSexpString(full_key)
+            x = keyutil.makeRSAPublicKeyMVFromSexpString(full_key)
 
             padded = '\000' + cryptutil.oaep(symmetric_key, len(self.__key.get_modulus()) - 1) # The prepended 0 byte is to make modval happy.
             assert len(padded) == len(self.__key.get_modulus())
@@ -549,7 +549,6 @@ def load_MessageMaker(dir, recoverdb=true):
 
 
 class MessageMaker:
-
     def __init__(self, dbparentdir=None, dir=None, serialized=None, recoverdb=true):
         """
         You can pass either dir or dbparentdir, but not both.  You pass `dbparentdir' if you
@@ -608,11 +607,11 @@ class MessageMaker:
 
     def store_key(self, pub_key_sexp):
         """
-        @precondition: `pub_key_sexp' must be a well-formed MojoKey.: MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp): "pub_key_sexp: %s" % hr(pub_key_sexp)
+        @precondition: `pub_key_sexp' must be a well-formed keyutil.: keyutil.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp): "pub_key_sexp: %s" % hr(pub_key_sexp)
 
         @idempotent:
         """
-        assert MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp), "`pub_key_sexp' must be a well-formed MojoKey." + " -- " + "pub_key_sexp: %s" % hr(pub_key_sexp)
+        assert keyutil.publicKeyForCommunicationSecurityIsWellFormed(pub_key_sexp), "`pub_key_sexp' must be a well-formed keyutil." + " -- " + "pub_key_sexp: %s" % hr(pub_key_sexp)
 
         self._session_keeper.store_key(pub_key_sexp)
 
@@ -650,7 +649,7 @@ class MessageMaker:
         @raises UnknownSession: error if the incoming message did not identify a known session key.
 
         @precondition: `wired_string' must be a string.: type(wired_string) == types.StringType: "wired_string: %s :: %s" % (hr(wired_string), hr(type(wired_string)))
-        @postcondition: `counterparty_pub_key_sexp' is a public key.: MojoKey.publicRSAKeyForCommunicationSecurityIsWellFormed(counterparty_pub_key_sexp): "counterparty_pub_key_sexp: %s" % hr(counterparty_pub_key_sexp)
+        @postcondition: `counterparty_pub_key_sexp' is a public key.: keyutil.publicRSAKeyForCommunicationSecurityIsWellFormed(counterparty_pub_key_sexp): "counterparty_pub_key_sexp: %s" % hr(counterparty_pub_key_sexp)
         """
         assert type(wired_string) == types.StringType, "precondition: `wired_string' must be a string." + " -- " + "wired_string: %s :: %s" % (hr(wired_string), hr(type(wired_string)))
         session = None

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.14 2002/11/22 05:48:36 zooko Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.15 2002/11/28 00:49:56 myers_carpenter Exp $'
 
 true = 1
 false = 0
@@ -45,7 +45,7 @@ from egtp.UnreliableHandicapper import UnreliableHandicapper
 from egtp.mojoutil import strpopL, intorlongpopL
 from egtp.crypto import randsource
 from egtp.interfaces import *
-from egtp import MojoKey, MojoMessage, RelayListener, TCPCommsHandler
+from egtp import MojoMessage, RelayListener, TCPCommsHandler
 from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
 from egtp import counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
 
@@ -547,12 +547,14 @@ class MojoTransactionManager:
 
     def respond_with(self, prevmsgId, msgbody, hint=HINT_NO_HINT):
         """
-        You must ensure that you call `respond_with()' using a given `prevmsgId', no more than
-        one time in the history of the universe.  Also you must not call `response_with()' using
-        a given `prevmsgId' if you returned a "response body" return value from the handler
-        which originally processed the previous message.  In practice, this is pretty easy to
-        ensure by relying upon MojoTransaction's guarantee that your handler will be invoked
-        exactly one time in the history of the universe for one message.
+        You must ensure that you call `respond_with()' using a given
+        `prevmsgId', no more than one time in the history of the universe. 
+        Also you must not call `response_with()' using a given `prevmsgId'
+        if you returned a "response body" return value from the handler
+        which originally processed the previous message.  In practice, this
+        is pretty easy to ensure by relying upon MojoTransaction's guarantee
+        that your handler will be invoked exactly one time in the history of
+        the universe for one message.
 
         @param prevmsgId: the id of the message to which this is a response
         @param msgbody: the body of the response

@@ -7,25 +7,9 @@
 #
 
 # standard modules
-import binascii
-import copy
-import math
-import operator
-import os
-import profile
-import pstats
-import re
-import sha
-import string
-import struct
-import sys
-import threading
-import traceback
-import time
-import types
-import whrandom
-import random
-import zlib
+import binascii, copy, math, operator, os, profile, pstats, re
+import sha, string, struct, sys, threading, traceback, time, types
+import whrandom, random, zlib
 
 # pyutil modules
 from pyutil.debugprint import debugprint, debugstream

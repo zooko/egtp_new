@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: CryptoCommsHandler.py,v 1.5 2002/10/28 03:17:04 myers_carpenter Exp $'
+__cvsid = '$Id: CryptoCommsHandler.py,v 1.6 2002/11/28 00:49:56 myers_carpenter Exp $'
 
 # standard modules
 import traceback
@@ -22,7 +22,7 @@ from pyutil import DoQ
 # our modules
 from egtp import CommsError, CommStrat
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-from egtp import MojoKey, humanreadable, idlib, mesgen, mojosixbit, mojoutil
+from egtp import keyutil, humanreadable, idlib, mesgen, mojosixbit, mojoutil
 
 true = 1
 false = None
@@ -191,7 +191,7 @@ class CryptoCommsHandler:
 
         counterparty_id = idlib.string_to_id(counterparty_pub_key)
 
-        assert MojoKey.publicRSAKeyForCommunicationSecurityIsWellFormed(counterparty_pub_key), "postcondition of `mesgen.parse()': `counterparty_pub_key' is a public key." + " -- " + "counterparty_pub_key: %s" % humanreadable.hr(counterparty_pub_key)
+        assert keyutil.publicRSAKeyForCommunicationSecurityIsWellFormed(counterparty_pub_key), "postcondition of `mesgen.parse()': `counterparty_pub_key' is a public key." + " -- " + "counterparty_pub_key: %s" % humanreadable.hr(counterparty_pub_key)
 
         if len(cleartext) > MAX_CLEARTEXT_LEN :
             debugprint("msg from %s dropped due to length: %s\n", args=(counterparty_id, len(cleartext)), v=0, vs="ERROR")
@@ -305,15 +305,3 @@ class CryptoCommsHandler:
         # we don't need to call self._tcpch.forget_old_comm_strategies() as our loop above should
         # have removed all TCP CommStrats associated with any Crypto commstrats that were useless.
 
-# Generic stuff
-NAME_OF_THIS_MODULE="CryptoCommsHandler"
-
-mojo_test_flag = 1
-
-def run():
-    import RunTests
-    RunTests.runTests(NAME_OF_THIS_MODULE)
-
-#### this runs if you import this module by itself
-if __name__ == '__main__':
-    run()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, string, re, urllib, md5
+import os, sys, string, re, urllib, md5, glob
 
 try:
     from distutils.core import setup, Extension, Command
@@ -197,13 +197,13 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
         # find out the crypto++ version from the include files
         tmp = None
         if os.path.isfile(os.path.join(self.cryptopp_dir, 'Readme.txt')):
-            ff = file(os.path.join(self.cryptopp_dir, 'Readme.txt'), 'r')
+            ff = open(os.path.join(self.cryptopp_dir, 'Readme.txt'), 'r')
             tmp = ff.readlines()
             ff.close()
             # try to find a string like this: Version 4.2 11/5/2001
             tmp = re.findall(r'Version ([.0-9]+)', tmp[1])
         elif os.path.isfile(os.path.join(self.cryptopp_dir, 'local.h')):
-            ff = file(os.path.join(self.cryptopp_dir, 'local.h'), 'r')
+            ff = open(os.path.join(self.cryptopp_dir, 'local.h'), 'r')
             tmp = ff.read()
             ff.close()
             tmp = re.findall(r'\#define\s+VERSION\s+\"([^"]+)\"', tmp)
@@ -265,7 +265,7 @@ class test(Command):
          "directory that contains the test definitions"),]
 
     def initialize_options(self):
-        self.test_dir = os.path.join(os.getcwd(), 'pyunit')
+        self.test_dir = os.path.join('egtp', 'test')
 
     def finalize_options(self):
         build = self.get_finalized_command('build')
@@ -279,14 +279,10 @@ class test(Command):
         old_path = sys.path[:]
         sys.path.insert(0, os.path.abspath(self.build_purelib))
         sys.path.insert(0, os.path.abspath(self.build_platlib))
-        sys.path.insert(0, self.test_dir)
 
         runner = unittest.TextTestRunner()
-        filelist = os.listdir(self.test_dir)
-        filelist.sort()
-        for ff in filelist:
-            if os.path.splitext(ff)[1] != ".py":
-                continue
+        test_files = glob.glob(os.path.join(self.test_dir, 'test_*.py'))
+        for ff in test_files:
             print "Importing %r..." % ff
             TEST = __import__(os.path.splitext(ff)[0], globals(), locals(), [''])
             if hasattr(TEST, 'suite'):
@@ -307,14 +303,14 @@ def fetch_anon_cvs(cvsroot, module, directory_name):
 
     write_cvs_pass = 1
     if os.path.isfile(os.path.expandvars('${HOME}/.cvspass')):
-        ff = file(os.path.expandvars('${HOME}/.cvspass'), 'r')
+        ff = open(os.path.expandvars('${HOME}/.cvspass'), 'r')
         tmp = ff.read()
         ff.close()
         tmp = re.findall(re.escape(cvsroot), tmp)
         if tmp:
             write_cvs_pass = 0
     if write_cvs_pass:
-        ff = file(os.path.expandvars('${HOME}/.cvspass'), 'a')
+        ff = open(os.path.expandvars('${HOME}/.cvspass'), 'a')
         ff.write("%s A\n" % cvsroot)
     if os.path.isdir(directory_name):
         print "Updating %r..." % module
@@ -328,20 +324,25 @@ def fetch_anon_cvs(cvsroot, module, directory_name):
         os.system(cmd)
     os.chdir(cwd)
 
-setup (
-    name            = 'egtp',
-    version         = '0.0.2',
-    description     = 'EGTP is a system for sending messages between nodes in a peer to peer network.',
-    author          = 'Mnet Project',
-    author_email    = 'mnet-devel@lists.sourceforge.net',
-    licence         = 'LGPL',
-    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode'],
-    cmdclass        = {
-        'build_ext':    build_ext,
-        'test':         test,
-        'download':     download,
+setup_args = {
+    'name': "egtp",
+    'version': "0.0.2",
+    'description': "EGTP is a system for sending messages between nodes in a peer to peer network.",
+    'author': "Mnet Project",
+    'author_email': "mnet-devel@lists.sourceforge.net",
+    'licence': "GNU LGPL",
+    'packages': [
+        "egtp", 
+        "egtp.crypto", 
+        "egtp.mencode", 
+        "egtp.test"
+    ],
+    'cmdclass': {
+        'build_ext': build_ext,
+        'test': test,
+        'download': download,
     },
-    ext_modules     = [
+    'ext_modules': [
         Extension (
             'egtp.mencode._c_mencode_help',
             sources = [
@@ -364,13 +365,16 @@ setup (
                 os.path.join('egtp', 'crypto', 'tripledescbc.cpp'),
                 os.path.join('egtp', 'crypto', 'randsource.cpp'),
             ],
-            # include_dirs = include_dirs,
-            # define_macros = define_macros,
-            # extra_compile_args = extra_compile_args,
-            # extra_link_args = extra_link_args,
-            # extra_objects = extra_objects,
-            # library_dirs = library_dirs,
-            # libraries = libraries,
         ),
     ],
-)
+}
+
+if hasattr(distutils.dist.DistributionMetadata, 'get_keywords'):
+    setup_args['keywords'] = "internet tcp p2p crypto"
+
+if hasattr(distutils.dist.DistributionMetadata, 'get_platforms'):
+    setup_args['platforms'] = "win32 posix"
+
+if __name__ == '__main__':
+    apply(setup, (), setup_args)
+    

@@ -21,7 +21,7 @@ from pyutil.debugprint import debugprint
 from egtp import DataTypes, OurMessages, idlib
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
 from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
-from egtp import MojoKey, MojoMessage, OurMessages
+from egtp import keyutil, MojoMessage, OurMessages
 from egtp.OurMessagesCommStrat import *
 from egtp import TCPConnection, ipaddresslib, mencode, mojoutil
 from egtp.crypto import modval
@@ -341,11 +341,11 @@ class Crypto(CommStrat):
             message back down the connection over which the last message
             arrived.)
 
-        @precondition: `pubkey' must be a well-formed MojoKey.: MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pubkey)
+        @precondition: `pubkey' must be a well-formed keyutil.: keyutil.publicKeyForCommunicationSecurityIsWellFormed(pubkey)
         @precondition: `lowerstrategy' must be a CommStrat.: isinstance(lowerstrategy, CommStrat): "lowerstrategy: %s" % hr(lowerstrategy)
         @precondition: `broker_id' must be the id of `pubkey', or else it must be `None'.: (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)): "broker_id: %s" % hr(broker_id)
         """
-        assert MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pubkey), "precondition: `pubkey' must be a well-formed MojoKey."
+        assert keyutil.publicKeyForCommunicationSecurityIsWellFormed(pubkey), "precondition: `pubkey' must be a well-formed keyutil."
         assert isinstance(lowerstrategy, CommStrat), "precondition: `lowerstrategy' must be a CommStrat." + " -- " + "lowerstrategy: %s" % hr(lowerstrategy)
         assert (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)), "precondition: `broker_id' must be the id of `pubkey', or else it must be `None'." + " -- " + "broker_id: %s" % hr(broker_id)
 
