@@ -1,10 +1,10 @@
-#  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
+#  Copyright (c) 2002-2003 Bryce "Zooko" Wilcox-O'Hearn
 #  Copyright (c) 2002 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.19 2002/12/17 05:35:02 zooko Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.20 2003/01/05 19:33:24 zooko Exp $"
 
 true = 1
 false = 0
@@ -144,7 +144,7 @@ class MojoTransactionManager:
     For an example of server behavior, see "server/merchant/BlockServerEGTP.py".  For an example
     of client behavior, see "common/Paytool.py".
     """
-    def __init__(self, lookupman, discoveryman, datadir, use_dynamic_timing = true, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
+    def __init__(self, lookupman, discoveryman, datadir, use_dynamic_timing = true, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, ip_bind=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
         """
         @param lookupman: an object which implements the ILookupManager interface;  MojoTransaction uses the lookupman to get fresh EGTP addresses for counterparty_id's (i.e. to find out the current IP address or current relay server of a given public key ID).
         @param discoveryman: an object which implements the IDiscoveryManager interface;  MojoTransaction passes this to RelayListener, which uses the discoveryman to find relay servers.
@@ -204,16 +204,22 @@ class MojoTransactionManager:
         else:
             self._handler_funcs={}
 
-        if (serialized is None) and (keyID is None):
-            # if not testing, generate new, secret, secure one
-            self._mesgen=mesgen.create_MessageMaker(dbparentdir=self._datadir, recoverdb=recoverdb)
-        else:
-            if keyID and self._datadir:
-                self._mesgen=mesgen.MessageMaker(dir=os.path.join(self._datadir, keyID), serialized=serialized, recoverdb=recoverdb)
-            else:
-                self._mesgen=mesgen.MessageMaker(dbparentdir=self._datadir, serialized=serialized, recoverdb=recoverdb)
+        dbparentdir=os.path.expandvars(self._datadir)
+        ready = false
+        if keyID:
+            try:
+                self._mesgen=mesgen.MessageMaker(dir=os.path.join(dbparentdir, keyID), recoverdb=recoverdb)
+                ready = true
+            except:
+                # We sometimes get exceptions here because of corrupted db.  "ready" has not yet been set, which means we'll create a whole new db below.
+                debugprint("Got exception trying to instantiate mesgen db.  Exception and traceback follows:\n");
+                traceback.print_exc(file=debugstream)
+                pass
 
-        self._dbdir=os.path.join(self._datadir, idlib.to_mojosixbit(self._mesgen.get_id()))
+        if not ready:
+            self._mesgen=mesgen.create_MessageMaker(dbparentdir=dbparentdir, recoverdb=recoverdb)
+
+        self._dbdir=os.path.join(dbparentdir, idlib.to_mojosixbit(self._mesgen.get_id()))
 
         self.response_times = {}
         self._responsetimesold = {}
@@ -226,7 +232,12 @@ class MojoTransactionManager:
             CEIL=32766
             listenport = ((ord(self._mesgen.get_id()[0]) * 256 + ord(self._mesgen.get_id()[1])) % (CEIL - FLOOR)) + FLOOR
 
-        tcpch = TCPCommsHandler.TCPCommsHandler(mtm=self, listenport=listenport, pickyport=pickyport, dontbind=dontbind)
+        if ip_bind is None:
+            self.ip_bind = ''
+        else:
+            self.ip_bind = ip_bind
+
+        tcpch = TCPCommsHandler.TCPCommsHandler(mtm=self, ip_bind=self.ip_bind, listenport=listenport, pickyport=pickyport, dontbind=dontbind)
         self._ch=CryptoCommsHandler.CryptoCommsHandler(mesgen=self._mesgen, tcpch=tcpch)
 
         self._listenermanager = ListenerManager.ListenerManager(cryptol=self._ch, tcpl=tcpch, relayl=RelayListener.RelayListener(self, discoveryman=self._discoveryman, neverpoll=neverpoll), mtm=self, allownonrouteableip=allownonrouteableip)
@@ -419,10 +430,13 @@ class MojoTransactionManager:
 
     def _get_our_hello_msgbody(self):
         """
-        @return: a contact info dict which can have no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
+        @return: a contact info dict which can have no comm strategies
+            if there is no strategy yet (which can happen in practice because you
+            haven't found a relayer to announce yet)
         """
         (cs, newflag,) = self._listenermanager.get_comm_strategy_and_newflag()
-        DataTypes.check_template(cs.to_dict(), OurMessagesCommStrat.CRYPTO_COMM_STRAT_TEMPL)
+        if cs is not None:
+            DataTypes.check_template(cs.to_dict(), OurMessagesCommStrat.CRYPTO_COMM_STRAT_TEMPL)
 
         if newflag:
             self._hello_sequence_num_needs_increasing()
