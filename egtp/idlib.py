@@ -11,7 +11,8 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.15 2003/02/28 04:35:53 artimage Exp $"
+__version__ = "$Revision: 1.16 $"
+# $Source: /home/zooko/playground/egtp_new/rescue-party/gw/../egtp_new/egtp_new/egtp/idlib.py,v $
 
 # Python Standard Library modules
 import re, sha, struct, types
@@ -24,8 +25,8 @@ from egtp.crypto import randsource
 # pyutil libs
 from pyutil.debugprint import debugprint
 
-true = 1
-false = 0
+True = 1 == 1
+False = 0 == 1
 
 _asciihash_re = mojosixbit._asciihash_re
 
@@ -130,7 +131,7 @@ def int_to_id_prefix(i):
 def is_canonical_uniq(thing, _strtypes=_strtypes):
     """slightly slower than is_binary_id, but more accurate due to the type check"""
     if type(thing) not in _strtypes:
-        return false
+        return False
     return len(thing) == EGTPConstants.SIZE_OF_UNIQS
 
 def identifies(id, thing, thingtype=None):
@@ -201,7 +202,7 @@ def canonicalize(id, thingtype=None):
 
 def equal(id1, id2):
     """
-    @return: `true' if and only if id1 and id2 identify the same thing;  if `id1' or `id2' or both are `None', then `equals()' returns false.
+    @return: true if and only if id1 and id2 identify the same thing;  if `id1' or `id2' or both are `None', then `equals()' returns false.
 
     @precondition: `id1' must be `None' or an id.: (id1 is None) or is_sloppy_id(id1): "id1: %s" % repr(id1)
     @precondition: `id2' must be `None' or an id.: (id2 is None) or is_sloppy_id(id2): "id2: %s" % repr(id2)
@@ -265,23 +266,25 @@ def is_mojosixbitencoded_id(str, thingtype=None, _asciihash_re=_asciihash_re):
     try:
         return (len(str) == 27) and (_asciihash_re.match(str))
     except:
-        return 0 # 'false'
+        return False
 
 is_ascii_id = is_mojosixbitencoded_id
 
 # this gets called a -lot-, it must be fast!
 def is_binary_id(str, thingtype=None, SIZE_OF_UNIQS=EGTPConstants.SIZE_OF_UNIQS):
+    """
+    @deprecated in favor of "is_id()" for naming reasons
     try:
         return len(str) == SIZE_OF_UNIQS
     except:
-        return None # 'false'
+        return False
 
 # this gets called a -lot-, it must be fast!
 def is_id(str, thingtype=None, SIZE_OF_UNIQS=EGTPConstants.SIZE_OF_UNIQS):
     try:
         return len(str) == SIZE_OF_UNIQS
     except:
-        return None # 'false'
+        return False
 
 sloppy_id_to_bare_binary_id = canonicalize
 to_binary = canonicalize

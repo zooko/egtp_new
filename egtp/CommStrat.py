@@ -4,32 +4,32 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.18 2003/03/23 15:11:59 zooko Exp $"
+__version__ = "$Revision: 1.19 $"
+# $Source: /home/zooko/playground/egtp_new/rescue-party/gw/../egtp_new/egtp_new/egtp/CommStrat.py,v $
 
-# Python standard library modules
+True = 1 == 1
+False = 0 == 1
+
+# Python Standard Library modules
 import exceptions, string, types
 import traceback # actually just for debugging
 import types
 import string
 
 # pyutil modules
+from pyutil.assertutil import _assert, precondition, postcondition
 from pyutil.config import DEBUG_MODE
-from pyutil.debugprint import debugprint
-from pyutil import humanreadable
+from pyutil.debugprint import debugprint, debugstream
+from pyutil.humanreadable import hr
 
-# EGTP modules
+# egtp modules
 from egtp import DataTypes, MojoMessage, OurMessages, TCPConnection, idlib, ipaddresslib, keyutil, mencode
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
 from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
 from egtp.OurMessagesCommStrat import *
 from egtp.crypto import modval
 
-true = 1
-false = 0
-
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
-true = 1
-false = 0
 
 
 class Error(exceptions.StandardError): pass
@@ -124,9 +124,9 @@ def choose_best_strategy(cs1, cs2):
 class CommStrat:
     def __init__(self, broker_id=None, commstratseqno=None):
         """
-        @precondition: `broker_id' must be `None' or an id.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s" % humanreadable.hr(broker_id)
+        @precondition: broker_id must be None or an id.: (broker_id is None) or (idlib.is_id(broker_id))
         """
-        assert (broker_id is None) or (idlib.is_sloppy_id(broker_id)), "precondition: `broker_id' must be `None' or an id." + " -- " + "broker_id: %s" % humanreadable.hr(broker_id)
+        precondition ((broker_id is None) or (idlib.is_id(broker_id)), "broker_id must be None or an id.", broker_id=broker_id)
 
         self.hint = HINT_NO_HINT
         self.hintnumexpectedresponses = 0
@@ -145,17 +145,29 @@ class CommStrat:
     def get_id(self):
         return self._broker_id
 
+class Kademlia(CommStrat.CommStat):
+    def __init__(self, kademnode, broker_id):
+        CommStrat.__init__(self, broker_id)
+        self._kademnode = kademnode
+
+    def send(self, msg):
+        """
+        @precondition: self._broker_id must be an id.: idlib.is_id(self._broker_id)
+        """
+        precondition(idlib.is_id(self._broker_id), "self._broker_id must be an id.", broker_id=self._broker_id)
+        self._kademnode.send(self._broker_id, msg)
+
 class TCP(CommStrat):
     def __init__(self, tcpch, broker_id, host=None, port=None, asyncsock=None, commstratseqno=None):
         """
         @param tcpch: the TCPCommsHandler
         @param asyncsock: an instance of TCPConnection
 
-        @precondition: `asyncsock' must be an instance of TCPConnection or nothing.: (asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection): "asyncsock: %s :: %s" % tuple(map(humanreadable.hr, (asyncsock, type(asyncsock),)))
-        @precondition: `broker_id' must be a binary id or None.: (broker_id is None) or idlib.is_binary_id(broker_id): "broker_id: %s :: %s" % tuple(map(humanreadable.hr, (broker_id, type(broker_id),)))
+        @precondition: asyncsock must be an instance of TCPConnection or nothing.: (asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection)
+        @precondition: broker_id must be an id or None.: (broker_id is None) or idlib.is_id(broker_id)
         """
-        assert (asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection), "precondition: `asyncsock' must be an instance of TCPConnection or nothing." + " -- " + "asyncsock: %s :: %s" % tuple(map(humanreadable.hr, (asyncsock, type(asyncsock),)))
-        assert (broker_id is None) or idlib.is_binary_id(broker_id), "precondition: `broker_id' must be a binary id or None." + " -- " + "broker_id: %s :: %s" % tuple(map(humanreadable.hr, (broker_id, type(broker_id),)))
+        precondition((asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection), "asyncsock must be an instance of TCPConnection or nothing.", asyncsock=asyncsock)
+        precondition((broker_id is None) or idlib.is_id(broker_id), "broker_id must be an id or None.", broker_id=broker_id)
 
         CommStrat.__init__(self, broker_id, commstratseqno=commstratseqno)
 
@@ -169,9 +181,9 @@ class TCP(CommStrat):
 
     def send(self, msg, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=None, commstratseqno=None):
         """
-        @precondition: `self._broker_id' must be an id.: idlib.is_binary_id(self._broker_id): "self._broker_id: %s :: %s" % tuple(map(humanreadable.hr, (self._broker_id, type(self._broker_id),)))
+        @precondition: self._broker_id must be an id.: idlib.is_id(self._broker_id)
         """
-        assert idlib.is_binary_id(self._broker_id), "precondition: `self._broker_id' must be an id." + " -- " + "self._broker_id: %s :: %s" % tuple(map(humanreadable.hr, (self._broker_id, type(self._broker_id),)))
+        precondition(idlib.is_id(self._broker_id), "self._broker_id must be an id.", broker_id=self._broker_id)
 
         # debugprint("%s.send(): self._broker_id: %s\n", args=(self, self._broker_id,))
         self._tcpch.send_msg(self._broker_id, msg=msg, hint=hint, fast_fail_handler=fast_fail_handler)
@@ -229,86 +241,6 @@ class TCP(CommStrat):
 
         return d
 
-class Relay(CommStrat):
-    def __init__(self, relayer_id, broker_id, mtm, commstratseqno=None):
-        """
-        @precondition: `relayer_id' must be an id.: idlib.is_sloppy_id(relayer_id): "relayer_id: %s" % humanreadable.hr(relayer_id)
-        """
-        assert idlib.is_sloppy_id(relayer_id), "precondition: `relayer_id' must be an id." + " -- " + "relayer_id: %s" % humanreadable.hr(relayer_id)
-
-        CommStrat.__init__(self, broker_id, commstratseqno=commstratseqno)
-
-        self._relayer_id = relayer_id
-        self._mtm = mtm
-
-        if DEBUG_MODE:
-            self.debcr = traceback.extract_stack()
-
-    def __repr__(self):
-        return '<%s to %s via %s at %x>' % (self.__class__.__name__, humanreadable.hr(self._broker_id), humanreadable.hr(self._relayer_id), id(self))
-
-    def same(self, other):
-        """
-        Two Relay's are same iff they have the same `_relayer_id'.
-
-        @return: `true' iff `self' and `other' are actually the same strategy
-        """
-        if not hasattr(other, '_relayer_id'):
-            assert hasattr(self, '_relayer_id')
-            return false
-        return idlib.equal(self._relayer_id, other._relayer_id)
-
-    def to_dict(self):
-        d = CommStrat.to_dict(self)
-        d['comm strategy type'] = "relay" # XXXX This should be changed to "Relay" to match the name of the class.  --Zooko 2000-08-02
-        d['relayer id'] = self._relayer_id
-        return d
-
-    def send(self, msg, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=None, commstratseqno=None):
-        """
-        @param commstratseqno: This relay comm strat must have a comm strat sequence num strictly greater than `commstratseqno';  If `None', then that means this is being initiated by the local higher level user, or it is a "pass this along" from an old broker that does not send commstratseqno with its "pass this along"'s.  If it is `None', then you send it.
-        """
-        timeout = long(timeout)
-
-        if idlib.equal(self._relayer_id, self._mtm.get_id()):
-            fast_fail_handler(failure_reason="aborting a recursive `pass this along' to myself")
-            return
-
-        if idlib.equal(self._relayer_id, self._broker_id):
-            debugprint("Warning: we have gotten the idea that the comm strat for sending messages to %s is to relay through herself!  CommStrat.Relay: %s\n", args=(self._broker_id, self,), v=2, vs="debug")
-            fast_fail_handler(failure_reason="aborting a recursive `pass this along' to %s via herself" % humanreadable.hr(self._relayer_id,))
-            return
-
-        # debugprint("commstratseqno: %s, self._commstratseqno: %s\n", args=(commstratseqno, self._commstratseqno,))
-        if (commstratseqno is not None) and ((self._commstratseqno is None) or (commstratseqno >= self._commstratseqno)):
-            # This message is not guaranteed to terminate -- it could form a remailing loop -- dump it.
-            fast_fail_handler(failure_reason="aborting a non-guaranteed-termination relay; commstratseqno: %s, self._commstratseqno: %s" % tuple(map(humanreadable.hr, (commstratseqno, self._commstratseqno,))))
-            return
-
-        if DEBUG_MODE:
-            assert self._mtm is not None, "self: %s, self.debcr: %s" % tuple(map(humanreadable.hr, (self, self.debcr,)))
-        else:
-            assert self._mtm is not None, "self: %s" % humanreadable.hr(self)
-
-        wrappermsgbody = { 'recipient': idlib.to_mojosixbit(self._broker_id), 'message': msg }
-        if self._commstratseqno is not None:
-            wrappermsgbody['comm strat sequence num'] = self._commstratseqno
-        else:
-            wrappermsgbody['comm strat sequence num'] = -1
-
-        def outcome_func_from_pass_this_along(widget, outcome, failure_reason=None, self=self, msg=msg):
-            assert idlib.equal(widget.get_counterparty_id(), self._relayer_id)
-            # debugprint("CommStrat.Relay: Got result of `pass this along'.  self._relayer_id: %s, widget: %s, outcome: %s, failure_reason: %s\n", args=(self._relayer_id, widget, outcome, failure_reason,), v=3, vs="commstrats")
-            if failure_reason:
-                self._mtm.forget_comm_strategy(self._broker_id, idlib.make_id(msg, 'msg'), outcome=outcome, failure_reason="couldn't contact relay server: %s" % humanreadable.hr(outcome))
-            if (not failure_reason) and not (outcome.get('result') in ("success", "ok",)):
-                # Note: `ok' is for backwards compatibility, `success' is preferred.
-                self._mtm.forget_comm_strategy(self._broker_id, idlib.make_id(msg, 'msg'), outcome=outcome, failure_reason="got failure from relay server: %s" % humanreadable.hr(outcome))
-
-        # debugprint("CommStrat.Relay: Initiating `pass this along'...  self._relayer_id: %s\n", args=(self._relayer_id,), v=3, vs="commstrats")
-
-        self._mtm.initiate(self._relayer_id, 'pass this along', wrappermsgbody, outcome_func=outcome_func_from_pass_this_along, post_timeout_outcome_func=outcome_func_from_pass_this_along, commstratseqno=self._commstratseqno)
-
 class Crypto(CommStrat):
     def __init__(self, pubkey, lowerstrategy, broker_id=None):
         """
@@ -318,13 +250,13 @@ class Crypto(CommStrat):
             message back down the connection over which the last message
             arrived.)
 
-        @precondition: `pubkey' must be a well-formed keyutil.: keyutil.publicKeyForCommunicationSecurityIsWellFormed(pubkey)
-        @precondition: `lowerstrategy' must be a CommStrat.: isinstance(lowerstrategy, CommStrat): "lowerstrategy: %s" % humanreadable.hr(lowerstrategy)
-        @precondition: `broker_id' must be the id of `pubkey', or else it must be `None'.: (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)): "broker_id: %s" % humanreadable.hr(broker_id)
+        @precondition: pubkey must be a well-formed keyutil.: keyutil.publicKeyForCommunicationSecurityIsWellFormed(pubkey)
+        @precondition: lowerstrategy must be a CommStrat.: isinstance(lowerstrategy, CommStrat)
+        @precondition: broker_id must be the id of pubkey, or else it must be None.: (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id))
         """
-        assert keyutil.publicKeyForCommunicationSecurityIsWellFormed(pubkey), "precondition: `pubkey' must be a well-formed keyutil."
-        assert isinstance(lowerstrategy, CommStrat), "precondition: `lowerstrategy' must be a CommStrat." + " -- " + "lowerstrategy: %s" % humanreadable.hr(lowerstrategy)
-        assert (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)), "precondition: `broker_id' must be the id of `pubkey', or else it must be `None'." + " -- " + "broker_id: %s" % humanreadable.hr(broker_id)
+        precondition(keyutil.publicKeyForCommunicationSecurityIsWellFormed(pubkey), "pubkey must be a well-formed keyutil.", pubkey=pubkey)
+        precondition(isinstance(lowerstrategy, CommStrat), "lowerstrategy must be a CommStrat.", lowerstrategy=lowerstrategy)
+        precondition((broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)), "broker_id must be the id of pubkey, or else it must be `None'.", broker_id=broker_id)
 
         CommStrat.__init__(self, idlib.make_id(pubkey, 'broker'))
 
@@ -382,16 +314,17 @@ def dict_to_type(dict):
 def crypto_dict_to_pub_key(dict):
     return mencode.mencode(dict['pubkey'])
 
-def crypto_dict_to_id(dict):
+def crypto_dict_to_id(adict):
     """
-    @precondition: `dict' must be a dict.: type(dict) is types.DictType: "dict: %s :: %s" % tuple(map(humanreadable.hr, (dict, type(dict),)))
+    @precondition: adict is required to be a dict.: isinstance(adict, dict)
     """
-    assert type(dict) is types.DictType, "precondition: `dict' must be a dict." + " -- " + "dict: %s :: %s" % tuple(map(humanreadable.hr, (dict, type(dict),)))
+    precondition(isinstance(adict, dict), "adict is required to be a dict.", adict=adict)
 
-    return idlib.make_id(mencode.mencode(dict['pubkey']), 'broker')
+    return idlib.make_id(mencode.mencode(adict['pubkey']), 'broker')
 
 def addr_to_id(addr):
     """
+    @deprecated in the new Kademlia comms system?
     @precondition: `addr' must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(addr) is types.DictType) and (addr.has_key("connection strategies")) and (addr.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(addr) is types.InstanceType) and (isinstance(addr, CommStrat)) and (addr._broker_id is not None)): "addr: %s :: %s" % tuple(map(humanreadable.hr, (addr, type(addr),)))
     """
     assert ((type(addr) is types.DictType) and (addr.has_key("connection strategies")) and (addr.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(addr) is types.InstanceType) and (isinstance(addr, CommStrat)) and (addr._broker_id is not None)), "precondition: `addr' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain, or else a CommStrat instance with a broker_id." + " -- " + "addr: %s :: %s" % tuple(map(humanreadable.hr, (addr, type(addr),)))
@@ -405,9 +338,9 @@ def dict_to_strategy(dict, mtm, broker_id=None, commstratseqno=None):
     """
     @raises UnsupportedTypeError: if `dict' is not either a TCP, Relay, Crypto, or Pickup
     
-    @precondition: `broker_id' must be an id or None.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s :: %s" % tuple(map(humanreadable.hr, (broker_id, type(broker_id),)))
+    @precondition: broker_id must be an id or None.: (broker_id is None) or (idlib.is_id(broker_id))
     """
-    assert (broker_id is None) or (idlib.is_sloppy_id(broker_id)), "precondition: `broker_id' must be an id or None." + " -- " + "broker_id: %s :: %s" % tuple(map(humanreadable.hr, (broker_id, type(broker_id),)))
+    precondition ((broker_id is None) or (idlib.is_sloppy_id(broker_id)), "broker_id must be an id or None.", broker_id=broker_id)
 
     if not (dict.get('comm strategy type') in ("TCP", "relay", "Relay", "crypto", "Crypto", "pickup", "Pickup",)):
         raise UnsupportedTypeError, "dict must be either a TCP, Relay, Crypto or Pickup." + " -- " + "dict: %s" % humanreadable.hr(dict)
