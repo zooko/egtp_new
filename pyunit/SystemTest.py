@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: SystemTest.py,v 1.2 2002/09/28 17:45:37 zooko Exp $'
+__cvsid = '$Id: SystemTest.py,v 1.3 2002/11/03 17:02:13 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types
@@ -17,11 +17,8 @@ from pyutil import config
 from pyutil.debugprint import debugprint
 from pyutil.timeutil import timer
 
-# (old) MN modules
-from egtp.confutils import confman
-from egtp import idlib
-
 # EGTP modules
+from egtp import idlib
 from egtp import CommStrat
 from egtp import Node
 from egtp import NodeLookupMan
@@ -32,7 +29,6 @@ from egtp.interfaces import *
 true = 1
 false = 0
 
-confman['MAX_VERBOSITY'] = 0
 config.MAX_VERBOSITY = 0
 
 # a lookup man which uses only local data;  In a real app you need remote lookup in the form of MetaTrackers, Tristero, Chord, Plex, Alpine, or something.

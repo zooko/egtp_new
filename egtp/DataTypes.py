@@ -7,7 +7,7 @@
 #
 
 # standard modules
-import types
+import types, pprint
 
 # our modules
 true = 1
@@ -185,7 +185,7 @@ def check_template(thing, templ):
     try:
         inner_check_verbose(thing, templ)
     except BadFormatError, reason:
-        raise BadFormatError, 'failed template check because: (' + str(reason) + ') template was: (' + humanreadable.hr(templ) + ') target was: (' + humanreadable.hr(thing) + ')'
+        raise BadFormatError, 'failed template check because: (%s) template was: (%s) target was: (%s)' % (str(reason), pprint.pformat(humanreadable.hr(templ)),  pprint.pformat(humanreadable.hr(thing)))
 
 def inner_check_verbose(thing, templ, FunctionType=types.FunctionType, MethodType=types.MethodType, DictType=types.DictType, StringType=types.StringType, LongType=types.LongType, IntType=types.IntType, ListType=types.ListType, TupleType=types.TupleType):
     # The following isn't really used right now, but I'm leaving the commented-out code for evidence.  --Zooko 2001-06-07
