@@ -1,0 +1,4 @@
+PythonLibs
+*.pyc
+*.pyo
+*.flc
