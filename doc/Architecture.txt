@@ -18,10 +18,21 @@ sender's EGTP library associated queries with replies, and it also provides
 assurance that the messages received as a reply isn't a replay attack or some 
 other active attack.
 
+Note that this design does not provide protection against active attacks for the 
+node that receives the initial query, only for the node that sent the initial 
+query and awaits the reply.  (The node receiving the initial queries could 
+protect themselves against replay attacks by remembering the hash of each 
+message they have ever received, but this would require an unbounded amount of 
+storage.)
+
+Fixing this problem turns out to be surprisingly subtle, at least judging by how 
+long it has taken me, Zooko, to come up with a complete solution.  That solution 
+will form the basis of EGTP v2 design.
+
 B. Timeouts
 
-EGTP does not 
-XXX
+Each query message that has been sent is associated with one kind of timeout, a 
+"hard" timeout.  This is the interval after which the sender will free up all storage associated
 
 
 II. General Implementation Stuff
