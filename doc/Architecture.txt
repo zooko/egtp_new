@@ -1,6 +1,6 @@
 Introduction to the EGTP version 1 Architecture:
 
-version 0.3
+document version 0.3
 
 I. Overall Design
 
