@@ -11,7 +11,7 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.12 2003/02/09 17:52:13 zooko Exp $"
+__revision__ = "$Id: idlib.py,v 1.13 2003/02/10 00:07:57 zooko Exp $"
 
 # Python Standard Library modules
 import re, sha, struct, types
@@ -263,7 +263,7 @@ def is_mojosixbitencoded_id(str, thingtype=None, _asciihash_re=_asciihash_re):
 is_ascii_id = is_mojosixbitencoded_id
 
 # this gets called a -lot-, it must be fast!
-def is_binary_id(str, thingtype=None, EGTPConstants.SIZE_OF_UNIQS):
+def is_binary_id(str, thingtype=None, SIZE_OF_UNIQS=EGTPConstants.SIZE_OF_UNIQS):
     try:
         return len(str) == SIZE_OF_UNIQS
     except:
