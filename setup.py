@@ -40,7 +40,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.cryptopp_dir = os.environ['CRYPTOPP_DIR']
             if not os.path.isdir(self.cryptopp_dir) :
                 raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
-        elif os.path.isdir('crypto++-4.2') and os.path.isfile(os.path.join('crypto++-4.2', 'libcrypto++.a')):
+        elif os.path.isdir('crypto++-4.2') and os.path.isfile(os.path.join('crypto++-4.2', 'libcryptopp.a')):
             self.cryptopp_dir = 'crypto++-4.2'
         elif os.path.isdir('/usr/include/crypto++'):
             self.cryptopp_dir = '/usr/include/crypto++'
@@ -58,6 +58,7 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
             # os.environ['CFLAGS'] = '/DPYTHON_MODULE /DWIN32 /GX'
             self.library_dirs.extend([self.cryptopp_dir])
             self.include_dirs.extend([self.cryptopp_dir])
+            self.libraries.append('cryptopp')
         else:
             self.define.extend([('PYTHON_MODULE', None),])
             # self.extra_compile_args.extend(['-w',])
@@ -208,8 +209,11 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             print "Building crypto++..."
             os.system('unzip -d crypto++-4.2 -a crypto42.zip')
             os.chdir('crypto++-4.2')
-            os.system('cat ../egtp/crypto/patches/[a-z]* |patch -p0')
-            os.system('make')
+            patchlist = os.listdir(os.path.join('..', 'egtp', 'crypto', 'patches'))
+            patchlist = filter(lambda x: x[0].islower(), patchlist)
+            for ii in patchlist:
+                os.system('patch -p0 < %s' % os.path.join('..', 'egtp', 'crypto', 'patches', ii))
+            os.system('make libcryptopp.a')
             os.chdir('..')
         
 
