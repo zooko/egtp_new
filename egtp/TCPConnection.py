@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPConnection.py,v 1.9 2002/12/02 19:58:51 myers_carpenter Exp $"
+__revision__ = "$Id: TCPConnection.py,v 1.10 2003/02/17 09:35:21 artimage Exp $"
 
 # standard Python modules
 import asyncore, socket, struct, sys, threading, time, traceback, types
@@ -12,9 +12,10 @@ import asyncore, socket, struct, sys, threading, time, traceback, types
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import Asyncore, DoQ
+from pyutil import humanreadable
 
 # EGTP modules
-from egtp import CommsError, humanreadable, idlib
+from egtp import CommsError, idlib
 
 true = 1
 false = None

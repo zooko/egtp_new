@@ -6,13 +6,13 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: test_system.py,v 1.4 2003/02/09 17:52:13 zooko Exp $"
+__revision__ = "$Id: test_system.py,v 1.5 2003/02/17 09:35:22 artimage Exp $"
 
 # standard Python modules
 import os, shutil, threading, types, tempfile, unittest
 
 # libbase32 modules
-from libbase32.humanreadable import hr
+#from libbase32.humanreadable import hr
 
 # pyutil modules
 from pyutil import DoQ
@@ -20,10 +20,12 @@ from pyutil import config
 from pyutil.debugprint import debugprint
 from pyutil.timeutil import timer
 from pyutil import assertutil
+from pyutil.humanreadable import hr
 assertutil.hr = hr
 from pyutil.assertutil import _assert, precondition
+from pyutil import humanreadable
 
-from egtp import idlib, CommStrat, Node, humanreadable
+from egtp import idlib, CommStrat, Node
 from egtp.NodeMappingVerifier import NodeMappingVerifier
 from egtp.TristeroLookup import TristeroLookup
 from egtp.interfaces import *
@@ -35,7 +37,7 @@ config.MAX_VERBOSITY = 1
 
 HARDCODED_GOOD_EGTP_ADDRESS={'sequence num': 3, 'connection strategies': [{'lowerstrategy': {'IP address': '192.168.0.2', 'port number': '15233', 'comm strat sequence num': 1, 'comm strategy type': 'TCP'}, 'pubkey': {'key header': {'usage': 'only for communication security', 'type': 'public', 'cryptosystem': 'RSA'}, 'key values': {'public modulus': 'l2RaTKzSJNJyC5EpdVy1nzxW49QIetRILxilog9OgHm-LRHCMcZRstrGBKRYK_yZPJ7f9Nx9-nTLup1coWjH43R1ib16xgSZ3P2ZsWFgPC5-3nJcm1HuE0cdupMr-HY3OG2p6LP-Yywf3G6F0pPWLG8wZZICZzAXIoV2jZVspqc', 'public exponent': '3'}}, 'comm strat sequence num': 1, 'comm strategy type': 'crypto'}]}
 
-precondition((type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "`HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s", (HARDCODED_GOOD_EGTP_ADDRES, type(HARDCODED_GOOD_EGTP_ADDRESS,)))
+precondition((type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "`HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s", (HARDCODED_GOOD_EGTP_ADDRESS, type(HARDCODED_GOOD_EGTP_ADDRESS,)))
 
 class LocalLookupMan(ILookupManager):
     """ 

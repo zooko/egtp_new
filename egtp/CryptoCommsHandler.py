@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CryptoCommsHandler.py,v 1.9 2003/02/09 17:52:12 zooko Exp $"
+__revision__ = "$Id: CryptoCommsHandler.py,v 1.10 2003/02/17 09:35:19 artimage Exp $"
 
 # Python Standard Library modules
 import traceback, types, sha, string, zlib
@@ -11,12 +11,12 @@ import traceback, types, sha, string, zlib
 # pyutil modules
 from pyutil.config import DEBUG_MODE, REALLY_SLOW_DEBUG_MODE
 from pyutil.debugprint import debugprint
-from pyutil import Cache, DoQ, zlibutil
+from pyutil import Cache, DoQ, zlibutil, humanreadable
 
 # EGTP modules
 from egtp import CommsError, CommStrat
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-from egtp import keyutil, humanreadable, idlib, mesgen
+from egtp import keyutil, idlib, mesgen
 
 true = 1
 false = None

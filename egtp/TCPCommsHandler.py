@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPCommsHandler.py,v 1.16 2003/02/10 03:19:45 zooko Exp $"
+__revision__ = "$Id: TCPCommsHandler.py,v 1.17 2003/02/17 09:35:21 artimage Exp $"
 
 # standard modules
 import UserDict, asyncore, os, socket, string, struct, threading, time
@@ -12,10 +12,10 @@ import traceback, types
 # pyutil modules
 from pyutil.config import DEBUG_MODE, REALLY_SLOW_DEBUG_MODE
 from pyutil.debugprint import debugprint
-from pyutil import Asyncore, Cache, DoQ, LazySaver
+from pyutil import Asyncore, Cache, DoQ, LazySaver, humanreadable
 
 # egtp modules
-from egtp import BandwidthThrottler, CommsError, CommStrat, TCPConnection, humanreadable, idlib, ipaddresslib
+from egtp import BandwidthThrottler, CommsError, CommStrat, TCPConnection, idlib, ipaddresslib
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 
 true = 1

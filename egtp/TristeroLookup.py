@@ -3,7 +3,7 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-__revision__ = "$Id: TristeroLookup.py,v 1.7 2002/12/02 19:58:51 myers_carpenter Exp $"
+__revision__ = "$Id: TristeroLookup.py,v 1.8 2003/02/17 09:35:21 artimage Exp $"
 
 # standard Python modules
 from xmlrpclib import *
@@ -11,9 +11,11 @@ from binascii import *
 from urllib import *
 from string import *
 
+# pyutil modules
+from pyutil.humanreadable import hr
+
 # egtp modules
 from egtp.interfaces import *
-from humanreadable import hr
 from egtp import interfaces 
 from egtp.tristero import *
 

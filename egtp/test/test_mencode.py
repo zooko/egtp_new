@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: test_mencode.py,v 1.4 2003/01/12 21:07:39 zooko Exp $"
+__revision__ = "$Id: test_mencode.py,v 1.5 2003/02/17 09:35:22 artimage Exp $"
 
 # Python standard library modules
 import operator, random, traceback, unittest
@@ -15,8 +15,9 @@ import operator, random, traceback, unittest
 from pyutil import memutil
 
 # EGTP modules
-from egtp import humanreadable
 from egtp.mencode import *
+
+from pyutil import humanreadable
 
 class MencodeTestCase(unittest.TestCase):
     def setUp(self):

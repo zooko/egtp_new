@@ -3,14 +3,16 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: DataTypes.py,v 1.9 2003/02/09 17:52:12 zooko Exp $"
+__revision__ = "$Id: DataTypes.py,v 1.10 2003/02/17 09:35:20 artimage Exp $"
 
 # Python Standard Library modules
 import types, pprint
 
 # egtp modules
 from egtp.MojoErrors import BadFormatError
-from egtp import EGTPConstants, idlib, mojosixbit, std, humanreadable
+from egtp import EGTPConstants, idlib, mojosixbit, std
+
+from pyutil import humanreadable
 
 true = 1
 false = 0

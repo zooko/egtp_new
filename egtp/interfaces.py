@@ -4,14 +4,15 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: interfaces.py,v 1.9 2002/12/02 19:58:52 myers_carpenter Exp $"
+__revision__ = "$Id: interfaces.py,v 1.10 2003/02/17 09:35:21 artimage Exp $"
 
 # standard Python modules
 import exceptions
 
 # EGTP modules
 from egtp.IRemoteOpHandler import IRemoteOpHandler
-from egtp import humanreadable
+
+from pyutil import humanreadable
 
 class ILookupManager:
     """

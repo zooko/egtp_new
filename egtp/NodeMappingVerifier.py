@@ -2,17 +2,17 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-__revision__ = "$Id: NodeMappingVerifier.py,v 1.5 2002/12/02 19:58:49 myers_carpenter Exp $"
+__revision__ = "$Id: NodeMappingVerifier.py,v 1.6 2003/02/17 09:35:20 artimage Exp $"
 
 # standard Python modules
 import exceptions, types
 
 # pyutil modules
 from pyutil.debugprint import debugprint
+from pyutil.humanreadable import hr
 
 # EGTP modules
 from egtp import CommStrat, interfaces, idlib
-from egtp.humanreadable import hr
 
 class NodeMappingVerifier(interfaces.IVerifier):
     """

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.15 2003/02/04 03:24:12 zooko Exp $"
+__revision__ = "$Id: mesgen.py,v 1.16 2003/02/17 09:35:21 artimage Exp $"
 
 
 # Python standard library modules
@@ -19,9 +19,9 @@ from bsddb3 import db, dbobj
 from pyutil.debugprint import debugprint
 from pyutil import Cache
 from pyutil import fileutil
+from pyutil.humanreadable import hr
 
 # EGTP modules
-from egtp.humanreadable import hr
 from egtp.CleanLogDb import CleanLogDbEnv
 from egtp.crypto import modval, tripledescbc, cryptutil, randsource
 from egtp import hashrandom, keyutil, idlib, mencode, mojosixbit, EGTPConstants

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mojoutil.py,v 1.11 2002/12/14 04:50:21 myers_carpenter Exp $"
+__revision__ = "$Id: mojoutil.py,v 1.12 2003/02/17 09:35:21 artimage Exp $"
 
 # standard modules
 import binascii, copy, math, operator, os, profile, pstats, re
@@ -13,9 +13,7 @@ import whrandom, random
 # pyutil modules
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import fileutil
-
-# EGTP modules
-from egtp import humanreadable
+from pyutil import humanreadable
 
 try:
     import trace

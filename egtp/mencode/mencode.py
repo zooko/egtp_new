@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mencode.py,v 1.9 2002/12/17 05:35:02 zooko Exp $"
+__revision__ = "$Id: mencode.py,v 1.10 2003/02/17 09:35:22 artimage Exp $"
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -13,8 +13,8 @@ import re, string, types
 true = 1
 false = 0
 
-# EGTP modules
-from egtp import humanreadable
+# pyutil modules
+from pyutil import humanreadable
 
 # Try importing faster compiled versions of these functions and objects.
 c_encodersdict = None

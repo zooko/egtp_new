@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: RelayListener.py,v 1.10 2003/02/10 01:31:14 zooko Exp $"
+__revision__ = "$Id: RelayListener.py,v 1.11 2003/02/17 09:35:20 artimage Exp $"
 
 # standard modules
 import os, traceback, types
@@ -12,10 +12,11 @@ import os, traceback, types
 # pyutil modules
 from pyutil.debugprint import debugprint
 from pyutil import DoQ, dictutil, LazySaver, timeutil
+from pyutil import humanreadable
 
 # EGTP modules
 from egtp import CommHints, CommStrat, DataTypes, MojoMessage
-from egtp import OurMessages, humanreadable, idlib
+from egtp import OurMessages, idlib
 from egtp.CommHints import HINT_EXPECT_MORE_TRANSACTIONS
 from egtp.crypto import randsource
 from egtp.interfaces import *

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.17 2003/02/10 03:44:22 zooko Exp $"
+__revision__ = "$Id: Conversation.py,v 1.18 2003/02/17 09:35:18 artimage Exp $"
 
 # Python Standard Library modules
 import threading
@@ -31,9 +31,10 @@ from pyutil.assertutil import _assert, precondition, postcondition
 
 # EGTP modules
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-from egtp import CommStrat, MojoMessage, MojoTransaction
+from egtp import CommStrat, MojoMessage
 from egtp import idlib, mencode, mojosixbit, std
 from egtp.crypto import modval, randsource
+import MojoTransaction
 
 true = 1
 false = 0

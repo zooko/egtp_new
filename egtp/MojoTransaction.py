@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.25 2003/02/10 03:44:22 zooko Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.26 2003/02/17 09:35:20 artimage Exp $"
 
 true = 1
 false = 0
@@ -20,6 +20,7 @@ from pyutil.compat import setdefault
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import Cache, DoQ, timeutil
+from pyutil import humanreadable
 
 # egtp modules
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
@@ -29,7 +30,6 @@ from egtp.MojoHandicapper import MojoHandicapper
 from egtp import MojoMessage, RelayListener, TCPCommsHandler
 from egtp import OurMessagesCommStrat
 from egtp.UnreliableHandicapper import UnreliableHandicapper
-from egtp import humanreadable
 from egtp.interfaces import *
 from egtp import counterparties, idlib, ipaddresslib, loggedthreading, mencode
 from egtp.crypto import randsource

@@ -1,7 +1,7 @@
 /*
  * mencode.py helper functions written in C for speed
  * 
- * $Id: _c_mencode_help.c,v 1.1 2002/07/26 18:56:37 myers_carpenter Exp $
+ * $Id: _c_mencode_help.c,v 1.2 2003/02/17 09:35:22 artimage Exp $
  */
 
 #include <stdlib.h>

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 """\
 test_crypto_cryptutil.py
+BUGBUG this file needs a license, myers wrote it.
 """
 
 __author__   = 'EGFABT'
-__revision__ = "$Id: test_cryptutil.py,v 1.1 2002/12/14 04:50:22 myers_carpenter Exp $"
+__revision__ = "$Id: test_cryptutil.py,v 1.2 2003/02/17 09:35:22 artimage Exp $"
 
 import unittest
 

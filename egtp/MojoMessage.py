@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.12 2003/01/28 01:59:36 zooko Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.13 2003/02/17 09:35:20 artimage Exp $"
 
 # Python standard library modules
 import re, string, types
@@ -16,8 +16,9 @@ from pyutil import Cache
 # egtp modules
 from egtp.DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER
 from egtp.MojoErrors import MojoMessageError
-from egtp import humanreadable, idlib, mencode
+from egtp import idlib, mencode
 
+from pyutil import humanreadable
 
 # Generate messages with the following Mojo version number.
 CURRENT_MOJO_VER="0.9991"

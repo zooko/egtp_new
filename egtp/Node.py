@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Node.py,v 1.10 2003/02/02 19:31:38 myers_carpenter Exp $"
+__revision__ = "$Id: Node.py,v 1.11 2003/02/17 09:35:20 artimage Exp $"
 
 # standard modules
 import types
@@ -15,7 +15,7 @@ from pyutil import DoQ
 # EGTP modules
 # import MetaTrackerLookupMan
 # import MetaTrackerDiscoveryMan
-from humanreadable import hr
+from pyutil.humanreadable import hr
 
 # Mojo Nation modules
 from egtp import CommStrat, MojoMessage, MojoTransaction, idlib

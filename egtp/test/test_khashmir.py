@@ -4,7 +4,7 @@ Unit test for khashmir lookup manager.
 """
 
 __author__   = 'Artimage <artimage@ishiboo.com>'
-__revision__ = "$Id: test_khashmir.py,v 1.1 2003/02/09 19:52:48 artimage Exp $"
+__revision__ = "$Id: test_khashmir.py,v 1.2 2003/02/17 09:35:22 artimage Exp $"
 
 import time
 import unittest
@@ -26,7 +26,7 @@ from dht import hash
 from dht import node
 	
    
-def test_build_net(quiet=0, peers=24, host='127.0.0.1',  pause=0, startport=2001, dbprefix='/tmp/test'):
+def _help_test_build_net(quiet=0, peers=24, host='127.0.0.1',  pause=0, startport=2001, dbprefix='/tmp/test'):
     from whrandom import randrange
     import threading
     import thread
@@ -94,7 +94,7 @@ def test_build_net(quiet=0, peers=24, host='127.0.0.1',  pause=0, startport=2001
     #	peer.refreshTable()
     return l
     
-def test_find_value(l, quiet=0):
+def _help_test_find_value(l, quiet=0):
     ff = threading.Event()	
     fa = threading.Event()
     fb = threading.Event()
@@ -125,8 +125,6 @@ def test_find_value(l, quiet=0):
             self.port = port
 	def callback(self, values):
 	    try:
-		# BUGBUG like the last test case, I believe these
-		# should be asserts.
 		if(len(values) == 0):
 			if not self.found:
 				print "find                NOT FOUND"
@@ -146,7 +144,7 @@ def test_find_value(l, quiet=0):
     d.valueForKey(key, cb(fc, port=d.port).callback, searchlocal=0)    
     fc.wait()
 
-def test_find_nodes(l, quiet=0):
+def _help_test_find_nodes(l, quiet=0):
     flag = threading.Event()
     
     n = len(l)
@@ -155,21 +153,13 @@ def test_find_nodes(l, quiet=0):
     b = l[randrange(0,n)]
     
     def callback(nodes, flag=flag, id = b.node.id):
-            # BUGBUG look at this test code.
-            # This is the original khashmir code. It seems to me
-            # that we should use asserts instead of the if. I have
-            # given examples here, but since I can't test I will 
-            # leave them commented out.     
-            # assert len(nodes) > 0
-            # assert nodes[0].id == id
-            # Maybe that won't work since we are in a callback and 
-            # we need to set the flag. But I think this should be fine.
-            assert(len(nodes) >0) and (nodes[0].id == id)
+            assert(len(nodes) >0) 
+            assert(nodes[0].id == id)
 
             if (len(nodes) >0) and (nodes[0].id == id):
-                    print "test_find_nodes  PASSED"
+                    print "_help_test_find_nodes  PASSED"
             else:
-                    print "test_find_nodes  FAILED"
+                    print "_help_test_find_nodes  FAILED"
             flag.set()
     a.findNode(b.node.id, callback)
     flag.wait()
@@ -182,10 +172,11 @@ class KhashmirLookupManTestCase(unittest.TestCase):
     a problem we can remove it. But I figured it would be nice to try this here. 
     Really we should probably call Khashmir's unit tests from ours... maybe not.
     """
-    def set_up(self):
-	pass
+    def setUp(self):
+        self.net = _help_test_build_net(peers=8) 
+        time.sleep(3)
 
-    def tear_down(self):
+    def tearDown(self):
         pass
 
     def test_updated_last_seen(self):
@@ -196,7 +187,21 @@ class KhashmirLookupManTestCase(unittest.TestCase):
         self.node.updateLastSeen()
         assert t < self.node.lastSeen
 
+    def test_find_nodes(self):
+        """
+        Here we test finding nodes in our little test network.
+        """
+        print "finding nodes..."
+        for i in range(10):
+	    _help_test_find_nodes(self.net)
 
+    def test_find_value(self):
+        """
+        Here we test inserting and finding values into the dht.
+        """
+        print "inserting and fetching values..."
+        for i in range(10):
+	    _help_test_find_value(self.net)        
         
 
 def suite():
@@ -207,7 +212,7 @@ if __name__ == "__main__":
     import sys
     n = 8
     if len(sys.argv) > 1: n = int(sys.argv[1])
-    l = test_build_net(peers=n)
+    l = _help_test_build_net(peers=n)
 #    print "__main__: length of l ", len(l)
 #    for node in l:
 #        print "__main__: node ", node
@@ -216,10 +221,10 @@ if __name__ == "__main__":
     time.sleep(3)
     print "finding nodes..."
     for i in range(10):
-		test_find_nodes(l)
+		_help_test_find_nodes(l)
     print "inserting and fetching values..."
     for i in range(10):
-		test_find_value(l)
+		_help_test_find_value(l)
 
     
 
