@@ -67,6 +67,11 @@ TCPConnection interacts with the low-level sockets via a separate thread
 called "the asyncore thread".  There are liberal precondition assertions to 
 help you notice right away if you make a call from the wrong thread.
 
+* Can we get an example put in here. (I know, I should understand the DoQ by
+now, but it still confuses me why we have a seperate thread to schedule events.
+Maybe I just need a description of the DoQ and its purpose for those of us who
+are not used to event driven programing.)
+
 D. Throttling and Other Delays
 
 If a TCPConnection can't send a message, because the connection isn't open 
