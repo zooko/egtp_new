@@ -11,6 +11,97 @@ Could not load the distutils modules. Have you installed them?
 (on Debian you need to 'apt-get install python2.2-dev')
 """
 
+class download(Command):
+    description  = "download any files needed to build"
+    
+    user_options = []
+
+    def initialize_options(self):
+        pass
+                
+    def finalize_options(self):
+        pass
+                                                                                                   
+    def run(self):
+        try: 
+            mkdir('build')
+        except:
+            pass        
+
+        self.base_dir = os.getcwd()
+        self.download_bsddb3()
+        self.download_pyutil()
+        self.download_cryptopp()
+
+    def download_bsddb3(self):
+        try:
+            import bsddb3
+        except ImportError:
+            raise SystemExit, """\
+The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.  
+(on Debian unstable you can do 'apt-get install python2.2-bsddb3')
+"""
+
+    def download_pyutil(self):
+        try:
+            import pyutil
+            # TODO verison testing
+        except ImportError:   
+            print "Downloading 'pyutil' ... "
+            pyutil_build_dir = os.path.join('build', 'pyutil')
+            fetch_anon_cvs(':pserver:anonymous@cvs.pyutil.sourceforge.net:/cvsroot/pyutil', 'pyutil_new', pyutil_build_dir)
+            print os.getcwd()
+            os.chdir(pyutil_build_dir)
+            os.system('python setup.py install --install-lib %s' % self.base_dir)
+            os.chdir(self.base_dir)
+
+    def download_cryptopp(self):        
+        def get_cryptopp():
+            CRYPTOPP_URL = 'http://www.eskimo.com/~weidai/crypto42.zip'
+            print "Downloading cryptopp from %s ... " % CRYPTOPP_URL
+            out = file(os.path.join('build', 'crypto42.zip'), 'wb')
+            out.write(urllib.urlopen(CRYPTOPP_URL).read())
+            out.close()
+        
+        if os.path.isdir('/usr/include/crypto++') or os.path.isdir('/usr/local/include/crypto++'):
+            print "crypto++ is installed system wide, no need to download"
+            return
+        
+        if not os.path.isfile(os.path.join('build', 'crypto42.zip')):
+            get_cryptopp()
+
+        m = md5.new()
+        m.update(file(os.path.join('build', 'crypto42.zip'), 'rb').read())
+        if m.hexdigest().upper() != 'C1700E6E15F3189801E7EA47EEE83078':
+            raise SystemExit, "File %r is incomplete or corrupt" % os.path.join('build', 'crypto42.zip')
+
+        if not os.path.isfile(os.path.join('build', 'crypto42.zip')):
+            raise SystemExit, "couldn't get zip file"
+        
+        if not os.path.isdir(os.path.join('build', 'crypto++-4.2')):
+            print "Extracting crypto++..."
+            cmd = 'unzip -d %s -a %s' % (os.path.join('build', 'crypto++-4.2'), os.path.join('build', 'crypto42.zip'))
+            print cmd 
+            os.system(cmd)
+            # same effect as 'touch'
+            file(os.path.join('build', 'crypto++-4.2', 'unpatched'),'w').close()
+            
+        if os.path.isfile(os.path.join('build', 'crypto++-4.2', 'unpatched')):
+            print "Patching crypto++..."
+            os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-4.2'))
+            patchlist = os.listdir(os.path.join(self.base_dir, 'egtp', 'crypto', 'patches'))
+            patchlist = filter(lambda x: x[0].islower(), patchlist)
+            for ii in patchlist:
+                os.system('patch -p0 < %s' % os.path.join(self.base_dir, 'egtp', 'crypto', 'patches', ii))
+            os.unlink(os.path.join('build', 'crypto++-4.2', 'unpatched'))
+            os.chdir(self.base_dir)
+
+        if not os.path.isfile(os.path.join('build', 'crypto++-4.2', 'libcryptopp.a')):
+            print "Building crypto++..."
+            os.chdir(os.path.join(self.base_dir, 'build', 'crypto++-4.2'))
+            os.system('make libcryptopp.a')
+            os.chdir(self.base_dir)
+        
 class build_ext(distutils.command.build_ext.build_ext):
     user_options      = \
         distutils.command.build_ext.build_ext.user_options + \
@@ -32,7 +123,6 @@ class build_ext(distutils.command.build_ext.build_ext):
         
         self.define = []
         self.library_dir = []
-        
 
         if self.cryptopp_dir:
             pass
@@ -40,8 +130,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.cryptopp_dir = os.environ['CRYPTOPP_DIR']
             if not os.path.isdir(self.cryptopp_dir) :
                 raise SystemExit, "Your CRYPTOPP_DIR environment variable is incorrect.  is not dir: self.cryptopp_dir: %s" % self.cryptopp_dir
-        elif os.path.isdir('crypto++-4.2') and os.path.isfile(os.path.join('crypto++-4.2', 'libcryptopp.a')):
-            self.cryptopp_dir = 'crypto++-4.2'
+        elif os.path.isdir(os.path.join('build', 'crypto++-4.2')) and os.path.isfile(os.path.join('build', 'crypto++-4.2', 'libcryptopp.a')):
+            self.cryptopp_dir = os.path.join('build', 'crypto++-4.2')
         elif os.path.isdir('/usr/include/crypto++'):
             self.cryptopp_dir = '/usr/include/crypto++'
         elif os.path.isdir('/usr/local/include/crypto++'):
@@ -66,7 +156,7 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
 
             self.library_dirs.extend([self.cryptopp_dir])
             self.include_dirs.extend([self.cryptopp_dir])
-            self.libraries.insert(0, 'crypto++')
+            self.libraries.insert(0, 'cryptopp')
 
         # find out the crypto++ version from the include files
         tmp = None
@@ -165,79 +255,14 @@ class test(Command):
         
         sys.path = old_path[:]
                 
-class download(Command):
-    description  = "download any files needed to build"
-    
-    user_options = []
-
-    def initialize_options(self):
-        pass
-                
-    def finalize_options(self):
-        pass
-                                                                                                   
-    def run(self):
-        self.download_bsddb3()
-        self.download_pyutil()
-        self.download_cryptopp()
-
-    def download_bsddb3(self):
-        try:
-            import bsddb3
-        except ImportError:
-            raise SystemExit, """\
-The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.  
-(on Debian unstable you can do 'apt-get install python2.2-bsddb3')
-"""
-    def download_pyutil(self):
-        # pyutil
-        fetch_anon_cvs(':pserver:anonymous@cvs.pyutil.sourceforge.net:/cvsroot/pyutil', 'pyutil')
-
-    def download_cryptopp(self):        
-        def get_cryptopp():
-            CRYPTOPP_URL = 'http://www.eskimo.com/~weidai/crypto42.zip'
-            print "Downloading cryptopp from %s ... " % CRYPTOPP_URL
-            out = file('crypto42.zip', 'wb')
-            out.write(urllib.urlopen(CRYPTOPP_URL).read())
-            out.close()
-        
-        if os.path.isdir('/usr/include/crypto++') or os.path.isdir('/usr/local/include/crypto++'):
-            print "Crypto++ is installed system wide, no need to download"
-            return
-        
-        if not os.path.isfile('crypto42.zip'):
-            get_cryptopp()
-
-        def is_corrupt():
-            # must open this file 'rb' the binary is necessary for windows.
-            m = md5.new(file('crypto42.zip', 'rb').read())
-            if m.hexdigest().upper() != 'C1700E6E15F3189801E7EA47EEE83078':
-                print "File 'crypto42.zip' is incomplete or corrupt"
-                return 1
-            return 0
-
-        if is_corrupt():
-            get_cryptopp()
-            if is_corrupt():
-                print "We have tried to download a clean version, and it failed too. Please submit a bug report."
-                return
-            
-        if os.path.isfile('crypto42.zip') and not os.path.isdir('cryptopp-4.2'):
-            print "Building crypto++..."
-            os.system('unzip -d crypto++-4.2 -a crypto42.zip')
-            os.chdir('crypto++-4.2')
-            patchlist = os.listdir(os.path.join('..', 'egtp', 'crypto', 'patches'))
-            patchlist = filter(lambda x: x[0].islower(), patchlist)
-            for ii in patchlist:
-                os.system('patch -p0 < %s' % os.path.join('..', 'egtp', 'crypto', 'patches', ii))
-            os.system('make libcryptopp.a')
-            os.chdir('..')
-        
-
-def fetch_anon_cvs(cvsroot, module):
+def fetch_anon_cvs(cvsroot, module, directory_name):
     """
     Fetchs or updates a module from CVS.  Write the module into the current directory.
     """
+    print "Downloading module '%s' from CVS ROOT '%s' into directory '%s' ..." % (module, cvsroot, directory_name)
+    
+    cwd = os.getcwd()
+    
     write_cvs_pass = 1
     if os.path.isfile(os.path.expandvars('${HOME}/.cvspass')):
         ff = file(os.path.expandvars('${HOME}/.cvspass'), 'r')
@@ -249,14 +274,17 @@ def fetch_anon_cvs(cvsroot, module):
     if write_cvs_pass:
         ff = file(os.path.expandvars('${HOME}/.cvspass'), 'a')
         ff.write("%s A" % cvsroot)
-    if os.path.isdir(module):
+    if os.path.isdir(directory_name):
         print "Updating %r..." % module
-        os.chdir(module)
-        os.system('cvs -z3 -d%s up -Pd' % cvsroot)
-        os.chdir('..')
+        os.chdir(directory_name)
+        os.system('cvs -z3 -d%s update -Pd' % cvsroot)
     else:
         print "Checking out %r..." % module
-        os.system('cvs -z3 -d%s co -P %s' % (cvsroot, module))
+        subdir, final_dir = os.path.split(directory_name)
+        os.chdir(subdir)
+        cmd = 'cvs -z3 -d%s checkout -d%s -P %s' % (cvsroot, final_dir, module)
+        os.system(cmd)
+    os.chdir(cwd)
 
 setup (
     name            = 'egtp',
@@ -265,7 +293,7 @@ setup (
     author          = 'Mnet Project',
     author_email    = 'mnet-devel@lists.sourceforge.net',
     licence         = 'LGPL',
-    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode', 'pyutil'],
+    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode'],
     cmdclass        = {
         'build_ext':    build_ext,
         'test':         test,
@@ -282,12 +310,6 @@ setup (
             'egtp.crypto.win_entropy', 
             sources = [
                    os.path.join('egtp', 'crypto', 'win_entropy.c'),
-            ] 
-        ),
-        Extension (
-            'pyutil.c_xor', 
-            sources = [
-                   os.path.join('pyutil', 'c_xor', 'xormodule.c'),
             ] 
         ),
         Extension (
