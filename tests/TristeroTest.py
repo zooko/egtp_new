@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: TristeroTest.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroTest.py,v 1.1 2002/07/27 22:18:31 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types
