@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mencode.py,v 1.11 2003/02/22 16:52:23 myers_carpenter Exp $"
+__revision__ = "$Id: mencode.py,v 1.12 2003/03/05 04:56:19 myers_carpenter Exp $"
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -25,7 +25,7 @@ c_encode_io = None
 c_MencodeError = None
 c_decode_raw_string = None
 try:
-    from egtp.mencode import _c_mencode_help    
+    from egtp.mencode.c_mencode import _c_mencode_help    
     c_encodersdict = _c_mencode_help._c_encoder_dict
     c_encode_string = _c_mencode_help._c_encode_string
     c_encode_dict = _c_mencode_help._c_encode_dict

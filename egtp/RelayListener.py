@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: RelayListener.py,v 1.12 2003/03/02 19:33:13 myers_carpenter Exp $"
+__revision__ = "$Id: RelayListener.py,v 1.13 2003/03/05 04:56:18 myers_carpenter Exp $"
 
 # standard modules
 import os, traceback, types
@@ -49,7 +49,7 @@ class ShoppingResultsHand(IDiscoveryHandler):
             self._outstanding = false
 
     def result(self, value):
-        debugprint("%s.result(): %s\n", args=(self,value,))
+        #debugprint("%s.result(): %s\n", args=(self,value,))
         try:
             self._rl._handle_result_of_shopping(value)
         finally:
@@ -383,5 +383,5 @@ class RelayListener(LazySaver.LazySaver):
 
         # we don't use a dynamic timeout because polling when things are idle causes the timeout to
         # become super low which instantly fails us over to a new relay server when we become busy.
-        self._mtm.initiate(relayerid, "are there messages", None, outcome_func=self._handle_are_there_messages_response, post_timeout_outcome_func=self._handle_are_there_messages_response, use_dynamic_timeout="never", timeout=max(5, self._poll_timeout), hint=HINT_EXPECT_MORE_TRANSACTIONS)
+        self._mtm.initiate(relayerid, "are there messages", {'response version': 3}, outcome_func=self._handle_are_there_messages_response, post_timeout_outcome_func=self._handle_are_there_messages_response, use_dynamic_timeout="never", timeout=max(5, self._poll_timeout), hint=HINT_EXPECT_MORE_TRANSACTIONS)
 

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.28 2003/03/02 19:33:13 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.29 2003/03/05 04:56:18 myers_carpenter Exp $"
 
 true = 1
 false = 0
@@ -228,7 +228,7 @@ class MojoTransactionManager:
         ready = false
         if keyID:
             try:
-                self._mesgen=mesgen.MessageMaker(dir=os.path.join(dbparentdir, keyID), recoverdb=recoverdb)
+                self._mesgen = mesgen.MessageMaker(dir=os.path.join(dbparentdir, keyID), recoverdb=recoverdb)
                 ready = true
             except:
                 # We sometimes get exceptions here because of corrupted db. 
@@ -240,7 +240,7 @@ class MojoTransactionManager:
                 pass
 
         if not ready:
-            self._mesgen=mesgen.create_MessageMaker(dbparentdir=dbparentdir, recoverdb=recoverdb)
+            self._mesgen = mesgen.create_MessageMaker(dbparentdir=dbparentdir, recoverdb=recoverdb)
 
         self.keyID = self._mesgen.get_id()
         self._dbdir=os.path.join(dbparentdir, idlib.to_mojosixbit(self._mesgen.get_id()))

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.18 2003/03/02 19:33:13 myers_carpenter Exp $"
+__revision__ = "$Id: mesgen.py,v 1.19 2003/03/05 04:56:19 myers_carpenter Exp $"
 
 
 # Python standard library modules
@@ -129,7 +129,7 @@ class SessionKeeper:
         """
         assert ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)), "precondition: Exactly one of (dbparentdir, dir) must be not None." + " -- " + "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
 
-        debugprint("SessionKeeper.__init__()", v=1)
+        debugprint("SessionKeeper.__init__()\n", v=1)
         
         if serialized:
             debugprint("COMPLAINT: passing in serialized secret keys is the old-style, just-a-hack-for-debug way of doing things.  You really want to just give me the directory to start from and I'll get the secret key stored in there in a file.\n", v=3)
@@ -202,7 +202,7 @@ class SessionKeeper:
         counterparty_map.open('counterparty_map', db.DB_BTREE, db.DB_CREATE)
         self.extres = SessionKeeper.ExtRes(db_env, session_map, counterparty_map)
         # maps header ids to content of headers for memoization
-        self.__cached_headers = Cache.LRUCache(maxitems)
+        self.__cached_headers = Cache.LRUCache(maxsize=maxitems)
 
         self.store_key(self.__my_public_key)
 

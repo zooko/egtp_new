@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.14 2003/02/22 16:52:22 myers_carpenter Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.15 2003/03/05 04:56:18 myers_carpenter Exp $"
 
 # Python standard library modules
 import re, string, types
@@ -82,9 +82,9 @@ _internal_checkMsg_cache = None
 
 def init():
     global _internal_msgString_mdecode_cache 
-    _internal_msgString_mdecode_cache = Cache.LRUCacheLocked(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
+    _internal_msgString_mdecode_cache = Cache.LRUCache(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
     global _internal_checkMsg_cache
-    _internal_checkMsg_cache = Cache.LRUCacheLocked(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
+    _internal_checkMsg_cache = Cache.LRUCache(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
 
 def shutdown():
     global _internal_msgString_mdecode_cache 
