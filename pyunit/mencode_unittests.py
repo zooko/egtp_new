@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode_unittests.py,v 1.2 2002/10/26 14:59:56 zooko Exp $'
+__cvsid = '$Id: mencode_unittests.py,v 1.3 2002/10/26 20:26:54 zooko Exp $'
 
 
 # Python standard library modules
@@ -257,19 +257,40 @@ class Testy(unittest.TestCase):
                 # Good!  we want an exception when we try this.
                 return
 
-    def test_no_leakage(self):
+    def test_no_obj_leakage(self):
         # Test every (other) test here for leakage!  That's my cheap way to try to exercise the weird internal cases in the compiled code...
         for m in dir(self.__class__):
             if m[:len("test_")] == "test_":
-                if m != "test_no_leakage":
+                if not m in ("test_no_obj_leakage", "test_no_byte_leakage",):
                     # print "testing for memory leak: %s" % m
-                    self._help_test_no_leakage(getattr(self, m))
+                    self._help_test_no_obj_leakage(getattr(self, m))
 
-    def _help_test_no_leakage(self, f):
-        slope = memutil.measure_mem_leakage(f, 2**7, iterspersample=2**4)
+    def test_no_byte_leakage(self):
+        # Test every (other) test here for leakage!  That's my cheap way to try to exercise the weird internal cases in the compiled code...
+        for m in dir(self.__class__):
+            if m[:len("test_")] == "test_":
+                if not m in ("test_no_obj_leakage", "test_no_byte_leakage",):
+                    # print "testing for memory leak: %s" % m
+                    self._help_test_no_byte_leakage(getattr(self, m))
+
+    def _help_test_no_byte_leakage(self, f):
+        # measure one and throw it away, in order to reach a "steady state" in terms of initialization of memory state.
+        memutil.measure_mem_leakage(f, 2**4, iterspersample=2**4)
+        slope = memutil.measure_mem_leakage(f, 2**6, iterspersample=2**4)
 
         # print "slope: ", slope
-        if slope > 0.0001:
+        MIN_SLOPE = 1.0 # If it leaks less than 1.0 bytes per iteration, then it might just be some kind of noise from the interpreter or something...
+        if slope > MIN_SLOPE:
+            raise "%s leaks memory at a rate of approximately %s system bytes per invocation" % (f, slope,)
+
+    def _help_test_no_obj_leakage(self, f):
+        # measure one and throw it away, in order to reach a "steady state" in terms of initialization of memory state.
+        memutil.measure_obj_leakage(f, 2**4, iterspersample=2**4)
+        slope = memutil.measure_obj_leakage(f, 2**5, iterspersample=2**4)
+
+        # print "slope: ", slope
+        MIN_SLOPE = 0.0001
+        if slope > MIN_SLOPE:
             raise "%s leaks memory at a rate of approximately %s Python objects per invocation" % (f, slope,)
 
 def _bench_it_mencode(n):
