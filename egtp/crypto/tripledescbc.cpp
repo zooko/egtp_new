@@ -191,11 +191,11 @@ static PyObject *tripledescbc_encrypt(tripledescbc *self, PyObject *args) {
 		PyErr_SetString(PyExc_MemoryError, "Can't allocate memory to do encryption");
 		return NULL;
 	}
-	std::cout << "goodbye enc" << std::endl; std::cout.flush();
+	//	std::cout << "goodbye enc" << std::endl; std::cout.flush();
 }
 
 static PyObject *tripledescbc_decrypt(tripledescbc *self, PyObject *args) {
-	std::cout << "hello dec 0" << std::endl; std::cout.flush();
+	//	std::cout << "hello dec 0" << std::endl; std::cout.flush();
 	PyObject *result = NULL;
 	byte *plaintext = NULL;
 	try {
