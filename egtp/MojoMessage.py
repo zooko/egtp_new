@@ -88,7 +88,7 @@ def init():
     global _internal_msgString_mdecode_cache 
     _internal_msgString_mdecode_cache = Cache.LRUCacheLocked(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
     global _internal_checkMsg_cache
-    _internal_checkMsg_cache = Cache.CacheSingleThreaded(maxitems=_MAX_MEMOIZE_CACHE_ITEMS)
+    _internal_checkMsg_cache = Cache.LRUCacheLocked(maxsize=_MAX_MEMOIZE_CACHE_ITEMS)
 
 def shutdown():
     global _internal_msgString_mdecode_cache 
