@@ -7,7 +7,7 @@
 """
 Interfaces that should be implemented by code that uses EGTP
 """
-__revision__ = "$Id: interfaces.py,v 1.11 2003/02/22 16:52:23 myers_carpenter Exp $"
+__revision__ = "$Id: interfaces.py,v 1.12 2003/02/22 21:00:20 myers_carpenter Exp $"
 
 import exceptions
 
@@ -73,17 +73,19 @@ class ILookupManager:
 
 class IDiscoveryManager:
     """
-    Performs discoveries, and publications of things that others will discover.
+    Performs discoveries, and publications of things that others will
+    discover.
 
-    A Discovery Manager is an object that, when you ask it "What are some values that are good
-    responses to *this* query?", gives you some values.  The coolest Discovery Manager would
-    implement some kind of crazy decentralized attack resistant search engine, or possibly a
-    transcendant artificial intelligence that would take over the world and treat us as funny
-    little pets.  Or maybe the coolest Discovery Manager would just ask your immediate friends for
-    their opinions.  I don't know.
+    A Discovery Manager is an object that, when you ask it "What are some
+    values that are good responses to *this* query?", gives you some values. 
+    The coolest Discovery Manager would implement some kind of crazy
+    decentralized attack resistant search engine, or possibly a transcendant
+    artificial intelligence that would take over the world and treat us as
+    funny little pets.  Or maybe the coolest Discovery Manager would just
+    ask your immediate friends for their opinions.  I don't know.
 
-    (There are several known open source projects that might implement good DiscoverManager
-    objects: Neurogrid, Alpine, Tristero, cp2pc.)
+    (There are several known open source projects that might implement good
+    DiscoverManager objects: Neurogrid, Alpine, Tristero, cp2pc.)
     """
     def __init__(self):
         """
@@ -93,26 +95,33 @@ class IDiscoveryManager:
 
     def discover(self, query, discoveryhand):
         """
-        @param query: the query describing the kind of thing you want to discover;  If the query is
-            self-authenticating, (i.e. given this query and the resulting object, the lookup manager
-            is able to determine whether or not the object is a valid object for the key even if the
-            object is a bogus object manufactured by a powerful and malicious attacker), then you
-            should use a lookup manager instead of a discovery manager.  (The lookup manager will
-            perform that verification for you.)
-        @param discoveryhand: an object which satisfies the IDiscoveryHandler interface
+        @param query: the query describing the kind of thing you want to
+            discover; If the query is self-authenticating, (i.e. given this
+            query and the resulting object, the lookup manager is able to
+            determine whether or not the object is a valid object for the
+            key even if the object is a bogus object manufactured by a
+            powerful and malicious attacker), then you should use a lookup
+            manager instead of a discovery manager.  (The lookup manager
+            will perform that verification for you.)
+        @param discoveryhand: an object which satisfies the
+            IDiscoveryHandler interface
 
-        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network
+            traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
 
     def publish(self, metadata, object, publishhand=None):
         """
-        @param metadata: some metadata by which the object can subsequently to be discovered
+        @param metadata: some metadata by which the object can subsequently
+            to be discovered
         @param object: the thing to be published
-        @param publishhand: an object which satisfies the IRemoteOpHandler interface, or `None'
+        @param publishhand: an object which satisfies the IRemoteOpHandler
+            interface, or `None'
 
-        @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        @noblock: This method may not block, either by waiting for network
+            traffic, by waiting for a lock, or by sleeping.
         """
         raise NotImplementedError
         pass
