@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: MojoMessage.py,v 1.9 2002/12/02 19:58:48 myers_carpenter Exp $"
 
 # standard modules
 import string

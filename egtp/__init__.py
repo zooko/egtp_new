@@ -1,3 +1,10 @@
+#  Copyright (c) 2001 Autonomous Zone Industries
+#  This file is licensed under the
+#    GNU Lesser General Public License v2.1.
+#    See the file COPYING or visit http://www.gnu.org/ for details.
+
+__revision__ = "$Id: __init__.py,v 1.4 2002/12/02 19:58:51 myers_carpenter Exp $"
+
 """ 
 Evil Geninus Transport Protocol
 
@@ -37,5 +44,3 @@ reading the Tutorial.
  node's public key.  
 
 """
-
-

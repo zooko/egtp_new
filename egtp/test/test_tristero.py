@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-
+#
 #  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  portions Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: test_tristero.py,v 1.1 2002/11/28 00:49:56 myers_carpenter Exp $'
+
+__revision__ = "$Id: test_tristero.py,v 1.2 2002/12/02 19:58:56 myers_carpenter Exp $"
 
 # standard Python modules
 import threading, types

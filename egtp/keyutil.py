@@ -2,7 +2,9 @@
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: keyutil.py,v 1.2 2002/12/02 19:58:53 myers_carpenter Exp $"
+
 
 # python standard modules
 import re

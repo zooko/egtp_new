@@ -1,19 +1,16 @@
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: randsource.py,v 1.4 2002/12/02 19:58:55 myers_carpenter Exp $"
+
 from egtp.crypto import evilcryptopp
 
 __doc__ = evilcryptopp._randsource_doc
 get = evilcryptopp._randsource_get
 
-import time
-import sys
-import os
-import sha
-import string
+import time, sys, os, sha, string
 
 if sys.platform == 'win32':
     # this is part of the win32all python package, get it from:

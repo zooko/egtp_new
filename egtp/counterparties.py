@@ -1,19 +1,16 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
 
-#
-# This module implements counter party objects used for storing
-# information about the various counterparties we've talked to such as
-# the amount of mojo offers we've made to them, amount they've made to
-# us, their reputation for coming through with their deals in our eyes,
-# etc.
-#
-__cvsid = '$Id: counterparties.py,v 1.8 2002/11/22 05:48:36 zooko Exp $'
+__revision__ = "$Id: counterparties.py,v 1.9 2002/12/02 19:58:51 myers_carpenter Exp $"
+
+""" 
+Implements counter party objects used for storing information about the
+various counterparties we've talked to such as the amount of mojo offers
+we've made to them, amount they've made to us, their reputation for coming
+through with their deals in our eyes, etc. 
+"""
 
 
 # Python standard library modules
@@ -45,7 +42,8 @@ false = None
 class CounterpartyObjectKeeper:
     class ExtRes:
         """
-        This is for holding things (external resources) that COK needs to finalize after COK is killed.  (post-mortem finalization)
+        This is for holding things (external resources) that COK needs to
+        finalize after COK is killed.  (post-mortem finalization)
         """
         def __init__(self, db_env, balances_db):
             self.db_env = db_env
@@ -130,10 +128,10 @@ class CounterpartyObjectKeeper:
    
     def get_total_mojo_offer_balance_adjustment(self) :
         """
-        Returns the total mojo that we owe or are owed after taking
-        all of our credits and debits into account.
-        [this could make you think you have lots of mojo if others_owe_us
-        is large; you probably don't want to use this in a UI...]
+        @returns: the total mojo that we owe or are owed after taking
+            all of our credits and debits into account.
+            [this could make you think you have lots of mojo if others_owe_us
+            is large; you probably don't want to use this in a UI...]
         """
         self.__mos_update_lock.acquire()
         try:
@@ -143,13 +141,13 @@ class CounterpartyObjectKeeper:
 
     def get_total_mojo_we_owe_others(self) :
         """
-        Returns the total mojo that we owe others
+        @returns: the total mojo that we owe others
         """
         return self.mos_we_owe_others
     
     def get_total_mojo_others_owe_us(self) :
         """
-        Returns the total mojo that others owe us
+        @returns: the total mojo that others owe us
         """
         return self.mos_others_owe_us 
     
@@ -217,7 +215,8 @@ class CounterpartyObject :
     """
     class ExtRes:
         """
-        This is for holding things (external resources) that CO needs to finalize after CO is killed.  (post-mortem finalization)
+        This is for holding things (external resources) that CO needs to
+        finalize after CO is killed.  (post-mortem finalization)
         """
         def __init__(self):
             pass
@@ -334,7 +333,7 @@ class CounterpartyObject :
         @precondition: `amount' is an integer.: type(amount) == types.IntType or type(amount) == types.LongType: "amount: %s :: %s" % (hr(amount), str(type(amount)))
         @precondition: `amount' is non-negative.: amount >= 0: "amount: %s" % hr(amount)
 
-        @return: tuple: (okay, amount will front, current balance)
+        @returns: tuple: (okay, amount will front, current balance)
         """
         assert type(amount) == types.IntType or type(amount) == types.LongType, "`amount' is an integer." + " -- " + "amount: %s :: %s" % (hr(amount), str(type(amount)))
         assert amount >= 0, "`amount' is non-negative." + " -- " + "amount: %s" % hr(amount)

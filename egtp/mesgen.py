@@ -1,23 +1,19 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: mesgen.py,v 1.9 2002/12/02 19:58:53 myers_carpenter Exp $"
+
 
 # Python standard library modules
 import xdrlib
 from xdrlib import Packer,Unpacker
 from sha import sha
-import traceback
-from bsddb3 import db, dbobj
 from cPickle import dumps, loads
-import threading
-import traceback
-import os
-import time
-import types
+import threading, traceback, os, time, types
+
+from bsddb3 import db, dbobj
 
 # pyutil modules
 from pyutil.debugprint import debugprint
@@ -25,13 +21,10 @@ from pyutil import Cache
 from pyutil import fileutil
 
 # EGTP modules
-from humanreadable import hr
-
-# (old-)EGTP modules
+from egtp.humanreadable import hr
 from egtp.CleanLogDb import CleanLogDbEnv
-from egtp import HashRandom, keyutil, idlib, mencode, mojosixbit, mojoutil
-
 from egtp.crypto import modval, tripledescbc, cryptutil, randsource
+from egtp import hashrandom, keyutil, idlib, mencode, mojosixbit, mojoutil
 
 true = 1
 false = 0
@@ -317,7 +310,7 @@ class SessionKeeper:
             id_out = _mix_counterparties(full_key_id, self.__my_public_key_id, u.unpack_fstring(SIZE_OF_UNIQS))
             # check that the pk encrypted symmetric key used to send this message is the same was generated properly
             strl = u.unpack_fstring(SIZE_OF_UNIQS)
-            sr = HashRandom.SHARandom(_mix_counterparties(full_key_id, self.__my_public_key_id, strl))
+            sr = hashrandom.SHARandom(_mix_counterparties(full_key_id, self.__my_public_key_id, strl))
             spaml = sr.get(SIZE_OF_SYMMETRIC_KEYS)
             if symmetric_key != spaml:
                 raise Error, 'improperly generated key'
@@ -405,7 +398,7 @@ class SessionKeeper:
             id_out_rep = randsource.get(SIZE_OF_UNIQS)
             id_out = _mix_counterparties(self.__my_public_key_id, key_id, id_out_rep)
             key_seed = randsource.get(SIZE_OF_UNIQS)
-            sr = HashRandom.SHARandom(_mix_counterparties(self.__my_public_key_id, key_id, key_seed))
+            sr = hashrandom.SHARandom(_mix_counterparties(self.__my_public_key_id, key_id, key_seed))
             symmetric_key = sr.get(SIZE_OF_SYMMETRIC_KEYS)
             iv = randsource.get(8)
 
@@ -714,354 +707,4 @@ class MessageMaker:
                 raise UnknownSession(session, self.get_id())
             else:
                 raise Error, le
-
-def _help_test_create_MessageMaker():
-    return create_MessageMaker("/var/tmp/RunTests")
-
-def _help_test_load_MessageMaker(id):
-    myid_aa = idlib.to_mojosixbit(id)
-    dir = os.path.normpath(os.path.join("/var/tmp/RunTests/", myid_aa))
-    return load_MessageMaker(dir)
-
-def test_normal_operation():
-    mesgen1 = _help_test_create_MessageMaker()
-    mesgen2 = _help_test_create_MessageMaker()
-    id1 = mesgen1.get_id()
-    id2 = mesgen2.get_id()
-    key1 = mesgen1.get_public_key()
-    key2 = mesgen2.get_public_key()
-    mesgen1.store_key(key2)
-    m1 = mesgen1.generate_message(id2, 'spam1')
-    m2 = mesgen1.generate_message(id2, 'spam2')
-    counterparty_pub_key_sexp, message = mesgen2.parse(m2)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam2'
-    counterparty_pub_key_sexp, message = mesgen2.parse(m1)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam1'
-    m3 = mesgen2.generate_message(id1, 'spam3')
-    counterparty_pub_key_sexp, message = mesgen1.parse(m3)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-    assert message == 'spam3'
-    # check to see that header is not on later messages
-    m1a = mesgen1.generate_message(id2, 'spam1')
-    assert len(m1a) < len(m1)
-    m2a = mesgen1.generate_message(id2, 'spam2')
-    assert len(m2a) < len(m2)
-
-def disabledwedontdomultithreadingmesgenfornow_test_send_two_messages_at_once():
-    mesgen1 = _help_test_create_MessageMaker()
-    mesgen2 = _help_test_create_MessageMaker()
-    id1 = mesgen1.get_id()
-    id2 = mesgen2.get_id()
-    key1 = mesgen1.get_public_key()
-    key2 = mesgen2.get_public_key()
-    
-    prestart1 = threading.Event()
-    start1 = threading.Event()
-    flag1 = threading.Event()
-    def store_key1(start = start1, mesgen1 = mesgen1, key2 = key2, flag = flag1, prestart1=prestart1):
-        prestart1.set()
-        start.wait()
-        mesgen1.store_key(key2)
-        flag.set()
-    prestart2 = threading.Event()
-    flag2 = threading.Event()
-    def store_key2(start = start1, mesgen1 = mesgen1, key2 = key2, flag = flag2, prestart2=prestart2):
-        prestart2.set()
-        start.wait()
-        mesgen1.store_key(key2)
-        flag.set()
-    threading.Thread(target = store_key1).start()
-    threading.Thread(target = store_key2).start()
-    prestart1.wait()
-    prestart2.wait()
-    start1.set()
-    flag1.wait(2)
-    assert flag1.isSet()
-    flag2.wait(2)
-    assert flag2.isSet()
-
-    m1holder = []
-    m2holder = []
-    start2 = threading.Event()
-    flag3 = threading.Event()
-    flag4 = threading.Event()
-    def make_message1(start = start2, m1holder = m1holder, mesgen1 = mesgen1, id2 = id2, flag = flag3):
-        start.wait()
-        m1holder.append(mesgen1.generate_message(id2, 'spam'))
-        flag.set()
-    def make_message2(start = start2, m2holder = m2holder, mesgen1 = mesgen1, id2 = id2, flag = flag4):
-        start.wait()
-        m2holder.append(mesgen1.generate_message(id2, 'spam'))
-        flag.set()
-    threading.Thread(target = make_message1).start()
-    threading.Thread(target = make_message2).start()
-    xxx(time.sleep(1))
-    start2.set()
-    flag3.wait(2)
-    assert flag3.isSet()
-    assert len(m1holder) == 1
-    flag4.wait(2)
-    assert flag4.isSet()
-    assert len(m2holder) == 1
-
-    start3 = threading.Event()
-    flag5 = threading.Event()
-    flag6 = threading.Event()
-    parseflag = threading.Event()
-    def parse1(mesgen2 = mesgen2, wiremessage = m1holder[0], id1 = id1, flag = flag5, 
-            parseflag = parseflag, start = start3):
-        start.wait()
-        counterparty_id, message = mesgen2.parse(wiremessage)
-        assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be  an id." + " -- " + "id: %s" % hr(id)
-        counterparty_id = idlib.canonicalize(counterparty_id, 'broker')
-        if not idlib.equal(counterparty_id, id1) or (message != 'spam'):
-            parseflag.set()
-        flag.set()
-    def parse2(mesgen2 = mesgen2, wiremessage = m2holder[0], id1 = id1, flag = flag6, 
-            parseflag = parseflag, start = start3):
-        start.wait()
-        counterparty_id, message = mesgen2.parse(wiremessage)
-        assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be  an id." + " -- " + "id: %s" % hr(id)
-        counterparty_id = idlib.canonicalize(counterparty_id, 'broker')
-        if not equal(counterparty_id, id1) or (message != 'spam'):
-            parseflag.set()
-        flag.set()
-    threading.Thread(target = parse1).start()
-    threading.Thread(target = parse2).start()
-    xxx(time.sleep(1))
-    start3.set()
-    flag5.wait(2)
-    assert flag5.isSet()
-    assert not parseflag.isSet()
-    flag6.wait(2)
-    assert flag6.isSet()
-    assert not parseflag.isSet()
-
-    m3 = mesgen1
-    mesgen1 = mesgen2
-    mesgen2 = m3
-    i3 = id1
-    id1 = id2
-    id2 = i3
-    k3 = key1
-    key1 = key2
-    key2 = k3
-
-    m1holder = []
-    m2holder = []
-    start2 = threading.Event()
-    flag3 = threading.Event()
-    flag4 = threading.Event()
-    def make_message1(start = start2, m1holder = m1holder, mesgen1 = mesgen1, id2 = id2, flag = flag3):
-        start.wait()
-        m1holder.append(mesgen1.generate_message(id2, 'spam'))
-        flag.set()
-    def make_message2(start = start2, m2holder = m2holder, mesgen1 = mesgen1, id2 = id2, flag = flag4):
-        start.wait()
-        m2holder.append(mesgen1.generate_message(id2, 'spam'))
-        flag.set()
-    threading.Thread(target = make_message1).start()
-    threading.Thread(target = make_message2).start()
-    xxx(time.sleep(1))
-    start2.set()
-    flag3.wait(2)
-    assert flag3.isSet()
-    assert len(m1holder) == 1
-    flag4.wait(2)
-    assert flag4.isSet()
-    assert len(m2holder) == 1
-
-    start3 = threading.Event()
-    flag5 = threading.Event()
-    flag6 = threading.Event()
-    parseflag = threading.Event()
-    def parse1(mesgen2 = mesgen2, wiremessage = m1holder[0], id1 = id1, flag = flag5, 
-            parseflag = parseflag, start = start3):
-        start.wait()
-        counterparty_id, message = mesgen2.parse(wiremessage)
-        if counterparty_id != id1 or message != 'spam':
-            parseflag.set()
-        flag.set()
-    def parse2(mesgen2 = mesgen2, wiremessage = m2holder[0], id1 = id1, flag = flag6, 
-            parseflag = parseflag, start = start3):
-        start.wait()
-        counterparty_id, message = mesgen2.parse(wiremessage)
-        if counterparty_id != id1 or message != 'spam':
-            parseflag.set()
-        flag.set()
-    threading.Thread(target = parse1).start()
-    threading.Thread(target = parse2).start()
-    xxx(time. sleep(1))
-    start3.set()
-    flag5.wait(2)
-    assert flag5.isSet()
-    assert not parseflag.isSet()
-    flag6.wait(2)
-    assert flag6.isSet()
-    assert not parseflag.isSet()
-
-def test_normal_operation_with_reconstruction():
-    mesgen1 = _help_test_create_MessageMaker()
-    mesgen2 = _help_test_create_MessageMaker()
-    id1 = mesgen1.get_id()
-    id2 = mesgen2.get_id()
-    key1 = mesgen1.get_public_key()
-    key2 = mesgen2.get_public_key()
-    mesgen1.store_key(key2)
-    m1 = mesgen1.generate_message(id2, 'spam1')
-    m2 = mesgen1.generate_message(id2, 'spam2')
-    counterparty_pub_key_sexp, message = mesgen2.parse(m2)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam2'
-    counterparty_pub_key_sexp, message = mesgen2.parse(m1)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam1'
-    m3 = mesgen2.generate_message(id1, 'spam3')
-    counterparty_pub_key_sexp, message = mesgen1.parse(m3)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-    assert message == 'spam3'
-    # check to see that header is not on later messages
-    m1a = mesgen1.generate_message(id2, 'spam1')
-    assert len(m1a) != len(m1)
-    m2a = mesgen1.generate_message(id2, 'spam2')
-    assert len(m2a) != len(m2)
-    del mesgen1
-    del mesgen2
-
-    mesgen1 = _help_test_load_MessageMaker(id1)
-    mesgen2 = _help_test_load_MessageMaker(id2)
-    mesgen1.store_key(key2)
-    m1 = mesgen1.generate_message(id2, 'spam1')
-    m2 = mesgen1.generate_message(id2, 'spam2')
-    counterparty_pub_key_sexp, message = mesgen2.parse(m2)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam2'
-    counterparty_pub_key_sexp, message = mesgen2.parse(m1)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam1'
-    m3 = mesgen2.generate_message(id1, 'spam3')
-    counterparty_pub_key_sexp, message = mesgen1.parse(m3)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-    assert message == 'spam3'
-    m1a = mesgen1.generate_message(id2, 'spam1')
-    assert len(m1a) == len(m1)
-    m2a = mesgen1.generate_message(id2, 'spam2')
-    assert len(m2a) == len(m2)
-
-def test_interlock():
-    mesgen1 = _help_test_create_MessageMaker()
-    mesgen2 = _help_test_create_MessageMaker()
-    id1 = mesgen1.get_id()
-    id2 = mesgen2.get_id()
-    key1 = mesgen1.get_public_key()
-    key2 = mesgen2.get_public_key()
-    mesgen1.store_key(key2)
-    mesgen2.store_key(key1)
-    m1 = mesgen1.generate_message(id2, 'spam1')
-    m2 = mesgen2.generate_message(id1, 'spam2')
-    counterparty_pub_key_sexp, message = mesgen2.parse(m1)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    assert message == 'spam1'
-    counterparty_pub_key_sexp, message = mesgen1.parse(m2)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-    assert message == 'spam2'
-
-def test_send_self():
-    mesgen = _help_test_create_MessageMaker()
-    x = mesgen.generate_message(mesgen.get_id(), 'spam')
-    pub_key_sexp, message = mesgen.parse(x)
-    assert idlib.equal(idlib.make_id(pub_key_sexp, 'broker'), mesgen.get_id())
-    assert message == 'spam'
-
-def test_invalidate_session():
-    mesgen1 = _help_test_create_MessageMaker()
-    mesgen2 = _help_test_create_MessageMaker()
-    id1 = mesgen1.get_id()
-    id2 = mesgen2.get_id()
-    key1 = mesgen1.get_public_key()
-    key2 = mesgen2.get_public_key()
-    mesgen1.store_key(key2)
-    m1a = mesgen1.generate_message(id2, 'spam1a')
-    # send a message m1 -> m2
-    counterparty_pub_key_sexp, message = mesgen2.parse(m1a)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-    # send a message back m2 -> m1 (acts as an ACK that the session & header was received properly)
-    m2a = mesgen2.generate_message(id1, 'spam2a')
-    counterparty_pub_key_sexp, message = mesgen1.parse(m2a)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-    # force mesgen2 to forget the session established by m1
-    for m2_session_id_in in mesgen2._session_keeper.extres.session_map.keys():
-        print "mesgen deleting session id", `m2_session_id_in`
-        mesgen2._session_keeper.extres.session_map.delete(m2_session_id_in)
-    # send a message m1 -> m2, but m2 has forgotten the session that will be used
-    m1b = mesgen1.generate_message(id2, 'spam1b')
-    assert m1b[:4] == '\000\000\000\001', 'message should have used an established session'
-    assert 'm1b'
-    try:
-        mesgen2.parse(m1b)
-        assert 0, "UnknownSession should have been raised"
-    except UnknownSession, uks:
-        try:
-            mesgen1.parse(uks.invalidate_session_msg)
-            assert 0, "SessionInvalidated should have been raised"
-        except SessionInvalidated:
-            pass
-    # this should succeed normally, generating a new session
-    m1c = mesgen1.generate_message(id2, 'spam1c')
-    assert m1c[:4] == '\000\000\000\000', "message should have tried to setup a new session"
-    counterparty_pub_key_sexp, message = mesgen2.parse(m1a)
-    assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-
-def test_Error():
-    mesgen = _help_test_create_MessageMaker()
-    x = mesgen.generate_message(mesgen.get_id(), 'spam')
-    try:
-        mesgen.parse(x + 'uh')
-    except Error:
-        return
-    assert 0
-
-def test_serialize_and_reserialize():
-    testdir = "/var/tmp/RunTests"
-    sk = SessionKeeper(dbparentdir=testdir, dir=None)
-
-    id = sk.get_id()
-    key = sk.get_public_key()
-
-    del sk
-
-    dir = os.path.normpath(os.path.join(testdir, idlib.to_mojosixbit(id)))
-    
-    sk2 = SessionKeeper(dbparentdir=None, dir=dir)
-
-    assert sk2.get_public_key() == key
-
-def _test_mesgen_speed(iterations=200):
-    # "200 loop iterations generating and parsing 3 messages each took 2.26 seconds" -greg 2001-05-31 [333Mhz Celeron]
-    mesgen1 = _help_test_create_MessageMaker()
-    mesgen2 = _help_test_create_MessageMaker()
-    id1 = mesgen1.get_id()
-    id2 = mesgen2.get_id()
-    key1 = mesgen1.get_public_key()
-    key2 = mesgen2.get_public_key()
-    mesgen1.store_key(key2)
-
-    start_time = time.time()
-    for x in xrange(iterations):
-        m1 = mesgen1.generate_message(id2, 'spam1')
-        m2 = mesgen1.generate_message(id2, 'spam2')
-        counterparty_pub_key_sexp, message = mesgen2.parse(m2)
-        assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-        assert message == 'spam2'
-        counterparty_pub_key_sexp, message = mesgen2.parse(m1)
-        assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id1)
-        assert message == 'spam1'
-        m3 = mesgen2.generate_message(id1, 'spam3')
-        counterparty_pub_key_sexp, message = mesgen1.parse(m3)
-        assert idlib.equal(idlib.make_id(counterparty_pub_key_sexp, 'broker'), id2)
-        assert message == 'spam3'
-    stop_time = time.time()
-    print "%d loop iterations generating and parsing 3 messages each took %3.2f seconds" % (iterations, stop_time-start_time)
 

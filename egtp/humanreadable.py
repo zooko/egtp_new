@@ -1,17 +1,14 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-# CVS:
-__cvsid = '$Id: humanreadable.py,v 1.1 2002/09/28 17:45:36 zooko Exp $'
+__revision__ = "$Id: humanreadable.py,v 1.2 2002/12/02 19:58:52 myers_carpenter Exp $"
 
 # pyutil modules
 from pyutil.humanreadable import *
 
-# Mnet modules
-import base32id
+# egtp modules
+from egtp import base32id
 
 brepr = BetterRepr()
 krepr = KindRepr()

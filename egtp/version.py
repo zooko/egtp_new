@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: version.py,v 1.7 2002/11/22 05:48:36 zooko Exp $'
+
+__revision__ = "$Id: version.py,v 1.8 2002/12/02 19:58:54 myers_carpenter Exp $"
 
 # Python Standard Library modules
 import string

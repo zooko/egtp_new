@@ -1,24 +1,19 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2002 Brandon Wiley
 # Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-# CVS:
-__cvsid = '$Id: TristeroLookup.py,v 1.6 2002/09/28 17:45:36 zooko Exp $'
+__revision__ = "$Id: TristeroLookup.py,v 1.7 2002/12/02 19:58:51 myers_carpenter Exp $"
 
 # standard Python modules
 from xmlrpclib import *
-from interfaces import *
 from binascii import *
 from urllib import *
 from string import *
 
-# EGTP modules
-from humanreadable import hr
-
 # egtp modules
+from egtp.interfaces import *
+from humanreadable import hr
 from egtp import interfaces 
 from egtp.tristero import *
 

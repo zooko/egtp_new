@@ -3,10 +3,8 @@
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-# CVS:
-__cvsid = '$Id: EGTPConstants.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
 
+__revision__ = "$Id: EGTPConstants.py,v 1.2 2002/12/02 19:58:47 myers_carpenter Exp $"
 
 # length of RSA public moduli in 8-bit bytes (octets)
 

@@ -1,26 +1,18 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-# CVS:
-__cvsid = '$Id: NodeMappingVerifier.py,v 1.4 2002/09/28 17:45:36 zooko Exp $'
+__revision__ = "$Id: NodeMappingVerifier.py,v 1.5 2002/12/02 19:58:49 myers_carpenter Exp $"
 
 # standard Python modules
-import exceptions
-import types
+import exceptions, types
 
 # pyutil modules
 from pyutil.debugprint import debugprint
 
 # EGTP modules
-import CommStrat
-from humanreadable import hr
-import interfaces
-
-# (old) MN modules
-import idlib
+from egtp import CommStrat, interfaces, idlib
+from egtp.humanreadable import hr
 
 class NodeMappingVerifier(interfaces.IVerifier):
     """

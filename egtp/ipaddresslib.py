@@ -1,20 +1,16 @@
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-# A library for determining the IP addresses of the local machine.
-#
-__cvsid = '$Id: ipaddresslib.py,v 1.8 2002/11/04 13:53:21 artimage Exp $'
+
+__revision__ = "$Id: ipaddresslib.py,v 1.9 2002/12/02 19:58:53 myers_carpenter Exp $"
+
+"""
+A library for determining the IP addresses of the local machine.
+"""
 
 # standard modules
-import sys
-import os
-import re
-import string
-import exceptions
-import socket
+import sys, os, re, string, exceptions, socket
 
 
 if sys.platform == 'win32':

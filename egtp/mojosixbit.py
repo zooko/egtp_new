@@ -1,15 +1,11 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
 
-import re
-import string
-import types
-import binascii
+__revision__ = "$Id: mojosixbit.py,v 1.4 2002/12/02 19:58:53 myers_carpenter Exp $"
+
+import re, string, types, binascii
 
 
 true = 1
@@ -147,90 +143,4 @@ def a2b_long_string_idempotent(thing):
             break
 
     return thing
-
-def test_mojosixbit():
-    assert _mojosixbit_to_str('abcd') == 'i\267\035'
-    assert _mojosixbit_to_str('abcdef') == 'i\267\035y'
-    assert _mojosixbit_to_str('abcdefg') == 'i\267\035y\370'
-    assert _mojosixbit_to_str('abcdefgh') =='i\267\035y\370!'
-    from struct import pack
-    for x in range(0, 255) :
-        sha_str = '\0'*19 + pack('B', x)
-        sixbit_str = _str_to_mojosixbit(sha_str)
-        assert len(sixbit_str) == 27
-        assert _asciihash_re.match(sixbit_str)
-
-def test_b2a():
-    import random
-    from array import array 
-    b = array('B')
-    for i in range(900):
-        b.append(random.randint(0, 255))
-
-    astr = b2a(b)
-
-    c = a2b(astr)
-
-    assert b.tostring() == c
-
-def test_a2b_rejectsNonEncoded():
-    try:
-        a2b("*&")
-    except Error:
-        return
-
-    assert false
-
-def test_a2b_rejectsNonMojoSixBit():
-    try:
-        a2b("hvfkN/q")
-    except Error:
-        return
-
-    assert false
-
-def test_a2b_rejectsTrailingGarbage():
-    try:
-        a2b("c3BhbQ@@@")
-    except Error:
-        return
-
-    assert false
-    
-def test_a2b_rejectsTrailingEqualSigns():
-    try:
-        a2b("c3BhbQ==")
-    except Error:
-        return
-
-    assert false
-
-def test_a2b_rejectsTrailingNewlines():
-    try:
-        a2b("c3BhbQ\n")
-    except Error:
-        return
-
-    assert false
-
-def test_mojosixbit_re():
-    for num in xrange(17):
-        assert _mojosixbit_re.match(b2a(chr(num))), ('failed 2:', num, b2a(chr(num)))
-        assert _mojosixbit_re.match(b2a(' '+chr(num))), ('failed 3:', num, b2a(' '+chr(num)))
-        assert _mojosixbit_re.match(b2a('* '+chr(num))), ('failed 4:', num, b2a('* '+chr(num)))
-        assert _mojosixbit_re.match(b2a(':-)'+chr(num))), ('failed 5:', num, b2a(':-)'+chr(num)))
-        assert _mojosixbit_re.match(b2a('#8-}'+chr(num))), ('failed 6:', num, b2a('#8-}'+chr(num)))
-        assert _mojosixbit_re.match(b2a(' ;-} '+chr(num))), ('failed 7:', num, b2a(' ;-} '+chr(num)))
-        
-
-mojo_test_flag = 1
-
-#### generic stuff
-def run():
-    import RunTests
-    RunTests.runTests(["mojosixbit"])
-    
-#### this runs if you import this module by itself
-if __name__ == '__main__':
-    run()
 

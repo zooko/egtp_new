@@ -1,17 +1,13 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: UnreliableHandicapper.py,v 1.6 2002/10/28 03:17:04 myers_carpenter Exp $'
 
-# EGTP modules
-from humanreadable import hr
+__revision__ = "$Id: UnreliableHandicapper.py,v 1.7 2002/12/02 19:58:51 myers_carpenter Exp $"
 
 # our modules
 from egtp import idlib, mojoutil
+from humanreadable import hr
 
 # The most reliable broker is still handicapped this much.
 TUNING_FACTOR=float(2**8)

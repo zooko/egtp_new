@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: CommHints.py,v 1.1 2002/07/26 18:56:21 myers_carpenter Exp $'
+
+__revision__ = "$Id: CommHints.py,v 1.2 2002/12/02 19:58:44 myers_carpenter Exp $"
 
 ### standard modules
 import types

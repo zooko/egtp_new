@@ -1,16 +1,15 @@
 #!/usr/bin/env python
-
+#
 #  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  portions Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-# XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: test_system.py,v 1.1 2002/11/28 00:49:56 myers_carpenter Exp $'
+
+__revision__ = "$Id: test_system.py,v 1.2 2002/12/02 19:58:56 myers_carpenter Exp $"
 
 # standard Python modules
-import threading, types, unittest
+import threading, types, unittest, tempfile, os, shutil
 
 # pyutil modules
 from pyutil import DoQ
@@ -18,15 +17,9 @@ from pyutil import config
 from pyutil.debugprint import debugprint
 from pyutil.timeutil import timer
 
-# (old) MN modules
-from egtp import idlib
-
-# EGTP modules
-from egtp import CommStrat
-from egtp import Node
+from egtp import idlib, CommStrat, Node, humanreadable
 from egtp.NodeMappingVerifier import NodeMappingVerifier
 from egtp.TristeroLookup import TristeroLookup
-from egtp import humanreadable
 from egtp.interfaces import *
 
 true = 1
@@ -79,10 +72,13 @@ class LocalDiscoveryMan(IDiscoveryManager):
 
 class EGTPTestCaseTemplate(unittest.TestCase):
     def setUp(self):
+        self.testdir = tempfile.mktemp('egtp_test_system')
         Node.init()
 
     def tearDown(self):
         Node.shutdown_and_block_until_finished()
+        if os.path.isdir(self.testdir):
+            shutil.rmtree(self.testdir)
 
     def _help_test_lookup_good_values(self, lm):
         """
@@ -145,7 +141,7 @@ class EGTPTestCaseTemplate(unittest.TestCase):
             start = timer.time()
 
             # Make a listener.  He will announce his EGTP address to the lookupman `lm'.
-            d['n1'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
+            d['n1'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir=self.testdir)
 
             # Set a handler func: if any messages come in with message type "ping", the EGTP Node will call this function.
             def l_ping_handler(sender, msg, finishedflag=finishedflag, start=start, self=self):
@@ -156,7 +152,7 @@ class EGTPTestCaseTemplate(unittest.TestCase):
             # print "EGTPunittest: get_address", d['n1'].get_address()
 
             # Make a sender.  He'll keep a reference to `lm' for later use.
-            d['n2'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
+            d['n2'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir=self.testdir)
 
         DoQ.doq.do(setup)
 

@@ -1,29 +1,20 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: TCPCommsHandler.py,v 1.10 2002/12/02 19:58:51 myers_carpenter Exp $"
 
 # standard modules
-import UserDict
-import asyncore
-import os
-import socket
-import string
-import struct
-import threading
-import time
-import traceback
-import types
+import UserDict, asyncore, os, socket, string, struct, threading, time
+import traceback, types
 
 # pyutil modules
 from pyutil.config import DEBUG_MODE, REALLY_SLOW_DEBUG_MODE
 from pyutil.debugprint import debugprint
 from pyutil import Asyncore, Cache, DoQ, LazySaver
 
-# (old-)EGTP modules
+# egtp modules
 from egtp import BandwidthThrottler, CommsError, CommStrat, TCPConnection, humanreadable, idlib, mojoutil, ipaddresslib
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 

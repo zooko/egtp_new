@@ -5,23 +5,11 @@
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: test_mencode.py,v 1.1 2002/11/28 00:49:56 myers_carpenter Exp $'
 
+__revision__ = "$Id: test_mencode.py,v 1.2 2002/12/02 19:58:56 myers_carpenter Exp $"
 
 # Python standard library modules
-import operator
-import random
-import traceback
-
-try:
-    import unittest
-except:
-    class unittest:
-        class TestCase:
-            pass
-        pass
-    pass
+import operator, random, traceback, unittest
 
 # pyutil modules
 from pyutil import memutil
@@ -30,9 +18,7 @@ from pyutil import memutil
 from egtp import humanreadable
 from egtp.mencode import *
 
-# Mnet modules
-
-class Testy(unittest.TestCase):
+class MencodeTestCase(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -445,19 +431,9 @@ def _real_test_encode_string_implementation_speed():
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(Testy, 'test'))
+    suite.addTest(unittest.makeSuite(MencodeTestCase, 'test'))
 
     return suite
 
 if __name__ == '__main__':
-    if hasattr(unittest, 'main'):
-        unittest.main()
-    else:
-        # Here's our manual implementation of unittest:
-        t = Testy()
-        for m in dir(t.__class__):
-            if m[:len("test_")] == "test_":
-                print m, "... ",
-                getattr(t, m)()
-                print
-        pass
+    unittest.main()

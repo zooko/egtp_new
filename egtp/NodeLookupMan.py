@@ -1,20 +1,14 @@
-#!/usr/bin/env python
-#
 # Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-# CVS:
-__cvsid = '$Id: NodeLookupMan.py,v 1.7 2002/11/07 03:11:15 myers_carpenter Exp $'
+__revision__ = "$Id: NodeLookupMan.py,v 1.8 2002/12/02 19:58:49 myers_carpenter Exp $"
 
 # standard Python modules
-import exceptions
-import types
+import exceptions, types
 
 # EGTP modules
 from egtp import CommStrat, NodeMappingVerifier, humanreadable, interfaces
-
-# (old) MN modules
 from egtp import idlib
 
 class NodeLookupMan(interfaces.ILookupManager):

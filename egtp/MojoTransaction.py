@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  Copyright (c) 2002 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: MojoTransaction.py,v 1.15 2002/11/28 00:49:56 myers_carpenter Exp $'
+
+__revision__ = "$Id: MojoTransaction.py,v 1.16 2002/12/02 19:58:48 myers_carpenter Exp $"
 
 true = 1
 false = 0

@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: CommStrat.py,v 1.7 2002/12/02 19:58:44 myers_carpenter Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -29,7 +28,7 @@ from egtp.crypto import modval
 true = 1
 false = 0
 
-from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
+from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
 true = 1
 false = 0
 

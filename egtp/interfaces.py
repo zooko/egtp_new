@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 #  Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 #  portions Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: interfaces.py,v 1.8 2002/11/07 03:11:15 myers_carpenter Exp $'
+
+__revision__ = "$Id: interfaces.py,v 1.9 2002/12/02 19:58:52 myers_carpenter Exp $"
 
 # standard Python modules
 import exceptions

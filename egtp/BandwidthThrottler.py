@@ -1,15 +1,9 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-#
-__cvsid = '$Id: BandwidthThrottler.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
-
-# standard modules
+__revision__ = "$Id: BandwidthThrottler.py,v 1.4 2002/12/02 19:58:44 myers_carpenter Exp $"
 
 # pyutil modules
 from pyutil.debugprint import debugprint

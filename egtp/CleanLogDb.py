@@ -1,12 +1,21 @@
-## Subclass of DB that cleans up it's log files periodically
+#  Copyright (c) 2001 Autonomous Zone Industries
+#  This file is licensed under the
+#    GNU Lesser General Public License v2.1.
+#    See the file COPYING or visit http://www.gnu.org/ for details.
+
+__revision__ = "$Id: CleanLogDb.py,v 1.3 2002/12/02 19:58:44 myers_carpenter Exp $"
+
+"""
+Subclass of DB that cleans up it's log files periodically
+"""
+
+import re, os, time
+
+from bsddb3 import db, dbobj
 
 # pyutil modules
 from pyutil.debugprint import debugprint
 
-from bsddb3 import db, dbobj
-import re
-import os
-import time
 
 CLEANING_INTERVAL = 60 * 60  # once an hour
 

@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2000 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-__cvsid = '$Id: loggedthreading.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+
+__revision__ = "$Id: loggedthreading.py,v 1.3 2002/12/02 19:58:53 myers_carpenter Exp $"
 
 # standard modules
 from threading import *

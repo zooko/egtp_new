@@ -1,30 +1,22 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
+
+__revision__ = "$Id: RelayListener.py,v 1.7 2002/12/02 19:58:50 myers_carpenter Exp $"
 
 # standard modules
-import os
-import traceback
-import types
+import os, traceback, types
 
 # pyutil modules
 from pyutil.debugprint import debugprint
-from pyutil import DoQ
-from pyutil import dictutil
-from pyutil import LazySaver
-from pyutil import timeutil
+from pyutil import DoQ, dictutil, LazySaver, timeutil
 
-# (old-)EGTP modules
-from egtp import CommHints, CommStrat, DataTypes, MojoMessage, OurMessages, humanreadable, idlib
-
+# EGTP modules
+from egtp import CommHints, CommStrat, DataTypes, MojoMessage
+from egtp import OurMessages, humanreadable, idlib
 from egtp.CommHints import HINT_EXPECT_MORE_TRANSACTIONS
-
 from egtp.crypto import randsource
-
 from egtp.interfaces import *
 
 true = 1

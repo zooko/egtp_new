@@ -1,28 +1,25 @@
-#!/usr/bin/env python
-#
+"""
+Common code for encoding and decoding EGTP object IDs
+in their two common representations (binary and ascii/mojosixbit).
+
+Everything in this file is optimized for speed, it gets called a
+-lot- throughout the program, including many hot spots.
+"""
+
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-# Common code for encoding and decoding Mojo Nation (TM) object IDs
-# in their two common representations (binary and ascii/mojosixbit).
-#
-# Everything in this file is optimized for speed, it gets called a
-# -lot- throughout the program, including many hot spots.
-#
-# $Id: idlib.py,v 1.5 2002/09/29 17:51:54 zooko Exp $
+
+__revision__ = "$Id: idlib.py,v 1.6 2002/12/02 19:58:52 myers_carpenter Exp $"
 
 # standard modules
-import re
-import sha
-import struct
-import types
+import re, sha, struct, types
 
 # pyutil modules
 from pyutil.config import DEBUG_MODE
 
-# Mojo Nation modules
+# egtp modules
 from egtp import std, mojosixbit, std
 from egtp.crypto import randsource
 
@@ -300,18 +297,4 @@ std.is_sloppy_id = is_sloppy_id
 std.is_canonical_uniq = is_canonical_uniq
 std.is_mojosixbitencoded_id = is_mojosixbitencoded_id
 
-
-def test_to_mojosixbit_is_idempotent():
-    i = new_random_uniq()
-    to_mojosixbit(i) == to_mojosixbit(to_mojosixbit(i))
-
-#### generic stuff
-mojo_test_flag = 1
-def run():
-    import RunTests
-    RunTests.runTests(["idlib"])
-    
-#### this runs if you import this module by itself
-if __name__ == '__main__':
-    run()
 

@@ -1,19 +1,18 @@
-#!/usr/bin/env python
-#
 #  Copyright (c) 2001 Autonomous Zone Industries
 #  This file is licensed under the
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
-#
-# A module containing user-configuration utilities, debug stuff and
-# many other functions.  This file is -way- too big but was lumped all
-# into one to prevent circular chicken & egg import problems with the
-# way it was before.  Don't import this directly if possible, import
-# the sub modules that import things from this (debug, confutils,
-# mojoutil, idlib, etc..)
-#
-__cvsid = '$Id: mojostd.py,v 1.13 2002/11/22 05:34:43 zooko Exp $'
 
+__revision__ = "$Id: mojostd.py,v 1.14 2002/12/02 19:58:53 myers_carpenter Exp $"
+
+"""
+A module containing user-configuration utilities, debug stuff and
+many other functions.  This file is -way- too big but was lumped all
+into one to prevent circular chicken & egg import problems with the
+way it was before.  Don't import this directly if possible, import
+the sub modules that import things from this (debug, confutils,
+mojoutil, idlib, etc..)
+"""
 
 # Python Standard Library modules
 import sys, os, exceptions,  re, glob, operator, Queue, cStringIO, sha, stat
@@ -35,7 +34,7 @@ false = 0
 
 # EGTP modules
 from egtp import EGTPConstants
-from egtp import HashRandom
+from egtp import hashrandom
 from egtp import mencode
 from egtp import mojosixbit
 from egtp.crypto import randsource
@@ -367,9 +366,9 @@ def mgf1(seed, intendedlength):
     """
     Mask Generation Function 1 MGF1 from PKCS #1 v2.
     """
-    # I _think_ that MGF1 is the same as our HashRandom.SHARandom()...
+    # I _think_ that MGF1 is the same as our hashrandom.SHARandom()...
     # XXX !!! We should verify this hypothesis...  --Zooko 2000-07-29
-    s = HashRandom.SHARandom(seed)
+    s = hashrandom.SHARandom(seed)
     return s.get(intendedlength)
 
 def oaep(m, emLen, p=""):
@@ -478,7 +477,7 @@ def get_rand_lt_n(seed, n):
     """
     old = n.get_value()
 
-    r = HashRandom.SHARandom(seed)
+    r = hashrandom.SHARandom(seed)
     x = r.get(len(n.get_modulus()))
 
     while modval.verify_key_and_value(n.get_modulus(), x) != None:
@@ -490,7 +489,7 @@ def get_rand_lt_n_with_prepended_0(seed, n):
     """
     @param n: a modval
     """
-    r = HashRandom.SHARandom(seed)
+    r = hashrandom.SHARandom(seed)
     return '\000' + r.get(len(n.get_modulus()) - 1)
 
 ########################################## HERE IS THE canon.py PART OF mojostd.py
