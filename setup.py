@@ -378,12 +378,22 @@ class test(Command):
     """
     description  = "test the distribution prior to install"
 
+    # put the current module at the beginning and maybe delete the others
+    all_mods = ('egtp',)
+    
     user_options = [
-        ('test-dir=', None,
-         "directory that contains the test definitions"),]
-
+        ('verbosity=', 'l',
+         "Set the verbosity on TestRunner",),
+        ('single=', 's',
+         "Runs tests from a single file",),
+        ('all', 'a',
+         "Run unittest for %s" % ', '.join(all_mods),),]
+    boolean_options = ['all']
+    
     def initialize_options(self):
-        self.test_dir = os.path.join('egtp', 'test')
+        self.single = None
+        self.verbosity = 1
+        self.all = None
 
     def finalize_options(self):
         build = self.get_finalized_command('build')
@@ -392,27 +402,48 @@ class test(Command):
 
     def run(self):
         import unittest
-        self.run_command('build')
+        # self.run_command('build')
 
         old_path = sys.path[:]
-        sys.path.insert(0, os.path.abspath(self.build_purelib))
-        sys.path.insert(0, os.path.abspath(self.build_platlib))
+        sys.path.insert(0, os.path.abspath(os.getcwd()))
+        # sys.path.insert(0, os.path.abspath(self.build_purelib))
+        # sys.path.insert(0, os.path.abspath(self.build_platlib))
 
-        runner = unittest.TextTestRunner()
-        testFiles = glob.glob(os.path.join(self.test_dir, 'test_*.py'))
-        testSuites = []
-        for ff in testFiles:
-            ff = ff.replace(os.sep, '.')
-            MOD = __import__(ff[:-3], globals(), locals(), [''])
-            if not hasattr(MOD, 'suite'):
-                print "Skipping %r as it has no 'suite' function" % ff
+        runner = unittest.TextTestRunner(verbosity=self.verbosity)
+
+        if self.single:
+            testFiles = [self.single]
+        else:
+            testDirs = []
+            testFiles = []
+            if self.all:
+                for ii in self.all_mods:
+                    testDirs.append(os.path.join(ii, 'test'))
             else:
-                testSuites.append(MOD.suite())
+                testDirs.append(os.path.join(self.all_mods[0], 'test'))
+                
+            for ii in testDirs:
+                testFiles.extend(glob.glob(os.path.join(ii, 'test_*.py')))
+
+        testSuites = []
+        for fileName in testFiles:
+            if not os.path.isfile(fileName):
+                print '%s is not a file, skipping...' % fileName
+                continue
+            if fileName[:2] == './':
+                fileName = fileName[2:] 
+            moduleName = os.path.splitext(fileName.replace(os.sep, '.'))[0]
+            if self.verbosity > 1:
+                print "Importing %r..." % moduleName
+            moduleHandle = __import__(moduleName, globals(), locals(), [''])
+            if not hasattr(moduleHandle, 'suite'):
+                print "Skipping %r as it has no 'suite' function" % fileName
+            else:
+                testSuites.append(moduleHandle.suite())
             
         runner.run(unittest.TestSuite(tuple(testSuites)))
 
-        sys.path = old_path[:]
-
+        sys.path = old_path
 setup_args = {
     'name': "egtp",
 #    'version': egtp.version.versionstr_full,
