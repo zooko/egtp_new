@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: RelayListener.py,v 1.9 2003/02/04 03:43:02 zooko Exp $"
+__revision__ = "$Id: RelayListener.py,v 1.10 2003/02/10 01:31:14 zooko Exp $"
 
 # standard modules
 import os, traceback, types
@@ -331,7 +331,7 @@ class RelayListener(LazySaver.LazySaver):
 
     def _handle_bundled_messages(self, widget, outcome, failure_reason=None):
         try:
-            DataTypes.check_template(outcome, OurMessages.BUNDLED_MESSAGES_TEMPL)
+            DataTypes.check_template(outcome, DataTypes.ListMarker(DataTypes.STRING))
         except MojoMessage.BadFormatError, le:
             debugprint("BadFormatError: %s, stack[-4:]: %s\n", args=(le, traceback.extract_stack()[-4:],), v=0, vs="debug")
             raise le
@@ -354,21 +354,6 @@ class RelayListener(LazySaver.LazySaver):
         self._inmsg_handler(widget.get_counterparty_id(), msgbody)
         return {'result': "success"}
 
-    def _handle_retrieve_messages_response(self, widget, outcome, failure_reason=None):
-        if failure_reason is not None:
-            self._handle_result_of_poll(widget=widget, outcome=None, failure_reason=failure_reason)
-            return
-
-        if (type(outcome) in (types.TupleType, types.ListType,)) and (len(outcome) == 2) and CommHints.is_hint(outcome[1]):
-            # This is just for a buggy version from CVS that some people checked out in between stable releases.  --Zooko 2001-09-29
-            self._handle_retrieve_messages_response(widget, outcome[0])
-            return
-
-        self._handle_bundled_messages(widget=widget, outcome=outcome, failure_reason=failure_reason)
-        # Got the messages.  We're done with this poll.
-        self._handle_result_of_poll(widget=widget, outcome=None, failure_reason=None)
-        return
-
     def _handle_are_there_messages_response(self, widget, outcome, failure_reason=None):
         if failure_reason is not None:
             self._handle_result_of_poll(widget=widget, outcome=None, failure_reason=failure_reason)
@@ -376,28 +361,10 @@ class RelayListener(LazySaver.LazySaver):
 
         # If it is a new-style (>= 0.995.6) relayer then it might have just sent back all messages that it had for us.
         if type(outcome) in (types.ListType, types.TupleType,):
-            if (type(outcome) in (types.TupleType, types.ListType,)) and (len(outcome) == 2) and CommHints.is_hint(outcome[1]):
-                # This is just for a buggy version from CVS that some people checked out in between stable releases.  --Zooko 2001-09-29
-                self._handle_are_there_messages_response(widget, outcome[0])
-                return
-
             self._handle_bundled_messages(widget=widget, outcome=outcome, failure_reason=failure_reason)
             # Got the messages.  We're done with this poll.
             self._handle_result_of_poll(widget=widget, outcome=None, failure_reason=None)
             return
-
-        if outcome.get('result') == "no":
-            # No messages.  We're done with this poll.
-            self._handle_result_of_poll(widget=widget, outcome=None, failure_reason=None)
-            return
-
-        # This is an old-style relayer that waits for us to actually request the messages and say "please".
-        msgbody = {}
-        if outcome.get('messages info') is not None:
-            msgbody['messages'] = outcome.get('messages info')
-        if outcome.get('total bytes') is not None:
-            msgbody['bytes'] = outcome.get('total bytes')
-        self._mtm.initiate(widget.get_counterparty_id(), 'retrieve messages v2', msgbody, outcome_func=self._handle_retrieve_messages_response, hint=HINT_EXPECT_MORE_TRANSACTIONS)
 
     def _retrieve_messages(self, relayerid):
         """
@@ -413,9 +380,7 @@ class RelayListener(LazySaver.LazySaver):
 
         dictutil.del_if_present(self._nextscheduledpolls, relayerid)
 
-        # `'response version': 3' means just shoot back the messages, please, as a list of strings.
-        # `'enable fast relay: 1' is unnecessary nowadays, but let's leave it in for one last "backwards compatible withour grandfathers" cycle...  --Zooko 2001-09-04
         # we don't use a dynamic timeout because polling when things are idle causes the timeout to
         # become super low which instantly fails us over to a new relay server when we become busy.
-        self._mtm.initiate(relayerid, "are there messages v2", {'response version': 3, 'enable fast relay': 1}, outcome_func=self._handle_are_there_messages_response, post_timeout_outcome_func=self._handle_are_there_messages_response, use_dynamic_timeout="never", timeout=max(5, self._poll_timeout), hint=HINT_EXPECT_MORE_TRANSACTIONS)
+        self._mtm.initiate(relayerid, "are there messages", None, outcome_func=self._handle_are_there_messages_response, post_timeout_outcome_func=self._handle_are_there_messages_response, use_dynamic_timeout="never", timeout=max(5, self._poll_timeout), hint=HINT_EXPECT_MORE_TRANSACTIONS)
 

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.13 2003/02/04 03:43:02 zooko Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.14 2003/02/10 01:31:14 zooko Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -319,13 +319,13 @@ class Relay(CommStrat):
             # debugprint("CommStrat.Relay: Got result of `pass this along'.  self._relayer_id: %s, widget: %s, outcome: %s, failure_reason: %s\n", args=(self._relayer_id, widget, outcome, failure_reason,), v=3, vs="commstrats")
             if failure_reason:
                 self._mtm.forget_comm_strategy(self._broker_id, idlib.make_id(msg, 'msg'), outcome=outcome, failure_reason="couldn't contact relay server: %s" % humanreadable.hr(outcome))
-            if (not failure_reason) and (outcome.get('result') != "ok") and (outcome.get('result') != "success"):
+            if (not failure_reason) and not (outcome.get('result') in ("success", "ok",)):
                 # Note: `ok' is for backwards compatibility, `success' is preferred.
                 self._mtm.forget_comm_strategy(self._broker_id, idlib.make_id(msg, 'msg'), outcome=outcome, failure_reason="got failure from relay server: %s" % humanreadable.hr(outcome))
 
         # debugprint("CommStrat.Relay: Initiating `pass this along'...  self._relayer_id: %s\n", args=(self._relayer_id,), v=3, vs="commstrats")
 
-        self._mtm.initiate(self._relayer_id, 'pass this along v2', wrappermsgbody, outcome_func=outcome_func_from_pass_this_along, post_timeout_outcome_func=outcome_func_from_pass_this_along, commstratseqno=self._commstratseqno)
+        self._mtm.initiate(self._relayer_id, 'pass this along', wrappermsgbody, outcome_func=outcome_func_from_pass_this_along, post_timeout_outcome_func=outcome_func_from_pass_this_along, commstratseqno=self._commstratseqno)
 
 class Crypto(CommStrat):
     def __init__(self, pubkey, lowerstrategy, broker_id=None):

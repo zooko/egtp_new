@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: OurMessages.py,v 1.6 2003/02/09 17:52:13 zooko Exp $"
+__revision__ = "$Id: OurMessages.py,v 1.7 2003/02/10 01:31:14 zooko Exp $"
 
 from egtp.DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BOOLEAN
 
@@ -41,35 +41,14 @@ IDMASK_TEMPL={'mask': ASCII_ARMORED_DATA, 'bits': NON_NEGATIVE_INTEGER} # deprec
 
 # Relay Server messages
 #
-MT=[{'message': STRING}, STRING] # An "MT" is either a string (preferred new form) or a dict with key 'message' and value string (deprecated old form).
-LMT=[{'messages': ListMarker(MT)}, ListMarker(MT), {'messages attached': ListMarker(MT)}, {'messages attached v2': ListMarker(MT)}] # An "LMT" is either a sequence of MTs (preferred new form) or a dict with key 'messages' and value a sequence of MTs (deprecated old form).
-BUNDLED_MESSAGES_TEMPL = LMT
-
-templs['pass this along v2'] = { 'recipient': UNIQUE_ID, 'message': STRING}
-templs['pass this along v2 response'] = [{ 'result': "success" }, { 'result': "ok" }, { 'result': "failure", 'reason': STRING }] # XXX It would be nice to change this to be "success" instead of "ok" in order to be consistent with all our other response messages.  I'm writing code from now on that accepts either.  --Zooko 2001-05-05
-templs['are there messages v2'] = {'response version': OptionMarker(1)}
-templs['are there messages v2 response'] = [
-    {'result' : 'no'}, 
-    {'result': 'yes', 'number of messages': NON_NEGATIVE_INTEGER, 'total bytes': NON_NEGATIVE_INTEGER, 'messages info': OptionMarker(ListMarker({'sender id': UNIQUE_ID, 'message id': UNIQUE_ID, 'length': 0}))},
-    BUNDLED_MESSAGES_TEMPL,
-    ListMarker([BUNDLED_MESSAGES_TEMPL, {'result' : 'no'}, {'result': 'yes', 'number of messages': NON_NEGATIVE_INTEGER, 'total bytes': NON_NEGATIVE_INTEGER, 'messages info': OptionMarker(ListMarker({'sender id': UNIQUE_ID, 'message id': UNIQUE_ID, 'length': 0}))}, INTEGER, 0]), # This is just for a buggy version from CVS that some people checked out in between stable releases.  --Zooko 2001-09-29
-    ]
-
-templs['retrieve messages v2'] = [{'messages': OptionMarker(ListMarker({'sender id': UNIQUE_ID, 'message id': UNIQUE_ID, 'length': 0}))}]
-templs['retrieve messages v2 response'] = [
-    {'status': 'no messages'}, 
-    BUNDLED_MESSAGES_TEMPL,
-    ListMarker([{'status': 'no messages'}, BUNDLED_MESSAGES_TEMPL, INTEGER, 0]), # This is just for a buggy version from CVS that some people checked out in between stable releases.  --Zooko 2001-09-29
-    ]
-
-# Let's take the " v2" off of these names...  --Zooko 2001-09-04
-for relaymtype in ['pass this along', 'are there messages', 'retrieve messages']:
-    templs[relaymtype] = templs[relaymtype + ' v2']
-    templs[relaymtype + ' response'] = templs[relaymtype + ' v2 response']
+templs['pass this along'] = { 'recipient': UNIQUE_ID, 'message': STRING}
+templs['pass this along response'] = [{ 'result': ["success", "ok",] }, { 'result': "failure", 'reason': STRING }]
+templs['are there messages'] = {}
+templs['are there messages response'] = ListMarker(STRING)
 
 # These are used in fast-relay for a relay server to directly send a message to
 # a counterparty down an open connection.
-templs['message for you'] = MT
+templs['message for you'] = STRING
 templs['message for you response'] = {'result': ["success", "failure"]}
 
 # Used by content trackers and for talking to content trackers.  data
@@ -111,7 +90,7 @@ templs['get bad block list response'] = [
         'result': 'failure',
         'failure reason': OptionMarker(STRING),
     }]
-# type is one of 'blob server', 'content tracker', 'meta tracker', 'relay server v2'
+# type is one of 'blob server', 'content tracker', 'meta tracker', 'relay server'
 HELLO_SERVICE_TEMPL={ 'type': STRING }   # don't be explicit here, that would disallow experimental and future services
 
 # These are templates for service descriptions within hello messages
@@ -162,9 +141,4 @@ templs['lookup contact info response'] = [
     }
     ]
 
-templs['list relay servers v2'] = {}
-templs['list relay servers'] = templs['list relay servers v2']
-# templs['list relay servers v2 response'] = ListMarker({
-#     'connection strategies': ListMarker(CRYPTO_COMM_STRAT_TEMPL),
-#     'services': OptionMarker(ListMarker(ANY))})
-
+templs['list relay servers'] = {}
