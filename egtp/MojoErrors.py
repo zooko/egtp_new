@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoErrors.py,v 1.2 2002/12/02 19:58:48 myers_carpenter Exp $"
+__revision__ = "$Id: MojoErrors.py,v 1.3 2003/01/08 13:14:09 myers_carpenter Exp $"
 
 import exceptions
 
@@ -19,7 +19,4 @@ class MojoMessageError(DataError):
 class BadFormatError(DataError):
     pass
 
-# throws by things which do block reassembly
-class ReassemblyError(IOError):
-    pass
 
