@@ -1,6 +1,6 @@
 Introduction to the EGTP Architecture:
 
-version 0.2
+version 0.3
 
 I. Overall Design
 
@@ -16,9 +16,8 @@ reply to that particular message that she sent, you include a hash of the
 original message in your reply (this hash is called the "reference" -- it refers 
 to the original message).
 
-* Might there be some problems with endian's or encodings? An 64bit
-  system using Unicode might hash an EGTP message differently than an
-  8 bit palm pilot.. True or false?
+(You always hash a canonical form of the original message, so that no issues of 
+encoding, endianness, and so forth effect the result of the hash.)
 
 This allows the sender to know with certainty that your message is a reply to 
 that particular query of his.  It also serves as a cryptographically guaranteed 
@@ -29,6 +28,9 @@ active attack.
 
 * This seems to mean that EGTP does not deal with acks, so that it is
   un-reliable. Is this the case? We we implemented UDP over TCP?
+ - I don't understand -- the reply messages *is* an ACK, and thus enables 
+    reliable (more precisely: retriable) messaging.  How can I make this more 
+    clear?
 
 The nonces and references are included with the message, and are always present 
 regardless of what communication substrate the message is delivered over, 
@@ -41,16 +43,29 @@ protect themselves against replay attacks by remembering the hash of each
 message they have ever received, but this would require an unbounded amount of 
 storage.)
 
-* Maybe an example attack would clarify this a bit. I think I
-  understand it. Alice requests a block from Bob. Bob sends Alice the
-  Block. Mallory resends Alice's original request, thereby getting Bob
-  to resend the block to Alice. Is that correct?
+For example: Alice sends a request to Bob for a list of currently available 
+e-texts.  Bob sends back such a list in his response.  Mallory (the malicious 
+attacker) saves a copy of Bob's response.  Mallory's intent is that in a few 
+weeks' time, when Alice sends a request to Bob for a *new* list of currently 
+available e-texts, Mallory will substitute the saved response for Bob's *new* 
+response, thus effectively hiding any *new* e-text listings from Alice.  Without 
+the "reference" feature, Mallory might succeed at this ploy.  With the 
+"reference" feature, he will not.  (As Alice will see that this reply is not a 
+response to her *new* query.)
+
+For an example of how this design does not protect the recipient of a request, 
+consider that Alice sends a request to Bob for a list of currently available 
+e-texts.  Mallory saves a copy of Alice's requests.  Mallory can then resend 
+that same copied request to Bob over and over, and each time Bob will think that 
+it is a new request from Alice and answer it accordingly.  In this particular 
+example Mallory isn't able to do much damage, but in order examples he might be.
 
 Fixing this problem turns out to be surprisingly subtle, at least judging by how 
 long it has taken me, Zooko, to come up with a complete solution.  That solution 
 will form the basis of EGTP v2 design.
 
-* Do tell. ;)
+ * Do tell. ;)
+ - In "NewArchitecture.txt", coming soon to a CVS repository near you.
 
 This problem is documented as a security bug:
 http://sourceforge.net/tracker/index.php?func=detail&aid=548075&group_id=44377&atid=439350
@@ -100,19 +115,15 @@ the user manually updates when she wants to change relay servers.
 
 II. General Implementation Stuff
 
-* Maybe this section should be called definitions and put first?
+ * Maybe this section should be called definitions and put first?
+ - I don't think any of the terms in section II here are used in section I.  Do you still think that would be better?
 
 A. nodeIds 
 
-nodeIds (formerly known as "broker Ids") are universally unique 20-byte 
-identifiers.  They are formed by taking the SHA1 hash of the public key of 
-the Node, along with some extra fixed strings for cryptographic/engineering 
-reasons.  When you are talking about the nodeId of a peer (as opposed to the 
-node Id of yourself), you call it a "peerId" (formerly known as 
-"counterparty Id").
-
-*Q: whats the difference between a Counterparty and a Peer?
-   (counterparty is older, still contains lots of economics stuff?)
+nodeIds are universally unique 20-byte identifiers.  They are formed by taking 
+the SHA1 hash of the public key of the Node, along with some extra fixed strings 
+for cryptographic/engineering reasons.  When you are talking about the nodeId of 
+a peer (as opposed to the node Id of yourself), you call it a "peerId".
 
 B. Relay
 
