@@ -13,6 +13,20 @@ To install type:
 To test before you install:
 
   python setup.py test
+
+Win32 Notes:
+
+To compile using mingw32 first:
+  
+  python setup.py build --compiler=mingw32
+
+or create a file named setup.cfg in the same dir with the following two lines:
+  [build]
+  compiler=mingw32
+
+This will allow you to just run test without building by hand first.
+
+  
   
 This will run all the unit tests found in tests/
 
