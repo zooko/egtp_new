@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mencode.py,v 1.13 2003/03/05 05:51:16 myers_carpenter Exp $"
+__revision__ = "$Id: mencode.py,v 1.14 2003/03/05 13:21:01 myers_carpenter Exp $"
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -35,7 +35,6 @@ try:
     _use_c_mencode = true
     print 'NOTE: c_mencode found, using accelerated C version of mencode'
 except:
-    raise
     _use_c_mencode = false
     print 'NOTE: c_mencode not found, using 100% python implementation of mencode'
 # Now at the end of this file, we'll overwrite the Python functions and objects with the compiled functions and objects if they are not `None'.
