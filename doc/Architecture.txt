@@ -1,22 +1,31 @@
 Introduction to the EGTP Architecture:
 
+version 0.1
 
 I. Overall Design
 
 A. Nonces and References
 
-The idea is that data is transmitted between EGTP nodes in the form of messages.
+Data is transmitted between EGTP nodes in the form of messages.
+
 Each message contains a unique (randomly generated) nonce which guarantees that 
-it is unique among all messages ever transmitted universally through all 
-history.  When you receive a message from another EGTP node, and you wish to 
-*reply* to that message so that the sender will get your reply, and will know 
-that it is a reply to that particular message that she sent, you include a hash 
-of the original message in your reply (this hash is called the "reference" -- it 
-refers to the original message).  This allows the sender to know with certainty 
-that your message is a reply to that particular query of his.  This is how the 
-sender's EGTP library associated queries with replies, and it also provides 
-assurance that the messages received as a reply isn't a replay attack or some 
-other active attack.
+it is unique among all messages ever transmitted in the history of the universe. 
+When you receive a message from another EGTP node, and you wish to *reply* to 
+that message so that the sender will get your reply, and will know that it is a 
+reply to that particular message that she sent, you include a hash of the 
+original message in your reply (this hash is called the "reference" -- it refers 
+to the original message).
+
+This allows the sender to know with certainty that your message is a reply to 
+that particular query of his.  It also serves as a cryptographically guaranteed 
+ACK, so that the sender knows his message was received by you.  This is also how 
+the sender's EGTP Node associates queries with replies, and it also provides 
+assurance that the reply messages received aren't a replay attack or some other 
+active attack.
+
+The nonces and references are included with the message, and are always present 
+regardless of what communication substrate the message is delivered over, 
+including TCP, Relay, or perhaps in the future UDP or wireless networking.
 
 Note that this design does not provide protection against active attacks for the 
 node that receives the initial query, only for the node that sent the initial 
@@ -32,11 +41,47 @@ will form the basis of EGTP v2 design.
 This problem is documented as a security bug:
 http://sourceforge.net/tracker/index.php?func=detail&aid=548075&group_id=44377&atid=439350
 
-
 B. Timeouts
 
-Each query message that has been sent is associated with one kind of timeout, a 
-"hard" timeout.  This is the interval after which the sender will free up all storage associated
+Each query message that has been sent is associated with one kind of timeout, 
+called a "hard" timeout.  This is the interval after which the sender will free 
+up all storage associated with the request.  This means it will absolutely not 
+do *anything* with an answer that might subsequently come in other than drop it 
+on the floor.
+
+Each query message can also optionally be associated with a "soft" timeout.  
+This is the interval after which the sender will get a notification that the 
+soft-timeout interval has passed and no response has yet arrived.  This is 
+useful for what we call "impatience actions".  The common example in Mnet is 
+that you have requested a block of data from a peer.  After the soft-timeout 
+interval has passed, you start to suspect that the peer is unresponsive, so you 
+request a *replacement* block from a *different* peer.  If the original peer 
+subsequently sends the block that you requested, then you go ahead and use it, 
+just as if it had arrived before the soft-timeout.  (This is something you 
+cannot do with a hard timeout.)
+
+C. Lookup and Discovery
+
+The EGTP engine depends on two other services, a Lookup Service and a Discovery 
+Service.  The Lookup Service is used to get the current "comm strategy" for a 
+give peerId.  There are two reasons that you might have a peerId but not its 
+associated comm strategy:  1.  Someone told you "Hey, you ought to talk to that 
+guy." and gave you the peerId but didn't give you the comm strategy.  2.  The 
+comm strategy that you had stopped working (perhaps because the peer changed IP 
+addresses or relay servers, for example.)  A good implementation of the Lookup 
+Service might be a distributed hash table like Khashmir, storing digitally 
+signed comm strategies.  Another good implementation of a Lookup Service might 
+be a system where whenever your IP address changes you send out your new IP 
+address to your 5 closest friends, and everyone else knows who your friends are 
+and knows to ask them for your current IP address.  (This is the design 
+advocated by the e-lang project's "Vat Location Service".)
+
+The Discovery Service is used to meet relay servers.  Your EGTP Node invokes a 
+method of the DiscoveryMan which says "Gee, I'd like to meet some nice new Relay 
+Servers.".  The DiscoveryMan subsequently invokes a method of your EGTP Node 
+saying "Here are the peerIds of some nice new Relay Servers.".  A good 
+implementation of the Discovery Service might be a local configuration file that 
+the user manually updates when she wants to change relay servers.
 
 
 II. General Implementation Stuff
@@ -120,13 +165,18 @@ letting the higher-level code know if an outgoing message couldn't be sent
 (known as "fast fail").  c) making calls to a "Throttler" object to enable 
 bandwidth throttling.
 
-Questions:
-How do we know if a message was sent successfully or not? Do we get ack messages?
-What if a relay server is involved?
+### From here on down is Q-and-A between Zooko and Art, authors of this document.
 
+# Questions:
+# How do we know if a message was sent successfully or not? Do we get ack messages?
+# What if a relay server is involved?
 
-Ok, Explain Lookup vs. Discovery again.
+Are these questions answered by this version?
 
-Lookup is verifiable while Discovery is not?
+# Lookup is verifiable while Discovery is not?
 
-Does this mean that in a DHT a lookup might find which node should have a peice of data? While a discovery might be which IP address a node was reachable at? (Since you cant prove the later from its key.) 
+Yes, but maybe we can leave that out of this document, since EGTP only needs one specific kind of lookup (current comm strat for a given nodeId), and one specific kind of discovery (meet some nice new Relay Servers).
+
+# Does this mean that in a DHT a lookup might find which node should have a peice of data? While a discovery might be which IP address a node was reachable at? (Since you cant prove the later from its key.) 
+
+Good guess, but if there were a digital signature on the comm strat, then it would be verifiable.  *Or* if you used the "friends of friends" approach, then you could have a certain degree of trust that at least *one* of the 5 friends will give you the right answer.
