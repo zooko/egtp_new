@@ -147,7 +147,9 @@ class test(Command):
         sys.path.insert(0, os.path.join(os.getcwd(), self.test_dir))
         
         runner = unittest.TextTestRunner()
-        for ff in os.listdir(self.test_dir):
+        filelist = os.listdir(self.test_dir)
+        filelist.sort()
+        for ff in filelist:
             if ff[-3:] != ".py":
                 continue
             print "Running tests found in '%s'..." % ff

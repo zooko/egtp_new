@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: EGTPtest.py,v 1.2 2002/07/26 19:41:21 myers_carpenter Exp $'
+__cvsid = '$Id: SystemTest.py,v 1.1 2002/08/18 16:43:28 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types

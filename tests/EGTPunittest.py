@@ -7,30 +7,30 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.2 2002/08/17 21:01:43 zooko Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.3 2002/08/18 16:43:28 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types, unittest
 
 # pyutil modules
 from pyutil import DoQ
-import config
-from debugprint import debugprint
-from humanreadable import hr
-from timeutil import timer
+from pyutil import config
+from pyutil.debugprint import debugprint
+from pyutil.humanreadable import hr
+from pyutil.timeutil import timer
 
 # libbase32 modules
 # from humread import hr # XXX for when we switch to base32 encoding...
 
 # (old) MN modules
-import idlib
+from egtp import idlib
 
 # EGTP modules
-import CommStrat
-import Node
-from NodeMappingVerifier import NodeMappingVerifier
-from TristeroLookup import TristeroLookup
-from interfaces import *
+from egtp import CommStrat
+from egtp import Node
+from egtp.NodeMappingVerifier import NodeMappingVerifier
+from egtp.TristeroLookup import TristeroLookup
+from egtp.interfaces import *
 
 true = 1
 false = 0
@@ -190,6 +190,10 @@ class Testy(unittest.TestCase):
 
     def test_local_send_and_receive(self):
         self._help_test_EGTP_send_and_receive(LocalLookupMan(NodeMappingVerifier()))
+
+def suite():
+    suite = unittest.makeSuite(Testy, 'test')
+    return suite
 
 if __name__ == '__main__':
     unittest.main()
