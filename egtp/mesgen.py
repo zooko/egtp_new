@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.11 2002/12/18 19:56:57 zooko Exp $"
+__revision__ = "$Id: mesgen.py,v 1.12 2003/01/13 06:24:29 myers_carpenter Exp $"
 
 
 # Python standard library modules
@@ -79,7 +79,8 @@ def _mix_counterparties(cp1, cp2, data):
 class SessionKeeper:
     class ExtRes:
         """
-        This is for holding things (external resources) that SK needs to finalize after SK is killed.  (post-mortem finalization)
+        This is for holding things (external resources) that SK needs to
+        finalize after SK is killed.  (post-mortem finalization)
         """
         def __init__(self, db_env, session_map, counterparty_map):
             self.db_env = db_env
@@ -87,14 +88,14 @@ class SessionKeeper:
             self.counterparty_map = counterparty_map
 
         def __del__(self):
-            # debugprint("%s.__del__()\n", args=(self,))
-            if self.session_map is not None :
+            debugprint("%s.__del__()\n", args=(self,))
+            if self.session_map is not None:
                 self.session_map.close()
                 self.session_map = None
-            if self.counterparty_map is not None :
+            if self.counterparty_map is not None:
                 self.counterparty_map.close()
                 self.counterparty_map = None
-            if self.db_env is not None :
+            if self.db_env is not None:
                 self.db_env.nosyncerror_txn_checkpoint(0)
                 self.db_env.close()
                 self.db_env = None
