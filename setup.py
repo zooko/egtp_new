@@ -187,7 +187,7 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
         def get_cryptopp():
             CRYPTOPP_URL = 'http://www.eskimo.com/~weidai/crypto42.zip'
             print "Downloading cryptopp from %s ... " % CRYPTOPP_URL
-            out = file('crypto42.zip', 'w')
+            out = file('crypto42.zip', 'wb')
             out.write(urllib.urlopen(CRYPTOPP_URL).read())
             out.close()
         
@@ -199,7 +199,7 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             get_cryptopp()
 
         m = md5.new()
-        m.update(file('crypto42.zip', 'r').read())
+        m.update(file('crypto42.zip', 'rb').read())
         if m.hexdigest().upper() != 'C1700E6E15F3189801E7EA47EEE83078':
             print "File 'crypto42.zip' is incomplete or corrupt"
             get_cryptopp()
