@@ -7,66 +7,11 @@
 """
 Interfaces that should be implemented by code that uses EGTP
 """
-__revision__ = "$Id: interfaces.py,v 1.13 2003/03/02 14:40:03 myers_carpenter Exp $"
+__revision__ = "$Id: interfaces.py,v 1.14 2003/03/02 19:33:13 myers_carpenter Exp $"
 
 import exceptions
 
 from pyutil import humanreadable
-
-class IRemoteOpHandler:
-    """
-    This is an "interface" class, which in Python means that it is really
-    just a form of documentation.  Hello, hackers!
-
-    A "remote op handler" is an object which handles the results of one
-    specific remote operation.
-    """
-    def __init__(self):
-        pass
-
-    def result(self, object):
-        """
-        The results are in!
-        """
-        raise NotImplementedError
-        pass
-
-    def done(self, failure_reason=None):
-        """
-
-        Your remote op manager invokes this to let you know that after this
-        point, he absolutely positively cannot get the result you were
-        looking for.  There is no chance that he will later call `result()'
-        for this operation.  You can safely forget all about this particular
-        operation.
-
-        If this operation is "done" because it has successfully been
-        completed (i.e., the manager has already called `result()', and
-        given you the result that you were looking for), then the
-        `failure_reason' argument will be None.
-
-        @param failure_reason: None or a string describing why it failed
-
-        """
-        raise NotImplementedError
-        pass
-
-    def soft_timeout(self):
-        """
-        Your remote op manager invokes this to let you know that time has
-        passed and the results have not come in.  You might want to use this
-        opportunity to get impatient and do something else.  However, the
-        results might still come in, in which case your remote op manager
-        will call `result()', just as if the results had come in more
-        promptly.
-
-        A "hard" timeout, which means that the remote op manager gives up
-        and will ignore any results which come in after this point, is
-        signalled by a call to `done()' with a `failure_reason' argument of
-        "hard timeout".
-        """
-        raise NotImplementedError
-        pass
 
 class ILookupManager:
     """
@@ -89,12 +34,16 @@ class ILookupManager:
 
     def lookup(self, key, lookuphand):
         """
-        @param key: the key of the thing to be looked up;  This key must be self-authenticating,
-            i.e. given this key and the resulting object, the lookup manager must be able to
-            determine whether or not the object is a valid object for the key even if the object is
-            a bogus object manufactured by a powerful and malicious attacker.  (If you don't have
-            self-authenticating keys, use a discovery manager instead.)
-        @param lookuphand: an object which satisfies the ILookupHandler interface
+
+        @param key: the key of the thing to be looked up;  This key must be
+            self-authenticating, i.e. given this key and the resulting
+            object, the lookup manager must be able to determine whether or
+            not the object is a valid object for the key even if the object
+            is a bogus object manufactured by a powerful and malicious
+            attacker.  (If you don't have self-authenticating keys, use a
+            discovery manager instead.)
+        @param lookuphand: an object which satisfies the ILookupHandler
+            interface
 
         @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % humanreadable.hr(key)
 
@@ -106,13 +55,16 @@ class ILookupManager:
 
     def publish(self, key, object, publishhand=None):
         """
-        @param key: the key by which the object can subsequently to be looked up;  This key must be
-            self-authenticating, i.e. given this key and an object, a lookup manager must be able
-            to determine whether or not the object is *this* object even if the object is a bogus
-            object manufactured by a powerful and malicious attacker.  (If you don't have self-
-            authenticating keys, use a discovery manager instead.)
+        @param key: the key by which the object can subsequently to be
+            looked up; This key must be self-authenticating, i.e. given this
+            key and an object, a lookup manager must be able to determine
+            whether or not the object is *this* object even if the object is
+            a bogus object manufactured by a powerful and malicious
+            attacker.  (If you don't have self- authenticating keys, use a
+            discovery manager instead.)
         @param object: the thing to be published
-        @param publishhand: an object which satisfies the IRemoteOpHandler interface, or `None'
+        @param publishhand: an object which satisfies the IRemoteOpHandler
+            interface, or `None'
 
         @precondition: key must be well-formed according to the verifier.: self.verifier.verify_key(key): "key: %s" % humanreadable.hr(key)
         @precondition: key-object pair must be valid mapping according to the verifier.: self.verifier.verify_mapping(key, object): "key: %s, object: %s" % tuple(map(humanreadable.hr, (key, object,)))
@@ -210,6 +162,59 @@ class IVerifier:
         raise NotImplementedError
         pass
 
+class IRemoteOpHandler:
+    """
+    This is an "interface" class, which in Python means that it is really
+    just a form of documentation.  Hello, hackers!
+
+    A "remote op handler" is an object which handles the results of one
+    specific remote operation.
+    """
+    def __init__(self):
+        pass
+
+    def result(self, object):
+        """
+        The results are in!
+        """
+        raise NotImplementedError
+        pass
+
+    def done(self, failure_reason=None):
+        """
+        Your remote op manager invokes this to let you know that after this
+        point, he absolutely positively cannot get the result you were
+        looking for.  There is no chance that he will later call `result()'
+        for this operation.  You can safely forget all about this particular
+        operation.
+
+        If this operation is "done" because it has successfully been
+        completed (i.e., the manager has already called `result()', and
+        given you the result that you were looking for), then the
+        `failure_reason' argument will be None.
+
+        @param failure_reason: None or a string describing why it failed
+        """
+        raise NotImplementedError
+        pass
+
+    def soft_timeout(self):
+        """
+        Your remote op manager invokes this to let you know that time has
+        passed and the results have not come in.  You might want to use this
+        opportunity to get impatient and do something else.  However, the
+        results might still come in, in which case your remote op manager
+        will call `result()', just as if the results had come in more
+        promptly.
+
+        A "hard" timeout, which means that the remote op manager gives up
+        and will ignore any results which come in after this point, is
+        signalled by a call to `done()' with a `failure_reason' argument of
+        "hard timeout".
+        """
+        raise NotImplementedError
+        pass
+
 class ILookupHandler(IRemoteOpHandler):
     """
     Handles the results of one individual attempt to lookup.
@@ -223,6 +228,7 @@ class ILookupHandler(IRemoteOpHandler):
 
         @noblock: This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """
+        IRemoteOpHandler.__init__(self)
         assert verifier.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % humanreadable.hr(key)
         self.key = key
         self.verifier = verifier
@@ -281,7 +287,7 @@ class IDiscoveryHandler(IRemoteOpHandler):
     Handles the results of an individual discovery query.
     """
     def __init__(self):
-        pass
+        IRemoteOpHandler.__init__(self)
 
     def result(self, object):
         """

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: RelayListener.py,v 1.11 2003/02/17 09:35:20 artimage Exp $"
+__revision__ = "$Id: RelayListener.py,v 1.12 2003/03/02 19:33:13 myers_carpenter Exp $"
 
 # standard modules
 import os, traceback, types
@@ -42,26 +42,26 @@ class ShoppingResultsHand(IDiscoveryHandler):
         self._outstanding = true
         self._rl._outstandingshoppingtrips = self._rl._outstandingshoppingtrips + 1
 
+    def _stop(self):
+        if self._outstanding:
+            self._rl._outstandingshoppingtrips = self._rl._outstandingshoppingtrips - 1
+            self._rl._schedule_shopping_trip_if_needed()
+            self._outstanding = false
+
     def result(self, value):
+        debugprint("%s.result(): %s\n", args=(self,value,))
         try:
             self._rl._handle_result_of_shopping(value)
         finally:
-            if self._outstanding:
-                self._rl._outstandingshoppingtrips = self._rl._outstandingshoppingtrips - 1
-                self._rl._schedule_shopping_trip_if_needed()
-                self._outstanding = false
+            self._stop()
 
-    def fail(self):
-        if self._outstanding:
-            self._rl._outstandingshoppingtrips = self._rl._outstandingshoppingtrips - 1
-            self._rl._schedule_shopping_trip_if_needed()
-            self._outstanding = false
+    def done(self, failure_reason=None):
+        if failure_reason:
+            debugprint("Shopping failed: %s\n", args=(failure_reason,), v=1, vs='ShoppingResultsHand')
+        self._stop()
 
     def soft_timeout(self):
-        if self._outstanding:
-            self._rl._outstandingshoppingtrips = self._rl._outstandingshoppingtrips - 1
-            self._rl._schedule_shopping_trip_if_needed()
-            self._outstanding = false
+        self._stop()
 
 class RelayListener(LazySaver.LazySaver):
     """

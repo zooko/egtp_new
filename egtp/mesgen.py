@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.17 2003/03/02 14:40:04 myers_carpenter Exp $"
+__revision__ = "$Id: mesgen.py,v 1.18 2003/03/02 19:33:13 myers_carpenter Exp $"
 
 
 # Python standard library modules
@@ -99,13 +99,13 @@ class SessionKeeper:
                 self.counterparty_map.close()
                 self.counterparty_map = None
             if self.db_env is not None:
-                # debugprint("%s.__del__(): self.db_env.nosyncerror_txn_checkpoint(0)\n", args=(self,))
+                #debugprint("%s.__del__(): self.db_env.nosyncerror_txn_checkpoint(0)\n", args=(self,))
                 self.db_env.nosyncerror_txn_checkpoint(0)
-                # debugprint("%s.__del__(): self.db_env.close()\n", args=(self,))
+                #debugprint("%s.__del__(): self.db_env.close()\n", args=(self,))
                 self.db_env.close()
-                # debugprint("%s.__del__(): self.db_env = None\n", args=(self,))
+                #debugprint("%s.__del__(): self.db_env = None\n", args=(self,))
                 self.db_env = None
-            debugprint("%s.__del__(): done\n", args=(self,))
+            #debugprint("%s.__del__(): done\n", args=(self,))
 
     def __init__(self, dbparentdir=None, dir=None, serialized = None, maxitems = 1000, recoverdb=true):
         """
@@ -117,11 +117,9 @@ class SessionKeeper:
         "...mtmdb/ABCDEFGHIJKLMNOPQRSTUVWXYZA/" and puts the key in a subdirectory named
         "...mtmdb/ABCDEFGHIJKLMNOPQRSTUVWXYZA/mesgen/".
 
-
         You pass `dir' if you already know the directory that the key is stored in.  For
         example, you pass dir == "...mtmdb/ABCDEFGHIJKLMNOPQRSTUVWXYZA/" and it looks in
         "...mtmdb/ABCDEFGHIJKLMNOPQRSTUVWXYZA/mesgen/" and uses the key therein.
-
 
         @param dbparentdir: the directory for all keys;  Subdirectories will be located or
             created, named by the mojosixbit encoding of the hash of the key.
@@ -131,6 +129,8 @@ class SessionKeeper:
         """
         assert ((dbparentdir is not None) and (dir is None)) or ((dbparentdir is None) and (dir is not None)), "precondition: Exactly one of (dbparentdir, dir) must be not None." + " -- " + "dbparentdir: %s, dir: %s" % (hr(dbparentdir), hr(dir))
 
+        debugprint("SessionKeeper.__init__()", v=1)
+        
         if serialized:
             debugprint("COMPLAINT: passing in serialized secret keys is the old-style, just-a-hack-for-debug way of doing things.  You really want to just give me the directory to start from and I'll get the secret key stored in there in a file.\n", v=3)
 
@@ -182,24 +182,24 @@ class SessionKeeper:
         privateflag = db.DB_PRIVATE
 
         try:
-            db_env.open(self._dbdir, db.DB_CREATE | db.DB_INIT_MPOOL | db.DB_INIT_LOCK | db.DB_THREAD | db.DB_INIT_LOG | db.DB_INIT_TXN | privateflag | recoverflag)
+            db_env.open(self._dbdir, db.DB_CREATE | db.DB_INIT_MPOOL | db.DB_INIT_LOCK | db.DB_INIT_LOG | db.DB_INIT_TXN | privateflag | recoverflag)
         except db.DBError, dbe:
             debugprint('Failed to open the database environment the first time, reason: %s\nTrying again...\n', args=(dbe,), vs='mesgen', v=2)
             try:
-                db_env.open(self._dbdir, db.DB_CREATE | db.DB_INIT_MPOOL | db.DB_INIT_LOCK | db.DB_THREAD | db.DB_INIT_LOG | db.DB_INIT_TXN | privateflag | recoverflag | db.DB_RECOVER)
+                db_env.open(self._dbdir, db.DB_CREATE | db.DB_INIT_MPOOL | db.DB_INIT_LOCK | db.DB_INIT_LOG | db.DB_INIT_TXN | privateflag | recoverflag | db.DB_RECOVER)
             except db.DBError, dbe:
                 debugprint('Failed to open the database environment the second time, reason: %s\nTrying again...\n', args=(dbe,), vs='mesgen', v=2)
                 # XXX DOUBLE CHOCOLATEY HACK sometimes trying *again* after one open *without* DB_RECOVER works.
-                db_env.open(self._dbdir, db.DB_CREATE | db.DB_INIT_MPOOL | db.DB_INIT_LOCK | db.DB_THREAD | db.DB_INIT_LOG | db.DB_INIT_TXN | privateflag | recoverflag & (~db.DB_RECOVER))
+                db_env.open(self._dbdir, db.DB_CREATE | db.DB_INIT_MPOOL | db.DB_INIT_LOCK | db.DB_INIT_LOG | db.DB_INIT_TXN | privateflag | recoverflag & (~db.DB_RECOVER))
 
         self.__key = keyMV
         # maps id_in to counterparty id
         session_map = dbobj.DB(db_env)
-        session_map.open('session_map', db.DB_BTREE, db.DB_CREATE | db.DB_THREAD )
+        session_map.open('session_map', db.DB_BTREE, db.DB_CREATE)
         # maps counterparty id to [session_id_in, session_id_out, symmetric_key, header, full pk]
         # (XXX session_id_in in counterparty_map is never used, that's what session_map is for)
         counterparty_map = dbobj.DB(db_env)
-        counterparty_map.open('counterparty_map', db.DB_BTREE, db.DB_CREATE | db.DB_THREAD )
+        counterparty_map.open('counterparty_map', db.DB_BTREE, db.DB_CREATE)
         self.extres = SessionKeeper.ExtRes(db_env, session_map, counterparty_map)
         # maps header ids to content of headers for memoization
         self.__cached_headers = Cache.LRUCache(maxitems)

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.27 2003/03/02 14:40:03 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.28 2003/03/02 19:33:13 myers_carpenter Exp $"
 
 true = 1
 false = 0
@@ -235,6 +235,7 @@ class MojoTransactionManager:
                 # "ready" has not yet been set, which means we'll create a
                 # whole new db below.
                 debugprint("Got exception trying to instantiate mesgen db.  Exception and traceback follows:\n");
+                self._mesgen = None
                 traceback.print_exc(file=debugstream)
                 pass
 
