@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.10 2002/09/29 17:12:31 zooko Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.11 2002/09/29 17:51:54 zooko Exp $'
 
 true = 1
 false = 0
@@ -317,7 +317,7 @@ class MojoTransactionManager:
 
     def _shutdown_members(self):
         debugprint("%s._shutdown_members()\n", args=(self,))
-        for member in ('_blobserver', '_handicapper', '_keeper', '_mesgen', '_metamtm', '_cm', '_reqhandler', '_listenermanager',):
+        for member in ('_blobserver', '_handicapper', '_keeper', '_mesgen', '_metamtm', '_cm', '_listenermanager',):
             if hasattr(self, member):
                 o = getattr(self, member)
                 if hasattr(o, 'shutdown'):

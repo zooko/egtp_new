@@ -11,7 +11,7 @@
 # Everything in this file is optimized for speed, it gets called a
 # -lot- throughout the program, including many hot spots.
 #
-# $Id: idlib.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $
+# $Id: idlib.py,v 1.5 2002/09/29 17:51:54 zooko Exp $
 
 # standard modules
 import re
@@ -86,10 +86,6 @@ def id_to_native_int(id, IntType=types.IntType, LongType=types.LongType, FloatTy
     try:
         # std.mojolog.write("id: %s, %s, %s, %s\n" % (id, str(id), repr(id), std.hr(id),))
         nid = mojosixbit.a2b(id)
-        if DEBUG_MODE:
-            if len(nid) < 20:
-                std.mojolog.write("WARNING: `id_to_native_int()' called with a value that might have been ascii-encoded: id: %s, nid: %s.  Please fix it.\n" % (id, nid,), vs="debug", v=6)
-
         if len(nid) < 3:
             # Hm.  More than likely this was actually a binary, but short, string that happened to look like a mojosixbit encoded string.  Let's just put it back without complaining.
             nid = id

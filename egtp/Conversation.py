@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: Conversation.py,v 1.5 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: Conversation.py,v 1.6 2002/09/29 17:51:54 zooko Exp $'
 
 # Python standard library modules
 import threading
@@ -175,9 +175,15 @@ class ConversationManager:
         return self.__callback_functions.has_key(msgId)
 
     def drop_request_state(self, firstmsgId):
-        """cleanup all internal state about received request firstmsgId"""
-        # debugprint("now doing %s.drop_request_state(%s), stack[-5:-1]: %s\n", args=(self, firstmsgId, traceback.extract_stack()[-5:-1],))
-        assert self._map_inmsgid_to_info.has_key(firstmsgId), "firstmsgId: %s" % humanreadable.hr(firstmsgId)
+        """
+        cleanup all internal state about received request firstmsgId
+
+        @precondition firstmsgId is required to be a canonical id.: idlib.is_id(firstmsgId)
+        @precondition firstmsgId is required to me the id of a message about which we are currently holding state.: self._map_inmsgid_to_info.has_key(firstmsgId)
+        """
+        assert idlib.is_id(firstmsgId), "precondition: " + "firstmsgId is required to be a canonical id."
+        assert self._map_inmsgid_to_info.has_key(firstmsgId), "precondition: " + "firstmsgId is required to me the id of a message about which we are currently holding state."
+
         del self._map_inmsgid_to_info[firstmsgId]
 
     def send_response(self, prevmsgId, msgbody, mymetainfo=None, hint=HINT_NO_HINT):
