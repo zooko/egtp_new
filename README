@@ -2,10 +2,30 @@ How to install:
 
 We now use Python's Distutils for this package.
 
+== pybsddb ==
+
+pybsddb3 is required for building egtp.  If you use the version of python
+that came with your Linux distrbution you can get packages by:
+
+Debain - 'apt-get install python-bsddb3'
+
+Redhat - You can get an RPM at
+http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html
+
+If you've built your python from source (like say the python 2.3 alpha) you
+will need to build pybsddb3 from source as well.  You can get the source
+from the url below:
+
+http://pybsddb.sourceforge.net/
+
+== other requirements ==
+
 To download prerequisites (crypto++, pyutil):
 
   python setup.py download
   
+== installing == 
+
 To install type:
 
   python setup.py install
@@ -14,7 +34,7 @@ To test before you install:
 
   python setup.py test
 
-Win32 Notes:
+== Win32 Notes ==
 
 To compile using mingw32 first:
   
@@ -27,34 +47,43 @@ or create a file named setup.cfg in the same dir with the following two lines:
 This will allow you to just run test without building by hand first.
 
   
-  
-This will run all the unit tests found in tests/
+== Unit tests ==
+
+Running
+	
+	python setup.py test 
+	  
+Will run all the unit tests found in egtp/test/.  This is useful to see if
+you broke anything while changing things in the source code.
+
+== Examples ==
 
 Soon we hope to have some better examples of how to use this in examples/
 
-How to learn the API:
+== How to learn the API ==
 
 0.  Read the file named "Tutorial.txt" in the egtp/ directory.
 
-1.  The example: Look at EGTPunittest.py, in the function named 
-`_help_test_EGTP_send_and_receive()' to see basic operation of creating nodes 
-and sending and receiving messages.
+1.  The example: Look at EGTPunittest.py, in the function named
+`_help_test_EGTP_send_and_receive()' to see basic operation of creating
+nodes and sending and receiving messages.
 
-2.  The interface that provides messaging:  Look at the interface of class Node in Node.py.
+2.  The interface that provides messaging:  Look at the interface of class
+Node in Node.py.
 
-3.  The interfaces that provide lookup and discovery:  Look at the interfaces for lookup managers, 
-lookup handlers, discovery managers, and discovery handlers in interfaces.py.
+3.  The interfaces that provide lookup and discovery:  Look at the
+interfaces for lookup managers, lookup handlers, discovery managers, and
+discovery handlers in interfaces.py.
 
-3.a.
-    You can see implementations of the manager classes (local, non-distributed, for-testing-only) in 
-    EGTPtest.py.
+3.a. You can see implementations of the manager classes (local,
+    non-distributed, for-testing-only) in EGTPtest.py.
 
-3.b.
-    You can see how EGTP uses the manager classes in MojoTransaction.py (see how it uses the 
-    `self._lookupman' member) and RelayListener.py (see how it uses the `self._discoveryman' member).
+3.b. You can see how EGTP uses the manager classes in MojoTransaction.py
+    (see how it uses the `self._lookupman' member) and RelayListener.py (see
+    how it uses the `self._discoveryman' member).
 
-3.c.
-    You can see how EGTP defines and uses handler classes in MojoTransaction.py 
-    (class LookupHand) and in RelayListener.py (class ShoppingResultsHand).
+3.c. You can see how EGTP defines and uses handler classes in
+    MojoTransaction.py (class LookupHand) and in RelayListener.py (class
+    ShoppingResultsHand).
 
 

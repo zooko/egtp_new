@@ -7,9 +7,11 @@ try:
     from distutils.core import setup, Extension, Command
     import distutils.command.build_ext
 except:
-    raise SystemExit, """\
-Could not load the distutils modules. Have you installed them?
-(on Debian you need to 'apt-get install python-dev')
+    raise SystemExit, """\ 
+Could not load the distutils modules. Have you
+installed them? On Debian (when you are using the version of python that
+came with Debian) you need to 'apt-get install python-dev'.  If you've installed 
+python from source you will need to figure this out yourself.
 """
 
 class download(Command):
@@ -41,10 +43,15 @@ class download(Command):
         try:
             import bsddb3
         except ImportError:
-            raise SystemExit, """\
-The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.  
-(on Debian unstable you can do 'apt-get install python-bsddb3'
- for RedHat see http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html)
+            raise SystemExit, """\ 
+            
+The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.  (on
+Debian, when using the python that comes with Debian you can do 'apt-get
+install python-bsddb3'. For RedHat you can get an rpm from
+http://rpmfind.net/linux/RPM/sourceforge/pybsddb/bsddb3-3.3.0-1.i386.html 
+
+If you've built python from source you will need to download the package
+from the first URL and build it yourself.
 """
 
     def download_pyutil(self):
