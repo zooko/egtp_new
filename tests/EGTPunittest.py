@@ -6,13 +6,14 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: EGTPunittest.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
+# XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
+__cvsid = '$Id: EGTPunittest.py,v 1.2 2002/08/17 21:01:43 zooko Exp $'
 
 # standard Python modules
 import threading, types, unittest
 
 # pyutil modules
-import DoQ
+from pyutil import DoQ
 import config
 from debugprint import debugprint
 from humanreadable import hr
@@ -22,7 +23,6 @@ from timeutil import timer
 # from humread import hr # XXX for when we switch to base32 encoding...
 
 # (old) MN modules
-from confutils import confman
 import idlib
 
 # EGTP modules
@@ -35,7 +35,6 @@ from interfaces import *
 true = 1
 false = 0
 
-confman['MAX_VERBOSITY'] = 1
 config.MAX_VERBOSITY = 1
 
 HARDCODED_GOOD_EGTP_ADDRESS={'sequence num': 3, 'connection strategies': [{'lowerstrategy': {'IP address': '192.168.0.2', 'port number': '15233', 'comm strat sequence num': 1, 'comm strategy type': 'TCP'}, 'pubkey': {'key header': {'usage': 'only for communication security', 'type': 'public', 'cryptosystem': 'RSA'}, 'key values': {'public modulus': 'l2RaTKzSJNJyC5EpdVy1nzxW49QIetRILxilog9OgHm-LRHCMcZRstrGBKRYK_yZPJ7f9Nx9-nTLup1coWjH43R1ib16xgSZ3P2ZsWFgPC5-3nJcm1HuE0cdupMr-HY3OG2p6LP-Yywf3G6F0pPWLG8wZZICZzAXIoV2jZVspqc', 'public exponent': '3'}}, 'comm strat sequence num': 1, 'comm strategy type': 'crypto'}]}

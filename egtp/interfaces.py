@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: interfaces.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: interfaces.py,v 1.3 2002/08/17 21:01:43 zooko Exp $'
 
 # standard Python modules
 import exceptions
@@ -17,39 +17,14 @@ from pyutil.humanreadable import hr
 # EGTP modules
 from IRemoteOpHandler import IRemoteOpHandler
 
-class NotImplementedError(exceptions.StandardError): pass
-
-class IVerifier:
-    """
-    Determines whether a key -> object mapping is legitimate.
-    """
-    def __init__(self):
-        pass
-
-    def verify_mapping(self, key, object):
-        """
-        @returns true if and only if `object' is a valid result for `key'
-
-        @precondition key must be well-formed.: self.verify_key(key): "key: %s" % hr(key)
-
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
-        """
-        assert self.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % hr(key)
-        raise NotImplementedError
-        pass
-
-    def verify_key(self, key):
-        """
-        @returns true if and only if `key' is well-formed
-
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
-        """
-        raise NotImplementedError
-        pass
-
 class ILookupManager:
     """
-    Performs lookups and publications.
+    Performs lookups, and publications of things that other will look up.
+
+    A Lookup Manager is an object that, when you ask it "What is the one true canonical value that
+    is associated with *this* key?", gives you the value, optionally after talking with other
+    nodes over the network.  The coolest Lookup Manager would implement a Distributed Hash Table
+    under the hood.
     """
     def __init__(self, verifier):
         """
@@ -94,6 +69,82 @@ class ILookupManager:
         """
         assert self.verifier.verify_key(key), "precondition: key must be well-formed according to the verifier." + " -- " + "key: %s" % hr(key)
         assert self.verifier.verify_mapping(key, object), "precondition: key-object pair must be valid mapping according to the verifier." + " -- " + "key: %s, object: %s" % (hr(key), hr(object),)
+        raise NotImplementedError
+        pass
+
+class IDiscoveryManager:
+    """
+    Performs discoveries, and publications of things that others will discover.
+
+    A Discovery Manager is an object that, when you ask it "What are some values that are good
+    responses to *this* query?", gives you some values.  The coolest Discovery Manager would
+    implement some kind of crazy decentralized attack resistant search engine, or possibly a
+    transcendant artificial intelligence that would take over the world and treat us as funny
+    little pets.  Or maybe the coolest Discovery Manager would just ask your immediate friends for
+    their opinions.  I don't know.
+
+    (There are several known open source projects that might implement good DiscoverManager
+    objects: Neurogrid, Alpine, Tristero, cp2pc.)
+    """
+    def __init__(self):
+        """
+        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        """
+        pass
+
+    def discover(self, query, discoveryhand):
+        """
+        @param query the query describing the kind of thing you want to discover;  If the query is
+            self-authenticating, (i.e. given this query and the resulting object, the lookup manager
+            is able to determine whether or not the object is a valid object for the key even if the
+            object is a bogus object manufactured by a powerful and malicious attacker), then you
+            should use a lookup manager instead of a discovery manager.  (The lookup manager will
+            perform that verification for you.)
+        @param discoveryhand an object which satisfies the IDiscoveryHandler interface
+
+        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        """
+        raise NotImplementedError
+        pass
+
+    def publish(self, metadata, object, publishhand=None):
+        """
+        @param metadata some metadata by which the object can subsequently to be discovered
+        @param object the thing to be published
+        @param publishhand an object which satisfies the IRemoteOpHandler interface, or `None'
+
+        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        """
+        raise NotImplementedError
+        pass
+
+class NotImplementedError(exceptions.StandardError): pass
+
+class IVerifier:
+    """
+    Determines whether a key -> object mapping is legitimate.
+    """
+    def __init__(self):
+        pass
+
+    def verify_mapping(self, key, object):
+        """
+        @returns true if and only if `object' is a valid result for `key'
+
+        @precondition key must be well-formed.: self.verify_key(key): "key: %s" % hr(key)
+
+        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        """
+        assert self.verify_key(key), "precondition: key must be well-formed." + " -- " + "key: %s" % hr(key)
+        raise NotImplementedError
+        pass
+
+    def verify_key(self, key):
+        """
+        @returns true if and only if `key' is well-formed
+
+        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
+        """
         raise NotImplementedError
         pass
 
@@ -157,42 +208,6 @@ class ILookupHandler(IRemoteOpHandler):
         A "hard" timeout, which means that the lookup manager gives up and will ignore any results
         which come in after this point, is signalled by a call to `done()'. with a
         `failure_reason' argument of "hard timeout".
-
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
-        """
-        raise NotImplementedError
-        pass
-
-class IDiscoveryManager:
-    """
-    Performs discoveries and discoverable publications.
-    """
-    def __init__(self):
-        """
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
-        """
-        pass
-
-    def discover(self, query, discoveryhand):
-        """
-        @param query the query describing the kind of thing you want to discover;  If the query is
-            self-authenticating, (i.e. given this query and the resulting object, the lookup manager
-            is able to determine whether or not the object is a valid object for the key even if the
-            object is a bogus object manufactured by a powerful and malicious attacker), then you
-            should use a lookup manager instead of a discovery manager.  (The lookup manager will
-            perform that verification for you.)
-        @param discoveryhand an object which satisfies the IDiscoveryHandler interface
-
-        @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
-        """
-        raise NotImplementedError
-        pass
-
-    def publish(self, metadata, object, publishhand=None):
-        """
-        @param metadata some metadata by which the object can subsequently to be discovered
-        @param object the thing to be published
-        @param publishhand an object which satisfies the IRemoteOpHandler interface, or `None'
 
         @noblock This method may not block, either by waiting for network traffic, by waiting for a lock, or by sleeping.
         """

@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.3 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.4 2002/08/17 21:01:43 zooko Exp $'
 
 
 # Python standard library modules
@@ -38,12 +38,13 @@ import re
 import whrandom
 
 # pyutil modules
-from pyutil.xor import xor
-from pyutil import humanreadable
 from pyutil.VersionNumber import VersionNumber
+from pyutil import compat
 from pyutil import dictutil
 from pyutil import fileutil
+from pyutil import humanreadable
 from pyutil import timeutil
+from pyutil.xor import xor
 
 true = 1
 false = 0
@@ -376,8 +377,9 @@ else:
 
 mojolog = DebugStream(logstream=__logstream, logfile=__logfile)
 stderr = mojolog  # DEPRECATED: old was debug.stderr.write, new is debug.mojolog.write, newest is "debugprint" from the debugprint module in the pyutil project
-sys.stdout = mojolog
-sys.stderr = mojolog
+if not ('--interact' in sys.argv):
+    sys.stdout = mojolog
+    sys.stderr = mojolog
 
 # create a mojolog-current symlink on systems that support it.
 if (__logfile is not None) and hasattr(os, 'symlink'):
@@ -879,7 +881,7 @@ def test_canon_empty():
 General notes:
 -   The typical way to use this module is like this:
 # Begin Code Example:
-from confutils import confman
+from mojostd import confman
 x = confman[key]
 confman[key] = x
 confman.save()
@@ -931,11 +933,8 @@ dictutil.deep_update(confman["PATH"], mypathdict)
 ### Constants:
 # As the heading implies, these values should not be altered.
 
-# keep these as valid VersionNumbers, our code will use that to
-# check for later versions of the software from the bootpage.
 import EGTPVersion
 
-# XXX until this is autodetected, don't have it misreport
 from egtp.crypto import evilcryptopp
 if hasattr(evilcryptopp, "cryptopp_version"):
     CRYPTOPP_VERSION_STR = evilcryptopp.cryptopp_version
@@ -976,8 +975,6 @@ except KeyError:
 
 
 ### Configuration Defaults:
-#
-# NOTE: To see confdefaults in a precise way, run "python confutils.py".
 #
 # confdefaults contains the "hard-coded" defaults of all user-configurable data.
 # Note that if defaults does not define a key AND the user doesn't define a key,
@@ -1457,7 +1454,7 @@ def lines_to_dict(lines):
                 last = last + 1
             dict[key] = lines_to_dict(lines[first:last])
     if len(dict) == 0:
-        return ''
+        return None
     else:
         return dict
 
@@ -1506,7 +1503,8 @@ class ConfManager(UserDict.UserDict):
         self.touch()
         file = open(os.path.expandvars(self.dict["PATH"]["BROKER_CONF"]))
         filedict = lines_to_dict(file.readlines())
-        dictutil.deep_update(self.dict, filedict)
+        if compat.is_dict(filedict):
+            dictutil.deep_update(self.dict, filedict)
         file.close()
         if VersionNumber(self.get("EGTP_VERSION_STR")) != VersionNumber(EGTPVersion.versionstr_full):
             mojolog.write("NOTE: Loading '%s' version config file while running '%s' version confutils\n" % (self.get("EGTP_VERSION_STR"), EGTPVersion.versionstr_full))
