@@ -262,7 +262,11 @@ class build_ext(distutils.command.build_ext.build_ext):
     user_options      = \
         distutils.command.build_ext.build_ext.user_options + \
         [('cryptopp-dir=', 'C',
-          "Directory to look for cryptopp library" ),]
+          "Directory to look for cryptopp library" ),
+        ('framework', None,
+         "On Mac OS X try and build for framework"),]
+
+    boolean_options = ['framework']
 
     def __init__(self, dist):
         self.dist = dist
@@ -270,6 +274,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         distutils.command.build_ext.build_ext.__init__(self, dist)
 
     def initialize_options(self):
+        self.framework = None
         self.cryptopp_dir = None
 
         return distutils.command.build_ext.build_ext.initialize_options(self)
@@ -302,7 +307,18 @@ You don't have a copy of crypto++ version 5.0.  Try runing 'python setup.py down
             self.include_dirs.extend([self.cryptopp_dir])
             self.libraries.append('cryptopp')
 
+        # non framework python build ... like what shipped with OS X 10.2
         elif string.find(sys.platform, 'darwin') != -1:
+            #self.extra_link_args.extend(['-framework', 'Python'])
+            #self.extra_link_args.append('-lstdc++')
+            #self.extra_link_args.append('-bundle')
+            #self.extra_link_args.extend(['-bundle_loader', sys.executable])
+            self.library_dirs.append(self.cryptopp_dir)
+            self.include_dirs.append(self.cryptopp_dir)
+            self.libraries.insert(0, 'cryptopp')
+
+        # framework build
+        elif string.find(sys.platform, 'darwin') != -1 and self.framework:
             self.extra_link_args.extend(['-framework', 'Python'])
             #self.extra_link_args.append('-lstdc++')
             self.extra_link_args.append('-bundle')
