@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: BandwidthThrottler.py,v 1.5 2003/02/02 19:31:35 myers_carpenter Exp $"
+__revision__ = "$Id: BandwidthThrottler.py,v 1.6 2003/02/02 21:53:42 myers_carpenter Exp $"
 
 # pyutil modules
 from pyutil.config import DEBUG_MODE
@@ -33,11 +33,6 @@ class BandwidthThrottler:
         self._lasttick = time()
         self._throttlecbs = []
         self._unthrottlecbs = []
-        self._tick_doq_loop()
-
-    def _tick_doq_loop(self):
-        DoQ.doq._asyncorelooper.add_task(self.used, args=(0,))
-        DoQ.doq.add_task(self._tick_doq_loop, delay=60)
 
     def register(self, throttle_callback, unthrottle_callback):
         self._throttlecbs.append(throttle_callback)
