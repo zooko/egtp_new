@@ -7,22 +7,23 @@
 Sends and receives buffers on TCP connections.
 """
 
-__revision__ = "$Id: TCPConnection.py,v 1.11 2003/02/23 16:18:30 myers_carpenter Exp $"
+__revision__ = "$Id: TCPConnection.py,v 1.12 2003/03/09 18:54:57 zooko Exp $"
 
-# standard Python modules
+# Python Standard Library modules
 import asyncore, socket, struct, sys, threading, time, traceback, types
 
 # pyutil modules
+from pyutil import Asyncore, DoQ
+
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
-from pyutil import Asyncore, DoQ
-from pyutil import humanreadable
+from pyutil.humanreadable import hr
 
 # EGTP modules
 from egtp import CommsError, idlib
 
-true = 1
-false = None
+True = 1 == 1
+False = 0 == 1
 
 # This is the maximum lowlevel EGTP message size; attempting to
 # receive a message longer than this will cause the EGTP connection
@@ -44,9 +45,9 @@ class TCPConnection(asyncore.dispatcher):
             are either expecting a reply, or maintaining a connection with a
             frequently-used counterparty.
 
-        @precondition: `key' must be a binary id.: idlib.is_binary_id(key): "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
+        @precondition: `key' must be a binary id.: idlib.is_binary_id(key): "key: %s :: %s" % tuple(map(hr, (key, type(key),)))
         """
-        assert idlib.is_binary_id(key), "precondition: `key' must be a binary id." + " -- " + "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
+        assert idlib.is_binary_id(key), "precondition: `key' must be a binary id." + " -- " + "key: %s :: %s" % tuple(map(hr, (key, type(key),)))
 
         # `_cid_for_debugging' is for debugging.
         self._cid_for_debugging = cid_for_debugging
@@ -71,8 +72,8 @@ class TCPConnection(asyncore.dispatcher):
         self._throttlerwrite = throttlerout
         self._timeout = timeout
         
-        self._readthrottled = false
-        self._writethrottled = false
+        self._readthrottled = False
+        self._writethrottled = False
 
         self._inbufq = [] # this is a list of strings
         self._inbuflen = 0 # the current aggregate unconsumed bytes in inbufq (there can be leading byte in inbufq[0] which have already been consumed and are not counted by inbuflen)
@@ -84,20 +85,20 @@ class TCPConnection(asyncore.dispatcher):
         self._current_fast_fail_handler = None # the ffh for the current outgoing message
 
         if sock:
-            self._everconnected = true  # we're already connected
+            self._everconnected = True  # we're already connected
         else:
-            self._everconnected = false # `handle_connect()' sets this to true
-        self._closing = false
-        self._startedclosingonpyutilasync = false # to prevent multiple _finish_closing_on_pyutilasync calls, thus making `close()' idempotent
-        self._closed = false # This gets set to `true' in `close()'.
+            self._everconnected = False # `handle_connect()' sets this to true
+        self._closing = False
+        self._startedclosingonpyutilasync = False # to prevent multiple _finish_closing_on_pyutilasync calls, thus making `close()' idempotent
+        self._closed = False # This gets set to true in `close()'.
         self._last_io_time = time.time() # the last time an IO event happened on this connection
         self._inmsgs = 0 # The total number of incoming messages that have come through this connection.
         self._nummsgs = 0 # The sum of outgoing and incoming messages that have come through this connection.
         self._outbytes = 0L # The total bytes ever sent over this connection.
         self._inbytes = 0L # The total bytes ever received over this connection.
 
-        self._writable = false
-        self._readable = true
+        self._writable = False
+        self._readable = True
 
         if self._throttlerread:
             self._throttlerread.register(self._throttle_read, self._unthrottle_read)
@@ -139,10 +140,10 @@ class TCPConnection(asyncore.dispatcher):
 
             try:
                 pn = self.getpeername()
-                return '<%s %s to %s at %s:%s, %x>' % (self.__class__.__name__, state, humanreadable.hr(self._cid_for_debugging), pn[0], pn[1], id(self))
+                return '<%s %s to %s at %s:%s, %x>' % (self.__class__.__name__, state, hr(self._cid_for_debugging), pn[0], pn[1], id(self))
             except:
                 # `getpeername()' raises an exception sometimes, for example if the socket isn't connected yet.  That's a pretty silly interface, isn't it?  --Zooko 2001-06-17
-                return '<%s %s to %s, %x>' % (self.__class__.__name__, state, humanreadable.hr(self._cid_for_debugging), id(self))
+                return '<%s %s to %s, %x>' % (self.__class__.__name__, state, hr(self._cid_for_debugging), id(self))
         except:
             debugprint("exception in TCPConnection.__repr__():\n")
             traceback.print_exc(file=debugstream)
@@ -161,9 +162,9 @@ class TCPConnection(asyncore.dispatcher):
         self.close(reason="not connected after timeout")
 
     def _set_closing(self):
-        self._writable = false
-        self._readable = false
-        self._closing = true
+        self._writable = False
+        self._readable = False
+        self._closing = True
 
     def _throttle_read(self):
         """
@@ -173,8 +174,8 @@ class TCPConnection(asyncore.dispatcher):
         """
         assert Asyncore.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the Asyncore thread."
 
-        self._readthrottled = 1 # `true'
-        self._readable = 0 # `false'
+        self._readthrottled = True
+        self._readable = False
 
     def _unthrottle_read(self):
         """
@@ -182,10 +183,10 @@ class TCPConnection(asyncore.dispatcher):
         """
         assert Asyncore.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the Asyncore thread."
 
-        self._readthrottled = None # `false'
+        self._readthrottled = False
         # Now if we are not closing then we are now ready to read.
         if not self._closing and not self._readable:
-            self._readable = 1 # `true'
+            self._readable = True
 
     def _throttle_write(self):
         """
@@ -195,8 +196,8 @@ class TCPConnection(asyncore.dispatcher):
         """
         assert Asyncore.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the Asyncore thread."
 
-        self._writethrottled = 1 # `true'
-        self._writable = 0 # `false'
+        self._writethrottled = True
+        self._writable = False
 
     def _unthrottle_write(self):
         """
@@ -204,10 +205,10 @@ class TCPConnection(asyncore.dispatcher):
         """
         assert Asyncore.selector.is_currently_asyncore_thread(), "precondition: This method must be called on the Asyncore thread."
 
-        self._writethrottled = None # `false'
+        self._writethrottled = False
         # Now if we are not closing, and if there is data waiting to be sent, then we are ready to write.
         if not self._closing and (self._outbuf or self._outmsgq) and not self._writable:
-            self._writable = 1 # `true'
+            self._writable = True
 
     def send(self, msg, fast_fail_handler=None, pack=struct.pack):
         """
@@ -224,7 +225,7 @@ class TCPConnection(asyncore.dispatcher):
         lenmsg = len(msg)
         if lenmsg > MAXIMUM_MSG_SIZE:
             if fast_fail_handler:
-                DoQ.doq.add_task(fast_fail_handler, kwargs={'failure_reason': "message too long: %s" % humanreadable.hr(lenmsg)})
+                DoQ.doq.add_task(fast_fail_handler, kwargs={'failure_reason': "message too long: %s" % hr(lenmsg)})
             return
 
         # TODO this is gross, it does a full data copy of the message just to prepend 4 bytes
@@ -236,28 +237,28 @@ class TCPConnection(asyncore.dispatcher):
         # Now if we are not closing, and not write-throttled, then we are now ready to write.
         # (Note that it is possible for us to be closing now even though we tested just a few lines up because we are operating on the DoQ thread here and the asyncore thread can cause us to become closing.)
         if not self._closing and not self._writethrottled and not self._writable:
-            self._writable = 1 # `true'
+            self._writable = True
             Asyncore.selector.wake_select()
 
         self._nummsgs = self._nummsgs + 1
 
     def is_idle(self, idletimeout=30):
         """
-        @return: `true' if and only if there have been no I/O events have occured on this socket in >= idletimeout seconds or if it is closed
+        @return: true if and only if there have been no I/O events have occured on this socket in >= idletimeout seconds or if it is closed
         """
         if self._closing:
-            return true
+            return True
         return (time.time() - self._last_io_time) >= idletimeout
 
     def is_talking(self):
         """
-        @return: `true' if and only if there is a message actually half-sent or half-received
+        @return: true if and only if there is a message actually half-sent or half-received
         """
         return (len(self._outbuf) > 0) or (self._inbuflen > 0) or (len(self._outmsgq) > 0)
 
     def is_busy(self, idletimeout):
         """
-        @return: `true' if and only if (there is a message actually (half-sent or half-received)
+        @return: true if and only if (there is a message actually (half-sent or half-received)
             and not `is_idle(idletimeout)')
         """
         return self.is_talking() and not self.is_idle(idletimeout)
@@ -298,7 +299,7 @@ class TCPConnection(asyncore.dispatcher):
 
         if self._startedclosingonpyutilasync:
             return
-        self._startedclosingonpyutilasync = true
+        self._startedclosingonpyutilasync = True
 
         # debugprint("%s.close(): about to asyncore.dispatcher.close()...\n", args=(self,))
         asyncore.dispatcher.close(self)
@@ -378,7 +379,7 @@ class TCPConnection(asyncore.dispatcher):
         self._inbuflen = 0
         self._nextinmsglen = None
 
-        self._closed = true
+        self._closed = True
 
     def handle_write(self):
         if self._closing:
@@ -407,7 +408,7 @@ class TCPConnection(asyncore.dispatcher):
                 self._current_fast_fail_handler = None   # remove the no longer needed function reference!
                 # Now if there are no more messages waiting to be sent, then we are no longer ready to write.
                 if not self._outmsgq:
-                    self._writable = 0 # `false'
+                    self._writable = False
             if self._throttlerwrite:
                 self._throttlerwrite.used(num_sent) # notify throttler we just used up some bandwidth
 
@@ -419,11 +420,11 @@ class TCPConnection(asyncore.dispatcher):
 
     def _chunkify(self, nextstream, unpack=struct.unpack):
         """
-        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % tuple(map(humanreadable.hr, (self._upward_inmsg_handler, type(self._upward_inmsg_handler),)))
+        @precondition: `self._upward_inmsg_handler' must be callable.: callable(self._upward_inmsg_handler): "self._upward_inmsg_handler: %s :: %s" % tuple(map(hr, (self._upward_inmsg_handler, type(self._upward_inmsg_handler),)))
         """
-        assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % tuple(map(humanreadable.hr, (self._upward_inmsg_handler, type(self._upward_inmsg_handler),)))
+        assert callable(self._upward_inmsg_handler), "precondition: `self._upward_inmsg_handler' must be callable." + " -- " + "self._upward_inmsg_handler: %s :: %s" % tuple(map(hr, (self._upward_inmsg_handler, type(self._upward_inmsg_handler),)))
 
-        assert (self._inbuflen == 0) or (len(self._inbufq) > 0), "self._inbuflen: %s, self._inbufq: %s" % tuple(map(humanreadable.hr, (self._inbuflen, self._inbufq,)))
+        assert (self._inbuflen == 0) or (len(self._inbufq) > 0), "self._inbuflen: %s, self._inbufq: %s" % tuple(map(hr, (self._inbuflen, self._inbufq,)))
 
         lennextstream = len(nextstream)
         if lennextstream == 0:
@@ -439,17 +440,17 @@ class TCPConnection(asyncore.dispatcher):
         inbuflen = inbuflen + lennextstream
         inbufq.append(nextstream)
         # debugprint("%s._chunkify() called, nextinmsglen: %s, inbuflen: %s, offset: %s, inbufq: %s\n", args=(self, nextinmsglen, inbuflen, offset, inbufq,), v=0, vs="debug")
-        assert (inbuflen == 0) or (len(inbufq) > 0), "inbuflen: %s, inbufq: %s" % tuple(map(humanreadable.hr, (inbuflen, inbufq,)))
+        assert (inbuflen == 0) or (len(inbufq) > 0), "inbuflen: %s, inbufq: %s" % tuple(map(hr, (inbuflen, inbufq,)))
 
         if (nextinmsglen is None) and (inbuflen >= 4):
             # collect the four bytes.  (Note that 99% of the time we will execute the while loop body zero times and the remaining 1% of the time we will execute it one time, unless there is something REALLY funny going on -- that is, unless `_chunkify()' was called with `nextstream' was of size 1.)
-            assert len(inbufq) > 0, "inbufq: %s" % humanreadable.hr(inbufq)
+            assert len(inbufq) > 0, "inbufq: %s" % hr(inbufq)
             while len(inbufq[0]) < (offset + 4):
-                assert len(inbufq) > 1, "inbufq: %s" % humanreadable.hr(inbufq)
+                assert len(inbufq) > 1, "inbufq: %s" % hr(inbufq)
                 inbufq[0] = inbufq[0] + inbufq[1]
                 del inbufq[1]
 
-            assert len(inbufq[0]) >= (offset + 4), "inbufq: %s, offset: %s" % tuple(map(humanreadable.hr, (inbufq, offset,)))
+            assert len(inbufq[0]) >= (offset + 4), "inbufq: %s, offset: %s" % tuple(map(hr, (inbufq, offset,)))
 
             nextinmsglen = unpack('>L', inbufq[0][offset:(offset + 4)])[0]
             assert type(nextinmsglen) is types.LongType
@@ -466,7 +467,7 @@ class TCPConnection(asyncore.dispatcher):
         # Now this is the loop to extract and upsend each message.  Note that we replicate the "extract next msg len" code from above at the end of this loop.  This is the common idiom of "compute a value; while it is big enough: do some stuff; compute the value again"
         while (nextinmsglen is not None) and (inbuflen >= (nextinmsglen + 4)):
             # debugprint("%s._chunkify(), in loop offset: %s, inbufq: %s\n", args=(self, offset, inbufq,), v=0, vs="debug")
-            assert (inbuflen == 0) or (len(inbufq) > 0), "inbuflen: %s, inbufq: %s" % tuple(map(humanreadable.hr, (inbuflen, inbufq)))
+            assert (inbuflen == 0) or (len(inbufq) > 0), "inbuflen: %s, inbufq: %s" % tuple(map(hr, (inbuflen, inbufq)))
             # debugprint("%s._chunkify(): collecting next message of length: %s\n", args=(self, nextinmsglen,), v=6, vs="debug")
             leninbufq0 = len(inbufq[0])
             nextchunki = nextinmsglen+offset+4
@@ -503,7 +504,7 @@ class TCPConnection(asyncore.dispatcher):
                         remain = remain - leninbufqi
                     i = i + 1
             inbuflen = inbuflen - (nextinmsglen + 4)
-            assert (inbuflen == 0) or (len(inbufq) > 0), "inbuflen: %s, inbufq: %s" % tuple(map(humanreadable.hr, (inbuflen, inbufq,)))
+            assert (inbuflen == 0) or (len(inbufq) > 0), "inbuflen: %s, inbufq: %s" % tuple(map(hr, (inbuflen, inbufq,)))
 
             self._inmsgs = self._inmsgs + 1
             self._nummsgs = self._nummsgs + 1
@@ -516,13 +517,13 @@ class TCPConnection(asyncore.dispatcher):
                 nextinmsglen = None
             else:
                 # collect the four bytes.  (Note that 99% of the time we will execute the while loop body zero times and the remaining 1% of the time we will execute it one time, unless there is something REALLY funny going on -- that is, unless `_chunkify()' was called with `nextstream' was of size 1.)
-                assert len(inbufq) > 0, "inbufq: %s" % humanreadable.hr(inbufq)
+                assert len(inbufq) > 0, "inbufq: %s" % hr(inbufq)
                 while len(inbufq[0]) < (offset + 4):
-                    assert len(inbufq) > 1, "inbufq: %s" % humanreadable.hr(inbufq)
+                    assert len(inbufq) > 1, "inbufq: %s" % hr(inbufq)
                     inbufq[0] = inbufq[0] + inbufq[1]
                     del inbufq[1]
 
-                assert len(inbufq[0]) >= (offset + 4), "inbufq: %s, offset: %s" % tuple(map(humanreadable.hr, (inbufq, offset,)))
+                assert len(inbufq[0]) >= (offset + 4), "inbufq: %s, offset: %s" % tuple(map(hr, (inbufq, offset,)))
 
                 nextinmsglen = unpack('>L', inbufq[0][offset:(offset + 4)])[0]
                 assert type(nextinmsglen) is types.LongType
@@ -540,7 +541,7 @@ class TCPConnection(asyncore.dispatcher):
         self._inbufq = inbufq
         self._inbuflen = inbuflen
         self._offset = offset
-        assert (self._inbuflen == 0) or (len(self._inbufq) > 0), "self._inbuflen: %s, self._inbufq: %s" % tuple(map(humanreadable.hr, (self._inbuflen, self._inbufq)))
+        assert (self._inbuflen == 0) or (len(self._inbufq) > 0), "self._inbuflen: %s, self._inbufq: %s" % tuple(map(hr, (self._inbuflen, self._inbufq)))
 
     def handle_read(self):
         if self._closing:
@@ -575,7 +576,7 @@ class TCPConnection(asyncore.dispatcher):
 
     def handle_connect(self):
         self._last_io_time = time.time()
-        self._everconnected = true
+        self._everconnected = True
         # debugprint("%s.handle_connect()\n", args=(self,), v=6, vs="commstrats")
 
     def handle_close(self):

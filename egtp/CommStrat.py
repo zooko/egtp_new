@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.16 2003/02/28 17:59:48 tschechow Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.17 2003/03/09 18:54:57 zooko Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -45,16 +45,6 @@ Crypto(pubkey, lowerstrategy) - a combination of a pub key and another strategy 
 
 Pickup() - if you have a message for this person, store it and she will contact you and pick it up;  Relay servers use a Pickup strategy to give messages to their clients currently.  (Not really -- they currently implement pickup behavior in RelayServerHandlers.py, but perhaps it would be cleaner if they used Pickup ?  --Zooko 2001-09-02)
 """
-
-def is_reachable(cs):
-    # Find the bottommost strategy...
-    while hasattr(cs, "_lowerstrategy"):
-        cs = cs._lowerstrategy
-
-    if (cs) and ((isinstance(cs, TCP) and (ipaddresslib.is_routable(cs.host))) or (isinstance(cs, Relay))):
-        return true
-    else:
-        return false
 
 def choose_best_strategy(cs1, cs2):
     """
@@ -155,12 +145,6 @@ class CommStrat:
     def get_id(self):
         return self._broker_id
 
-    def is_useful(self):
-        """
-        @return: boolean indicating if this CommStrat has any reason to exist anymore
-        """
-        return None   # if nothing overrides this, its not very useful...
-
 class TCP(CommStrat):
     def __init__(self, tcpch, broker_id, host=None, port=None, asyncsock=None, commstratseqno=None):
         """
@@ -242,9 +226,6 @@ class TCP(CommStrat):
 
         return d
 
-    def is_useful(self):
-        return (self.asyncsock and not self.asyncsock._closing)
-
 class Relay(CommStrat):
     def __init__(self, relayer_id, broker_id, mtm, commstratseqno=None):
         """
@@ -279,9 +260,6 @@ class Relay(CommStrat):
         d['comm strategy type'] = "relay" # XXXX This should be changed to "Relay" to match the name of the class.  --Zooko 2000-08-02
         d['relayer id'] = self._relayer_id
         return d
-
-    def is_useful(self):
-        return true
 
     def send(self, msg, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=None, commstratseqno=None):
         """
@@ -376,11 +354,6 @@ class Crypto(CommStrat):
         d['pubkey'] = mencode.mdecode(self._pubkey)
         d['lowerstrategy'] = self._lowerstrategy.to_dict()
         return d
-
-    def is_useful(self):
-        # Crypto commstrats by themselves are only as useful as their lowerstrategy that actually sends the data
-        return (self._lowerstrategy and self._lowerstrategy.is_useful())
-
 
 class Pickup(CommStrat):
     def __init__(self, broker_id=None, commstratseqno=None):

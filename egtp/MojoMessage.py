@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.15 2003/03/05 04:56:18 myers_carpenter Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.16 2003/03/09 18:54:57 zooko Exp $"
 
 # Python standard library modules
 import re, string, types
@@ -250,7 +250,7 @@ def makeInitialMessage(msgtype, msgbody, recipient_id, nonce, freshnessproof, my
 
     return msgString
 
-def makeResponseMessage(msgtype, msgbody, reference, freshnessproof, mymetainfo=None, extrametainfo=None):
+def makeResponseMessage(msgtype, msgbody, reference, freshnessproof, mymetainfo=None):
     """
     @param msgtype: the type of the message, human readable string
     @param msgbody: an Mojo dict containing the contents of the message
@@ -260,8 +260,6 @@ def makeResponseMessage(msgtype, msgbody, reference, freshnessproof, mymetainfo=
         from this counterparty, to ensure freshness, or `None' if none
     @param mymetainfo: is optional and should contain the senders most recent
         meta info if they wish to include it with their message.  (or a mencode.PreEncodedThing of the info)
-    @param extrametainfo: is optional and should contain a list of a few other counterparties
-        metainfo dicts to share.  (or a mencode.PreEncodedThing of the info list)
 
     @return: the canonical string representation of this Mojo message
 
@@ -283,9 +281,6 @@ def makeResponseMessage(msgtype, msgbody, reference, freshnessproof, mymetainfo=
 
     if mymetainfo:
         msgdict['metainfo'] = mymetainfo
-
-    if extrametainfo:
-        msgdict['extra_metainfo'] = extrametainfo
 
     msgString = mencode.mencode(msgdict)
 

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: counterparties.py,v 1.10 2003/01/12 20:19:14 zooko Exp $"
+__revision__ = "$Id: counterparties.py,v 1.11 2003/03/09 18:54:57 zooko Exp $"
 
 """ 
 Implements counter party objects used for storing information about the
@@ -499,10 +499,11 @@ class CounterpartyObject :
             stat = (historyweight * stat) + ((1.0 - historyweight)*newvalue)
             self.vals[statname] = float(stat)
             self.save()
+            return float(stat)
         finally:
             self.done()
 
-    def update_custom_stat_weighted_sample_with_deviation(self, statname, newvalue, historyweight=None,default_value=None):
+    def update_custom_stat_weighted_sample_with_deviation(self, statname, newvalue, historyweight=None):
         """
         @param historyweight: 0.0 = ignore history, 1.0 = ignore new sample
         """
@@ -514,6 +515,7 @@ class CounterpartyObject :
             stat = self.vals.get(statname)
             self.vals[statname] = mojoutil.update_weighted_sample(stat, newvalue, historyweight)
             self.save()
+            return self.vals[statname]
         finally:
             self.done()
  
@@ -553,6 +555,7 @@ class CounterpartyObject :
         try:
             self.vals['reliability'] = float(reliability)
             self.save()
+            return self.vals[statname]
         finally:
             self.done()
 
@@ -658,7 +661,7 @@ class SelfCounterpartyObject(CounterpartyObject):
         return
     def update_custom_stat_weighted_sample(self, statname, newvalue, historyweight=None):
         return
-    def update_custom_stat_weighted_sample_with_deviation(self, statname, newvalue, historyweight=None,default_value=None):
+    def update_custom_stat_weighted_sample_with_deviation(self, statname, newvalue, historyweight=None):
         return
     def update_custom_stat_list(self, statname, newitem, maxlen) :
         return

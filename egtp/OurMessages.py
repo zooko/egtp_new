@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: OurMessages.py,v 1.7 2003/02/10 01:31:14 zooko Exp $"
+__revision__ = "$Id: OurMessages.py,v 1.8 2003/03/09 18:54:57 zooko Exp $"
 
 from egtp.DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BOOLEAN
 
@@ -55,7 +55,7 @@ templs['message for you response'] = {'result': ["success", "failure"]}
 # is in a content tracker specific format (generally XML or a signed
 # SEXP containing XML?)
 #
-templs['content tracker lookup'] = {'XML data': ANY, 'publicity criterion' :OptionMarker(["public", "private", "both"]), 'first ISO date': OptionMarker(STRING), 'last ISO date': OptionMarker(STRING)}
+templs['content tracker lookup'] = {'XML data': ANY, 'first ISO date': OptionMarker(STRING), 'last ISO date': OptionMarker(STRING)}
 # 'result' will be either "success" or "failure".  There will be a 'list' field on all "success" responses.
 templs['content tracker lookup response'] = {'result': ['success', 'failure', 'no match'], 'list': OptionMarker(ListMarker(STRING)), 'verifier': OptionMarker(["yes", "no"])}
 templs['content tracker submit'] = {'XML data': ANY}

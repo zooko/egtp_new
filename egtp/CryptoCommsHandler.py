@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CryptoCommsHandler.py,v 1.10 2003/02/17 09:35:19 artimage Exp $"
+__revision__ = "$Id: CryptoCommsHandler.py,v 1.11 2003/03/09 18:54:57 zooko Exp $"
 
 # Python Standard Library modules
 import traceback, types, sha, string, zlib
@@ -290,12 +290,4 @@ class CryptoCommsHandler:
 
     def get_public_key(self):
         return self._mesgen.get_public_key()
-
-    def forget_old_comm_strategies(self):
-        """Remove all non-useful CommStrat's from our internal caches"""
-        for cid, cs in self._cid_to_cs.items():
-            if cs and not cs.is_useful():
-                self.forget_comm_strategy(cid, cs)
-        # we don't need to call self._tcpch.forget_old_comm_strategies() as our loop above should
-        # have removed all TCP CommStrats associated with any Crypto commstrats that were useless.
 

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.29 2003/03/05 04:56:18 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.30 2003/03/09 18:54:57 zooko Exp $"
 
 true = 1
 false = 0
@@ -90,8 +90,11 @@ class FailureError(Error):
     """
     pass 
 
-class ResponseMarker: 
-    pass
+class ResponseMarker:
+    def __init__(self, name):
+        self.name = name
+    def __repr__(self):
+        return "<ResponseMarker: %s>" % self.name
 
 # The following symbols really just belong here in MojoTransaction.py, but
 # Python's inability to do mutually recursive modules means that I can't
@@ -106,7 +109,7 @@ class ResponseAndCommHints:
 
 # possible return value from an incoming message handler. 
 # `ASYNC_RESPONSE' means I'll provide the response later.
-ASYNC_RESPONSE = ResponseMarker()
+ASYNC_RESPONSE = ResponseMarker("ASYNC_RESPONSE")
 
 # possible return value from an incoming message handler. # `NO_RESPONSE'
 # means that the correct, permanent, immutable response to the incoming
@@ -116,7 +119,7 @@ ASYNC_RESPONSE = ResponseMarker()
 # response right now, but later I'll come up with the correct, permanent,
 # immutable response.", then return `ASYNC_RESPONSE'.
 
-NO_RESPONSE = ResponseMarker()
+NO_RESPONSE = ResponseMarker("NO_RESPONSE")
 
 # Currently, handlers that handles _responding_ messages are assumed to have
 # no response (that is: every transaction is a two-move protocol), so if you
@@ -153,7 +156,7 @@ class MojoTransactionManager:
     broker, the contents of the query message, and optionally a callback
     function that will be called when the transaction completes or fails.
     """
-    def __init__(self, lookupman, discoveryman, datadir, use_dynamic_timing = true, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, ip_bind=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
+    def __init__(self, lookupman, discoveryman, datadir, pt=None, announced_service_dicts=[], handler_funcs={}, serialized=None, ip_bind=None, listenport=None, recoverdb=true, pickyport=false, dontbind=false, neverpoll=false, keyID=None, allow_send_metainfo=true, allownonrouteableip=false):
         """
         @param lookupman: an object which implements the ILookupManager
             interface; MojoTransaction uses the lookupman to get fresh EGTP
@@ -194,8 +197,6 @@ class MojoTransactionManager:
         self._discoveryman = discoveryman
         self._datadir = datadir
         self._client_version = None
-        self._use_dynamic_timing = use_dynamic_timing
-        
         
         # tuneing attributes
         self.collect_dynamic_timings = true
@@ -266,8 +267,6 @@ class MojoTransactionManager:
 
         self._listenermanager = ListenerManager.ListenerManager(cryptol=self._ch, tcpl=tcpch, relayl=RelayListener.RelayListener(self, discoveryman=self._discoveryman, neverpoll=neverpoll), mtm=self, allownonrouteableip=allownonrouteableip)
 
-        DoQ.doq.add_task(self._periodic_cleanup, delay=150)
-
         self._keeper=counterparties.CounterpartyObjectKeeper(dbparentdir=self._datadir, local_id=self.get_id(), recoverdb=true)
         # IMPORTANT NOTE:  handicappers are ordered as some of them are in-progress multipliers
         # When reading the following list, remember that all scalar additives are squared before
@@ -297,15 +296,6 @@ class MojoTransactionManager:
 
     def is_listening(self):
         return self._ch.is_listening()
-
-    def _periodic_cleanup(self):
-        """put any simple cache cleanup tasks you need to have happen every 2-3 minutes in here"""
-        if self._shuttingdownflag:
-            return
-        try:
-            self._ch.forget_old_comm_strategies()
-        finally:
-            DoQ.doq.add_task(self._periodic_cleanup, delay=150)
 
     def set_pt(self, pt):
         self._pt = pt
@@ -650,7 +640,6 @@ class MojoTransactionManager:
 
         mojomessagedict=msgbody['mojo message']
 
-        widget = Widget(counterparty_id, firstmsgId)
         # Okay, now invoke the server func:
         result = serverfunc(widget, msgbody['mojo message'])
 
@@ -741,18 +730,17 @@ class MojoTransactionManager:
 
         counterparty_id = idlib.canonicalize(counterparty_id, "broker")
             
-        if self._use_dynamic_timing:
-            if (use_dynamic_timeout == "always" or (use_dynamic_timeout == "iff there is a post_timeout_outcome_func" and post_timeout_outcome_func is not None)):
-                counterparty = self._keeper.get_counterparty_object(counterparty_id)
-                stat = 'roundtrip_time['+conversationtype+']'
-                if counterparty.get_custom_stat(stat) is None:
-                    (mu, sigma, ignore) = self.response_times.get(conversationtype, (120, 20, false,))
-                    timeout = mu + 2*sigma
-                    debugprint("using global average dynamic timeout %s with for %s to %s\n", args=("%0.2f" % timeout, stat, counterparty_id), v=3, vs='counterparty')
-                else:
-                    (mu, sigma, ignore) = counterparty.get_custom_stat(stat)
-                    timeout = mu + 2*sigma
-                    debugprint("using dynamic timeout %s with for %s to %s\n", args=("%0.2f" % timeout, stat, counterparty_id), v=3, vs='counterparty')
+        if (use_dynamic_timeout == "always" or (use_dynamic_timeout == "iff there is a post_timeout_outcome_func" and post_timeout_outcome_func is not None)):
+            counterparty = self._keeper.get_counterparty_object(counterparty_id)
+            stat = 'roundtrip_time['+conversationtype+']'
+            if counterparty.get_custom_stat(stat) is None:
+                (mu, sigma, ignore) = self.response_times.get(conversationtype, (120, 20, false,))
+                timeout = mu + 2*sigma
+                debugprint("using global average dynamic timeout %s with for %s to %s\n", args=("%0.2f" % timeout, stat, counterparty_id), v=3, vs='counterparty')
+            else:
+                (mu, sigma, ignore) = counterparty.get_custom_stat(stat)
+                timeout = mu + 2*sigma
+                debugprint("using dynamic timeout %s with for %s to %s\n", args=("%0.2f" % timeout, stat, counterparty_id), v=3, vs='counterparty')
 
         timeout = min(self.max_timeout, timeout)
 
@@ -786,7 +774,7 @@ class MojoTransactionManager:
                     debugprint("dynamic timing: message %s to %s took %s seconds (mu: %s, sigma: %s)\n", args=(stat, counterparty_id, "%0.2f" % elapsed_time, "%0.2f" % mu, "%0.2f" % sigma), v=3, vs="MojoTransaction")
                     if elapsed_time > (mu+2*sigma):
                         # Assuming a normal distribution, 99.7% caught
-                        debugprint("dynamic timing: UNUSUALLY LONG DELAY (normal distribution) on message %s to %s (took: %s mu: %s, sigma: %s)\n", args=(stat, counterparty_id, "%0.2f" % elapsed_time, "%0.2f" % mu, "%0.2f" % sigma), v=4, vs="MojoTransaction")
+                        debugprint("dynamic timing: unusually long delay (normal distribution) on message %s to %s (took: %s mu: %s, sigma: %s)\n", args=(stat, counterparty_id, "%0.2f" % elapsed_time, "%0.2f" % mu, "%0.2f" % sigma), v=4, vs="MojoTransaction")
                     if elapsed_time > 6*mu:
                         # Assuming an exponential distribution, 99.7% caught
                         debugprint("dynamic timing: UNUSUALLY LONG DELAY (exponential distribution) on message %s to %s (took: %s mu: %s)\n", args=(stat, counterparty_id, "%0.2f" % elapsed_time, "%0.2f" % mu), v=4, vs="MojoTransaction")
@@ -796,7 +784,7 @@ class MojoTransactionManager:
                     # this shouldn't happen, but we should nuke the damaged stat in the event that it does
                     counterparty.delete_custom_stat(stat)
 
-            counterparty.update_custom_stat_weighted_sample_with_deviation(stat, elapsed_time, math.exp(-1./time_constant), default_sigma)
+            counterparty.update_custom_stat_weighted_sample_with_deviation(stat, elapsed_time, math.exp(-1./time_constant))
 
             oldval = self._responsetimesold.get(conversationtype)
             newval = mojoutil.update_weighted_sample(setdefault(self.response_times, conversationtype, None), elapsed_time, math.exp(-1./time_constant), default_sigma)
@@ -830,9 +818,9 @@ class MojoTransactionManager:
             }
 
         notes = {'outer_outcome_func': outcome_func, 
-            'conversationtype': conversationtype, 'firstmsgbody': firstmsgbody, 
-            'timeout': timeout,
-            'counterparty_id': counterparty_id,
+                 'conversationtype': conversationtype, 'firstmsgbody': firstmsgbody, 
+                 'timeout': timeout,
+                 'counterparty_id': counterparty_id,
             }
             
         # include our metainfo in messages the first time we send a message to a counterparty

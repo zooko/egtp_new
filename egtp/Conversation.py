@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.18 2003/02/17 09:35:18 artimage Exp $"
+__revision__ = "$Id: Conversation.py,v 1.19 2003/03/09 18:54:57 zooko Exp $"
 
 # Python Standard Library modules
 import threading
@@ -215,9 +215,7 @@ class ConversationManager:
         assert idlib.is_binary_id(counterparty_id), "`counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
         self.drop_request_state(prevmsgId)
 
-        if idlib.equal(counterparty_id, self._MTM.get_id()):
-            extrametainfo = None
-        msgstr = MojoMessage.makeResponseMessage(inmsgtype + ' response', msgbody, prevmsgId, freshnessproof=self._map_cid_to_freshness_proof.get(counterparty_id), mymetainfo=mymetainfo, extrametainfo=None)
+        msgstr = MojoMessage.makeResponseMessage(inmsgtype + ' response', msgbody, prevmsgId, freshnessproof=self._map_cid_to_freshness_proof.get(counterparty_id), mymetainfo=mymetainfo)
         self._MTM.send_message_with_lookup(counterparty_id, msgstr, hint=hint | HINT_THIS_IS_A_RESPONSE)
 
     def _process(self, msg, msgId, counterparty_id, commstrat=None):
@@ -285,7 +283,7 @@ class ConversationManager:
                 self.drop_request_state(msgId)
             if result is None:
                 result = MojoTransaction.NO_RESPONSE
-            if not isinstance(result, MojoTransaction.ResponseAndCommHints):
+            if not isinstance(result, MojoTransaction.ResponseAndCommHints) and not result in (MojoTransaction.NO_RESPONSE, MojoTransaction.ASYNC_RESPONSE,):
                 result = MojoTransaction.ResponseAndCommHints(result)
             postcondition((result in (MojoTransaction.NO_RESPONSE, MojoTransaction.ASYNC_RESPONSE,)) or isinstance(result, MojoTransaction.ResponseAndCommHints), "Result is required to be either MojoTransaction.NO_RESPONSE or MojoTransaction.ASYNC_RESPONSE or else an instance of MojoTransaction.ResponseAndCommHints.", result=result)
 
