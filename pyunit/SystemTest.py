@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: SystemTest.py,v 1.3 2002/11/03 17:02:13 myers_carpenter Exp $'
+__cvsid = '$Id: SystemTest.py,v 1.4 2002/11/04 14:00:42 artimage Exp $'
 
 # standard Python modules
 import threading, types
@@ -69,7 +69,7 @@ def _help_test(finishedflag, numsuccessesh, lm, dm, name="a test"):
     start = timer.time()
 
     # Make a listener.  He will announce his EGTP address to the lookupman `lm'.
-    n1 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm)
+    n1 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
 
     # Set a handler func: if any messages come in with message type "ping", the EGTP Node will call this function.
     def l_ping_handler(sender, msg, finishedflag=finishedflag, numsuccessesh=numsuccessesh, start=start, name=name):
@@ -80,7 +80,7 @@ def _help_test(finishedflag, numsuccessesh, lm, dm, name="a test"):
     n1.set_handler_func(mtype="ping", handler_func=l_ping_handler)
 
     # Make a sender.  He'll keep a reference to `lm' for later use.
-    n2 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm)
+    n2 = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
 
     # Have the second node ping the first, using only the first's id.
     n2.send(CommStrat.addr_to_id(n1.get_address()), mtype="ping", msg="hello there, you crazy listener!")
