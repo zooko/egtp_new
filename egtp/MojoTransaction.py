@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.13 2002/11/04 13:44:54 artimage Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.14 2002/11/22 05:48:36 zooko Exp $'
 
 true = 1
 false = 0
@@ -205,7 +205,7 @@ class MojoTransactionManager:
         self._handicapper=MojoHandicapper()
 
         self._allow_send_metainfo = allow_send_metainfo  # controls if we allow adding our metainfo to outgoing messages on occasion
-        self.__counterparties_metainfo_sent_to_map = Cache.StatsCacheSingleThreaded(maxitems=10000, autoexpireinterval=600, autoexpireparams={'maxage': 1800})
+        self.__counterparties_metainfo_sent_to_map = Cache.LRUCache(maxsize=512)
         self.__need_sequence_update = true  # determines if we update our sequence number when generating a hello
         self._lasthellotime=0 # to prevent sending redundant hellos too often
         self._contactinfochangedtime = 0
@@ -260,9 +260,6 @@ class MojoTransactionManager:
         # for msgtype in ('are there messages',)
         #  @return 500 if counterparty is not the currently preferred (== most recently advertised) relay server.
         self.get_handicapper().add_handicapper(self._listenermanager._relayl.compute_handicap_prefer_current, mtypes=('are there messages',))
-
-        # significantly handicap counterparties that haven't been responding to their messages recently at all or fast enough
-        self.get_handicapper().add_handicapper(self._cm.pending_responses_handicapper)
 
         # this is used to prevent >1 update from occurring at the same time
         self.__handler_funcs_and_services_dicts_update_lock=threading.Lock()
@@ -476,8 +473,6 @@ class MojoTransactionManager:
             self.__need_sequence_update = false
             config.set('sequences', asciiid, int(config.get('sequences', asciiid, raw = true)) + 1)
             needtosave = true
-            # wipe the cache of who we've sent metainfo to since it is now false as our metainfo has been updated
-            self.__counterparties_metainfo_sent_to_map.expire(maxage=0)
         if needtosave:
             self._contactinfochangedtime = timer.time()
             # save the current sequence number in the config file so that we never lower it

@@ -13,7 +13,7 @@
 # us, their reputation for coming through with their deals in our eyes,
 # etc.
 #
-__cvsid = '$Id: counterparties.py,v 1.7 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: counterparties.py,v 1.8 2002/11/22 05:48:36 zooko Exp $'
 
 
 # Python standard library modules
@@ -284,16 +284,10 @@ class CounterpartyObject :
                 debugprint("Got error loading counterparties db.  ignoring: %s\n", args=(le,), v=0, vs="warning")
                 dict = {}
 
-        # Set _every_ counterparty's AWF to the current DEFAULT_AMOUNT_WILL_FRONT_v3.
+        # Set _every_ counterparty's AWF to 0.
         # This changes an old tradition of keeping the AWF separate for each counterparty.
-        configged = 0
-        if configged[-1:] == "L":
-            configged = configged[:-1]
-        try:
-            dict['amount will front'] = int(configged)
-        except ValueError:
-            dict['amount will front'] = long(configged)
-          
+        # (All of this accounting stuff is on Code Death Row.)  --Zooko 2002-11-22
+        dict['amount will front'] = 0
         if dict.get('total spent') is None :
             dict['total spent'] = 0
         if dict.get('total performed') is None :

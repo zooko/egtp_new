@@ -632,7 +632,7 @@ class TCPConnCache(Cache.SimpleCache):
         if self.has_key(key):
             self.remove(key)
 
-        if len(self._dict) > (self._max_connections - 1):
+        if len(self) > (self._max_connections - 1):
             if not self._cleanup(self._max_connections - 1):
                 raise CommsError.CannotSendError, "too many busy connections"
 
@@ -755,7 +755,7 @@ class TCPConnCache(Cache.SimpleCache):
                     self.remove(k)
 
 
-            for (k, tcpc) in self._dict.items():
+            for (k, tcpc) in self.items():
                 pn = None
                 try:
                     pn = tcpc.getpeername()
