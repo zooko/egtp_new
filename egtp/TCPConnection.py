@@ -3,7 +3,11 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPConnection.py,v 1.10 2003/02/17 09:35:21 artimage Exp $"
+"""
+Sends and receives buffers on TCP connections.
+"""
+
+__revision__ = "$Id: TCPConnection.py,v 1.11 2003/02/23 16:18:30 myers_carpenter Exp $"
 
 # standard Python modules
 import asyncore, socket, struct, sys, threading, time, traceback, types
@@ -585,52 +589,4 @@ class TCPConnection(asyncore.dispatcher):
 ##            debugprint("%s: asyncore log: %s", args=(self, message,), v=15, vs="commstrats")
 ##        else:
 ##            debugprint("%s: asyncore log: %s\n", args=(self, message,), v=15, vs="commstrats")
-
-def test_close_on_bad_length(pack=struct.pack):
-    outputholder = [None]
-    def inmsg(tcpc, msg, outputholder=outputholder):
-        outputholder[0] = msg
-
-    t = TCPConnection(inmsg, idlib.new_random_uniq())
-    msg = "hellbo"
-    str = pack('>L', 2**30) + msg
-    t._chunkify(str)
-    DoQ.doq.flush()
-    assert t._closing
-
-def test_chunkify():
-    outputholder = [None]
-    def inmsg(tcpc, msg, outputholder=outputholder):
-        outputholder[0] = msg
-
-    t = TCPConnection(inmsg, idlib.new_random_uniq())
-
-    def help_test(msgs, iseq, t=t, outputholder=outputholder, pack=struct.pack):
-        str = ''
-        for msg in msgs:
-            str = str + pack('>L', len(msg)) + msg
-        oldi = 0
-        for i in iseq:
-            t._chunkify(str[oldi:i])
-            oldi = i
-            DoQ.doq.flush() # the upward inmsg push happens on the DoQ.
-        assert outputholder[0] == msg
-
-    msgs = ["goodbyte",]
-
-    help_test(msgs, range(1, len(msgs[0])+5))
-    help_test(msgs, range(4, len(msgs[0])+5))
-    help_test(msgs, range(5, len(msgs[0])+5))
-
-    msgs = ["hellbo", "goodbyte",]
-    help_test(msgs, range(1, 23))
-    help_test(msgs, (1, 5, 9, 23,))
-    help_test(msgs, (4, 9, 23,))
-    help_test(msgs, (11, 12, 23,))
-
-    msgs = ["hellbo", "goodbyte", "wheedle, wordling!",]
-    help_test(msgs, (10, 20, 30, 40, 50,))
-    help_test(msgs, (5, 10, 20, 30, 40, 50,))
-    help_test(msgs, (15, 20, 30, 40, 50,))
-    help_test(msgs, (15, 17, 23, 40, 50,))
 

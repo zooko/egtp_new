@@ -3,11 +3,11 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mojoutil.py,v 1.13 2003/02/22 16:52:23 myers_carpenter Exp $"
-
 """
 Util functions we didn't know what else to do with.  Clean this up.
 """
+
+__revision__ = "$Id: mojoutil.py,v 1.14 2003/02/23 16:18:30 myers_carpenter Exp $"
 
 import binascii, copy, math, operator, os, profile, pstats, re
 import sha, string, struct, sys, threading, traceback, time, types

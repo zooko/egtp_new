@@ -4,7 +4,7 @@ Unit test for khashmir lookup manager.
 """
 
 __author__   = 'Artimage <artimage@ishiboo.com>'
-__revision__ = "$Id: test_khashmir.py,v 1.2 2003/02/17 09:35:22 artimage Exp $"
+__revision__ = "$Id: test_khashmir.py,v 1.3 2003/02/23 16:18:32 myers_carpenter Exp $"
 
 import time
 import unittest
@@ -21,9 +21,9 @@ import threading
 
 from pyutil.debugprint import debugprint
 
-from dht import khashmir
-from dht import hash
-from dht import node
+from khashmir import khashmir
+from khashmir import hash
+from khashmir import node
 	
    
 def _help_test_build_net(quiet=0, peers=24, host='127.0.0.1',  pause=0, startport=2001, dbprefix='/tmp/test'):

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: loggedthreading.py,v 1.5 2003/02/04 03:40:23 zooko Exp $"
+__revision__ = "$Id: loggedthreading.py,v 1.6 2003/02/23 16:18:30 myers_carpenter Exp $"
 
 # standard modules
 from threading import *
@@ -34,15 +34,3 @@ class LoggedThread(Thread):
             _debugprint('Exception in thread \'%s\':\n' % (self.getName(),), vs='ERROR')
             _print_exc(file=_debugstream)
 
-
-def test_this():
-    def funct():
-        print 42
-        raise "sixtynine dude!"
-    l = LoggedThread(target=funct)
-    l.start()
-    import time
-    time.sleep(1)
-
-if __name__ == '__main__':
-    test_this()

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: cryptutil.py,v 1.7 2003/02/02 22:21:15 myers_carpenter Exp $"
+__revision__ = "$Id: cryptutil.py,v 1.8 2003/02/23 16:18:31 myers_carpenter Exp $"
 
 import sha, types
 
@@ -42,13 +42,13 @@ def desx_decrypt(ciphertext, key):
 
     return tripledescbc.new(hashrandom.hashexpand(key + 'key', 24)).decrypt(hashrandom.hashexpand(key + 'iv', 8), ciphertext)
 
-def gen_piece_keyseed(chunkId):
+def gen_chunk_keyseed(chunkId):
     """
     @precondition `chunkId' must be a string.: type(chunkId) == types.StringType: "chunkId: %s" % humanreadable.hr(chunkId)
     """
     assert type(chunkId) == types.StringType, "precondition: `chunkId' must be a string." + " -- " + "chunkId: %s" % humanreadable.hr(chunkId)
 
-    canonicalseed = mencode.mencode({'pieceid': idlib.to_mojosixbit(chunkId)})
+    canonicalseed = mencode.mencode({'chunkid': idlib.to_mojosixbit(chunkId)})
 
     return hashrandom.hashexpand(canonicalseed, EGTPConstants.SIZE_OF_UNIQS)
 
