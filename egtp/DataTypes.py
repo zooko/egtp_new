@@ -476,13 +476,3 @@ def test_check_multiple_in_second_depth_fail() :
         return 0
     except BadFormatError :
         return 1
-    
-mojo_test_flag = 1
-
-def run():
-    import RunTests
-    RunTests.runTests(["DataTypes"])
-
-if __name__ == '__main__':
-    run()
-
