@@ -397,7 +397,6 @@ class test(Command):
 
         sys.path = old_path[:]
 
-
 setup_args = {
     'name': "egtp",
 #    'version': egtp.version.versionstr_full,
