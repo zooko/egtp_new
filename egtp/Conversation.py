@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: Conversation.py,v 1.6 2002/09/29 17:51:54 zooko Exp $'
+__cvsid = '$Id: Conversation.py,v 1.7 2002/11/22 05:27:40 zooko Exp $'
 
 # Python standard library modules
 import threading
@@ -53,11 +53,7 @@ class ConversationManager:
 
         # maps message id's of messages who's responses have timed out to (recipient_id, conversation type, time of timeout, post timeout callback function, notes [only if post timeout callback function])
         # Reminder: this indirectly holds references to the original outgoing message body as well as the metainfo used to send it.  That is often large.
-        self.__posttimeout_callback_functions = Cache.StatsCacheSingleThreaded(maxitems=200, autoexpireinterval=61, autoexpireparams={'maxage':900})
-
-        # maps binary counterparty_id to number of response messages that have not been received
-        # (used for the pending_responses_handicapper)
-        self.__outstanding_messages = Cache.StatsCacheSingleThreaded(autoexpireinterval=61, autoexpireparams={'maxage':1200})
+        self.__posttimeout_callback_functions = Cache.LRUCache(maxsize=512)
 
         # maps message id to (binary counterparty_id, message type, response status)
         # where status is HANDLED or EXPECTING_RESPONSE
@@ -72,41 +68,17 @@ class ConversationManager:
         # freshness proofs, but this code ensures that when we ship a new, replay-attack-proof
         # version which _does_ verify freshness proofs, then older apps which are running _this_
         # version of our software will be able to interoperate with it.
-        self._map_cid_to_freshness_proof = Cache.CacheSingleThreaded(maxitems=1000)
+        self._map_cid_to_freshness_proof = Cache.LRUCache(maxsize=512)
 
         self._in_message_num = 0L   # used only in debugging
 
     def shutdown(self):
         debugprint("self._map_inmsgid_to_info: %s\n", args=(self._map_inmsgid_to_info,), v=6, vs="debug")
         self.__callback_functions = {}
-        self.__posttimeout_callback_functions.empty()
-        self.__outstanding_messages.empty()
+        self._posttimeout_callback_functions.clear()
         self._map_inmsgid_to_info = {}
-        self._map_cid_to_freshness_proof.empty()
-        if hasattr(self, '_MTM'):
-            del self._MTM  # break our circular reference
+        self._map_cid_to_freshness_proof.clear()
    
-    def pending_responses_handicapper(self, counterparty_id, metainfo, message_type, message_body, TUNING_FACTOR=TUNING_FACTOR):
-        """
-        Severely handicaps any counterparty based on the number of response messages it has outstanding.
-
-        The idea behind this is to prevent sending a counterparty another query until it responds to the
-        earlier one we sent it.
-
-        This should prevent queries that are failing from building up and failing due to timeouts
-        piling on top of eachother with responses to earlier messages still being delivered but
-        ignored due to their transaction already timing out.
-
-        XXX This is hopefully fixed by late-response processing and more clever timeout values.  This handicapper can cause serious harm by disqualifying all of the block servers that you most want to use, if it is the case that you can generate queries faster than the queries can travel to the BS, get processed, and travel back.  Anyway, I'm just adjusting it to be a handicap instead of DISQ.  --Zooko 2001-04-29
-
-        timed out messages count for a while after they were first initiated.  The exact time is controlled
-        by the expire time for the __outstanding_messages StatsCache in the constructor.
-
-        If more than 4 messages are outstanding this counterparty is temporarily disqualified from further business.
-        If it is still unreliable after that, the persistent unreliability handicapper will eventually take care of it.
-        """
-        return self.__outstanding_messages.get(counterparty_id, 0) * TUNING_FACTOR
-
     def initiate_and_return_first_message(self, counterparty_id, conversationtype, firstmsgbody, outcome_func, timeout = 300, notes = None, mymetainfo=None, post_timeout_outcome_func=None):
         """
         @precondition: `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % humanreadable.hr(id)
@@ -139,8 +111,6 @@ class ConversationManager:
             # Schedule a timeout checker.
             timeoutcheckerschedtime = DoQ.doq.add_task(self.fail_conversation, kwargs={'msgId': msgId, 'failure_reason': 'timeout', 'istimeout': 1}, delay=timeout)
             self.__callback_functions[msgId] = (counterparty_id, outcome_func, notes, conversationtype, post_timeout_outcome_func, timeoutcheckerschedtime ,)
-            num = self.__outstanding_messages.get(counterparty_id, 0)
-            self.__outstanding_messages[counterparty_id] = num + 1
 
         return msgId, message
 
@@ -317,19 +287,10 @@ class ConversationManager:
                     notes = post_timeout_notes
                     debugprint("post timeout callback for response of type %s to msgId %s\n", args=(responsetype, reference,), v=5, vs='Conversation')
                 else:
-                    # keep track of the number of outstanding response messages for handicapping purposes
-                    num = self.__outstanding_messages.get(recipient_id, 0)
-                    if num > 0:  # make sure it stays >= 0 just in case threaded access happened somehow and messed it up
-                        self.__outstanding_messages[recipient_id] = num - 1
                     return std.NO_RESPONSE
 
             if not idlib.equal(counterparty_id, recipient_id):
                 return std.NO_RESPONSE
-
-            # keep track of the number of outstanding response messages for handicapping purposes
-            num = self.__outstanding_messages.get(recipient_id, 0)
-            if num > 0:  # make sure it stays >= 0 just in case threaded access happened somehow and messed it up
-                self.__outstanding_messages[recipient_id] = num - 1
 
             if conversationtype + ' response' != responsetype:
                 debugprint("message of unexpected type %s from %s in response to a %s\n", args=(responsetype, counterparty_id, conversationtype), v=3, vs='Conversation')
