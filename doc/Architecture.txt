@@ -31,6 +31,13 @@ active attack.
  - I don't understand -- the reply messages *is* an ACK, and thus enables 
     reliable (more precisely: retriable) messaging.  How can I make this more 
     clear?
+* Ok, but an ACK in TCP is sent even if there is no data to send. Is this the 
+  case here? ie. is it always Query, Reply... Or are you allowed to not reply.
+  Or, put another way, if I send a packet, am I gaurenteed a reply? If I do 
+  not get a reply does egtp resend the original querry? How long does it wait?
+  What is the retransmit strategy? How long before it decides the host is dead?
+  etc...
+
 
 The nonces and references are included with the message, and are always present 
 regardless of what communication substrate the message is delivered over, 
@@ -58,7 +65,7 @@ consider that Alice sends a request to Bob for a list of currently available
 e-texts.  Mallory saves a copy of Alice's requests.  Mallory can then resend 
 that same copied request to Bob over and over, and each time Bob will think that 
 it is a new request from Alice and answer it accordingly.  In this particular 
-example Mallory isn't able to do much damage, but in order examples he might be.
+example Mallory isn't able to do much damage, but in other examples he might.
 
 Fixing this problem turns out to be surprisingly subtle, at least judging by how 
 long it has taken me, Zooko, to come up with a complete solution.  That solution 
@@ -117,6 +124,7 @@ II. General Implementation Stuff
 
  * Maybe this section should be called definitions and put first?
  - I don't think any of the terms in section II here are used in section I.  Do you still think that would be better?
+ * Hmm... you have changed my mind.
 
 A. nodeIds 
 
@@ -240,5 +248,12 @@ action twice or not.  (Safe: "send me a copy the block with this blockId"
 (except for bandwidth resource management issues), unsafe: "Take 10 nanobux out 
 of my account and put them into the account with this accountId".)
 
+ * Ahhh.. This seems to answer the question I had above. Maybe above you should
+   just make reference to this explanation.
+
 In EGTP v2, the EGTP layer will be able to automatically retry for you 
 regardless of the application-layer content of the messages.
+
+ * I believe this means that EGTP currently is a best effort system. Hence its 
+   like UDP. (Like my question above.) Am I right, or am I missing somthing?
+
