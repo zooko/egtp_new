@@ -11,11 +11,12 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.13 2003/02/10 00:07:57 zooko Exp $"
+__revision__ = "$Id: idlib.py,v 1.14 2003/02/27 03:44:17 myers_carpenter Exp $"
 
 # Python Standard Library modules
 import re, sha, struct, types
 
+from pyutil.debugprint import debugprint
 # egtp modules
 from egtp import EGTPConstants, std, mojosixbit, std
 from egtp.crypto import randsource
@@ -83,7 +84,7 @@ def id_to_native_int(id, IntType=types.IntType, LongType=types.LongType, FloatTy
     """
     assert is_sloppy_id(id) or ((type(id) in (IntType, LongType, FloatType,)) and ((id >= 0) and (id < (2 ** 24)))) or ((len(id) >= 3) and (len(id) <= EGTPConstants.SIZE_OF_UNIQS)), "precondition: `id' must be an id or a native-int of an id, a float of an id, or else it must be the right length for a binary id prefix." + " -- " + "id: %s :: %s" % (std.hr(id), std.hr(type(id)),)
 
-    if is_mojosixbitencoded_id(id):
+    if type(id) == types.StringType and is_mojosixbitencoded_id(id):
         debugprint("warning: mojosixbitencoded id encountered.  Should be converted to flat binary.  id: %s\n", args=(id,))
     typ = type(id)
     if typ is IntType or typ is LongType or typ is FloatType:
