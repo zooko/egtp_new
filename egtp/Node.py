@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Node.py,v 1.11 2003/02/17 09:35:20 artimage Exp $"
+__revision__ = "$Id: Node.py,v 1.12 2003/02/22 16:52:23 myers_carpenter Exp $"
 
 # standard modules
 import types
@@ -82,11 +82,30 @@ class Node:
 
         self.mtm.add_handler_funcs({mtype: handler_func})
 
-    def send(self, recipid, mtype, msg, response_handler_func=None):
+    def unset_handler_func(self, mtype, handler_func):
         """
+        @param mtype: a string
+
+        @precondition: `mtype' must be a string.: type(mtype) is types.StringType: "mtype: %s :: %s" % (hr(mtype), hr(type(mtype)),)
+        assert type(mtype) is types.StringType, "precondition: `mtype' must be a string." + " -- " + "mtype: %s :: %s" % (hr(mtype), hr(type(mtype)),)
+        """
+
+        self.mtm.remove_handler_funcs([mtype])
+        
+    def send(self, recipid, mtype, msg, response_handler_func=None, post_timeout_outcome_func=None):
+        """
+        Send a message to another EGTP node.
+        
+        @param recipid: EGTP node address to send to.
+        @param mtype: Message type.  Possible message types found in OurMessages.py
+        @param msg: Message payload
+        @param response_handler_func: function to call when we get an answer
+        @param post_timeout_outcome_func: function to call on a timeout
+        
         @precondition: `recipid' must be an id.: idlib.is_id(recipid): "recipid: %s :: %s" % (hr(recipid), hr(type(recipid)),)
         """
         assert idlib.is_id(recipid), "precondition: `recipid' must be an id." + " -- " + "recipid: %s :: %s" % (hr(recipid), hr(type(recipid)),)
 
-        self.mtm.initiate(recipid, mtype, msg, outcome_func=response_handler_func)
+        self.mtm.initiate(recipid, mtype, msg, outcome_func=response_handler_func, post_timeout_outcome_func=post_timeout_outcome_func)
+
 

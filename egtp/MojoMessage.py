@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoMessage.py,v 1.13 2003/02/17 09:35:20 artimage Exp $"
+__revision__ = "$Id: MojoMessage.py,v 1.14 2003/02/22 16:52:22 myers_carpenter Exp $"
 
 # Python standard library modules
 import re, string, types
@@ -12,6 +12,7 @@ import re, string, types
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint
 from pyutil import Cache
+from pyutil import humanreadable
 
 # egtp modules
 from egtp.DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER

@@ -4,24 +4,26 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: interfaces.py,v 1.10 2003/02/17 09:35:21 artimage Exp $"
+"""
+Interfaces that should be implemented by code that uses EGTP
+"""
+__revision__ = "$Id: interfaces.py,v 1.11 2003/02/22 16:52:23 myers_carpenter Exp $"
 
-# standard Python modules
 import exceptions
 
-# EGTP modules
-from egtp.IRemoteOpHandler import IRemoteOpHandler
-
 from pyutil import humanreadable
+
+from egtp.IRemoteOpHandler import IRemoteOpHandler
 
 class ILookupManager:
     """
     Performs lookups, and publications of things that other will look up.
 
-    A Lookup Manager is an object that, when you ask it "What is the one true canonical value that
-    is associated with *this* key?", gives you the value, optionally after talking with other
-    nodes over the network.  The coolest Lookup Manager would implement a Distributed Hash Table
-    under the hood.
+    A Lookup Manager is an object that, when you ask it "What is the one
+    true canonical value that is associated with *this* key?", gives you the
+    value, optionally after talking with other nodes over the network.  The
+    coolest Lookup Manager would implement a Distributed Hash Table under
+    the hood.
     """
     def __init__(self, verifier):
         """

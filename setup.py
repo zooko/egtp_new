@@ -108,7 +108,7 @@ email us so we can put instructions here.
             chdir_print(self.base_dir)
             if os.path.islink('base32') and not self.no_update:
                 os.unlink('base32')
-            os.symlink(os.path.join(my_build_dir, 'base32'), 'base32')
+            os.symlink(my_build_dir, 'base32')
         else:
             system_print_interrupt("%s setup.py install --install-lib=%s" % (sys.executable, self.base_dir))
 
