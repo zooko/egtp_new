@@ -29,11 +29,8 @@ import zlib
 
 # pyutil modules
 from pyutil.humanreadable import hr
-from pyutil.debugprint import debugprint
+from pyutil.debugprint import debugprint, debugstream
 from pyutil import fileutil
-
-# old-EGTP modules
-from egtp.confutils import confman
 
 try:
     import trace
@@ -715,10 +712,10 @@ def is_number(thing):
 def is_number_or_None(thing):
     return (thing is None) or (type(thing) in (types.IntType, types.LongType, types.FloatType,))
 
-if confman.is_true_bool(('PROFILING',)):
-    profit = _dont_enable_if_you_want_speed_profit
-else:
-    profit = doit
+#if confman.is_true_bool(('PROFILING',)):
+#    profit = _dont_enable_if_you_want_speed_profit
+#else:
+#    profit = doit
 # profit = coverageit
 
 global tracedone
@@ -751,7 +748,7 @@ def callback_wrapper(func, args=(), kwargs={}, defaultreturnval=None):
 
     @param defaultreturnval: if `func' is None, then this will be returned;  You probably want `None'.
     """
-##    if int(confman.dict['MAX_VERBOSITY']) >= 22:   # because traceback.extract_stack() is slow
+##    if debugstream.max_verbosity >= 22:   # because traceback.extract_stack() is slow
 ##        debugprint("DEBUG: about to call wrapped method: %s(%s, %s) from %s\n", args=(func, args, kwargs, traceback.extract_stack()), v=22, vs="debug")
 ##        # really, really, egregiously verbose.  Use this if you basically want a log containing a substantial fraction of all function calls made during the course of the program.  --Zooko 2000-10-08 ### for faster operation, comment this line out.  --Zooko 2000-12-11 ### for faster operation, comment this line out.  --Zooko 2000-12-11
 
@@ -765,7 +762,7 @@ def callback_wrapper(func, args=(), kwargs={}, defaultreturnval=None):
         debugprint('got a TypeError, func was %s, args was %s, kwargs was %s\n' % (`func`, `args`, `kwargs`))
         raise
 ##    finally:
-##        if int(confman.dict['MAX_VERBOSITY']) >= 23:   # because traceback.extract_stack() is slow
+##        if debugstream.max_verbosity >= 23:   # because traceback.extract_stack() is slow
 ##            debugprint("DEBUG: done calling wrapped method: %s(%s, %s) from %s\n", args=(func, args, kwargs, traceback.extract_stack()), v=23, vs="debug")
 ##            # really, really, egregiously verbose.  Use this if you basically want a log containing a substantial fraction of all function calls made during the course of the program.  --Zooko 2000-10-08 ### for faster operation, comment this line out.  --Zooko 2000-12-11
 

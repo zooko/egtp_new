@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.1 2002/08/27 20:01:39 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.2 2002/09/28 04:19:54 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -140,7 +140,7 @@ class Testy(unittest.TestCase):
             start = timer.time()
 
             # Make a listener.  He will announce his EGTP address to the lookupman `lm'.
-            d['n1'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm)
+            d['n1'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
 
             # Set a handler func: if any messages come in with message type "ping", the EGTP Node will call this function.
             def l_ping_handler(sender, msg, finishedflag=finishedflag, start=start, self=self):
@@ -151,7 +151,7 @@ class Testy(unittest.TestCase):
             # print d['n1'].get_address()
 
             # Make a sender.  He'll keep a reference to `lm' for later use.
-            d['n2'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm)
+            d['n2'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
 
         DoQ.doq.do(setup)
 

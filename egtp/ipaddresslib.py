@@ -6,7 +6,7 @@
 #
 # A library for determining the IP addresses of the local machine.
 #
-__cvsid = '$Id: ipaddresslib.py,v 1.4 2002/09/09 21:15:14 myers_carpenter Exp $'
+__cvsid = '$Id: ipaddresslib.py,v 1.5 2002/09/28 04:19:54 myers_carpenter Exp $'
 
 # standard modules
 import sys
@@ -16,6 +16,7 @@ import string
 import exceptions
 import socket
 
+
 if sys.platform == 'win32':
     # this is part of the win32all python package, get it from:
     # http://www.activestate.com/Products/ActivePython/win32all.html
@@ -24,12 +25,40 @@ if sys.platform == 'win32':
 # pyutil modules
 from pyutil.debugprint import debugprint
 
-# (old-)EGTP modules
-from egtp import confutils
 
 class Error(StandardError): pass
 class NonRoutableIPError(Error): pass
 
+# Supported platforms:
+# The format of this dict is a key identifying a general platform, and a
+# tuple value representing specific platform strings which get mapped into
+# general identifier.  If you need a more specific identification,
+# use sys.platform.
+
+platform_map = {
+    "linux-i386": "linux", # redhat
+    "linux-ppc": "linux",  # redhat
+    "linux2": "linux",     # debian
+    "win32": "win32",
+    "irix6-n32": "irix",
+    "irix6-n64": "irix",
+    "irix6": "irix",
+    "openbsd2": "bsd",
+    "freebsd4": "bsd",
+    "netbsd1": "bsd",
+    "sunos5": "sunos",
+    }
+
+# Platform information:
+platform = sys.platform
+try:
+    platform = platform_map[platform]
+except KeyError:
+    # To be cautious, if platform is not in platforms, warn the developer.
+    # (By release time this should gracefully explain to the user that the
+    # platform is not supported, but of course that will never happen.  -Nate
+    debugprint.write("WARNING: %s is not a supported platform.\n" % platform)
+    debugprint.write("Supported platforms include:\n" + str(platform_map))
 
 # These work in Redhat 6.x and Debian 2.2 potato
 __linux_ifconfig_path = '/sbin/ifconfig'
@@ -65,49 +94,48 @@ localhost_re = re.compile(r"^(localhost$|localhost\.|127\.)")
 # match RFC1597 addresses and all class D multicast addresses
 bad_address_re = re.compile(r"^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|22[4-9]\.|23\d\.).*")
 
-# allow force always passing checks during automated tests since many of us hackers are on "bad" addresses during tests
-if confutils.confman.dict.get('IGNORE_BAD_IP_ADDRS') == "testing" or \
-   confutils.confman.is_true_bool(('YES_NO', 'FORCE_TCP_TRANSPORT')):
-
-    bad_address_re = re.compile(r" nevermatch ")
-    localhost_re = re.compile(r" nevermatch ")
-    valid_ipaddr_re = re.compile(r".*")  # always match
+IP_ADDRESS_DETECTOR_HOST = '198.11.16.136'
 
 def get_primary_ip_address(nonroutableok) :
     """
     @param nonroutableok: `true' if and only if it is okay to bind to a non-routable IP address
         like 127.0.0.1 or 192.168.1.2
     """
-    address = None
+    address = find_address_via_socket()
+    
+    if not address:
+        address = find_address_via_config()
 
-    if confutils.confman.dict.get("IP_ADDRESS_OVERRIDE"):
-        # use the value from the config file if the user specified one
-        address = confutils.confman.dict.get("IP_ADDRESS_OVERRIDE")
-        debugprint('IP address override found in config file.  IP: %s\n', args=(address,), vs='ipaddresslib')
-    elif confutils.confman.get("IP_ADDRESS_DETECTOR_HOST"):
-        # Playing around with the socket module I stumbled across this method!
-        # This will detect the IP address of your network interface that would
-        # be used to connect to the configured host.  A good idea would be to
-        # always use the root metatracker as the host.
-        detectorhost = confutils.confman["IP_ADDRESS_DETECTOR_HOST"]
-        # this won't actually send any packets, it just creates a DGRAM socket so we can call getsockname() on it
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            s.connect( (detectorhost, 53) )
-            address, ignoredport = s.getsockname()
-        except socket.error, se:
-            debugprint("Error trying to use %s to detect our IP address: %s (this is normal on win95/98/ME)\n", args=(detectorhost, se), v=2, vs='ipaddresslib')
-            address = '0.0.0.0'
-        del s
-        if address == '0.0.0.0' and confutils.platform == 'win32':   # win98 returns this, the bastard!
-            address = read_win32_default_ifaceaddr()
-            if not address:
-                debugprint("ERROR ipaddresslib couldn't determine your IP address, assuming 127.0.0.1 for testing\n", vs='ipaddresslib')
-                address = '127.0.0.1'
-    # cause the platform specific ugly method to be used when our the above method fails.
-    if address != '0.0.0.0':
-        pass
-    elif confutils.platform == 'linux' :
+            
+
+def find_address_via_socket():
+    """
+    Playing around with the socket module I stumbled across this method!
+    This will detect the IP address of your network interface that would
+    be used to connect to the configured host.  A good idea would be to
+    always use the root metatracker as the host.
+    """
+    address = None
+    
+    detectorhost = IP_ADDRESS_DETECTOR_HOST
+    # this won't actually send any packets, it just creates a DGRAM socket so we can call getsockname() on it
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect( (detectorhost, 53) )
+        address, ignoredport = s.getsockname()
+    except socket.error, se:
+        debugprint("Error trying to use %s to detect our IP address: %s (this is normal on win95/98/ME)\n", args=(detectorhost, se), v=2, vs='ipaddresslib')
+        address = None
+    del s
+
+    return address    
+
+
+
+def find_address_via_config():
+    global platform
+    
+    if platform == 'linux':
         ifacedict = read_linux_ifconfig()
         default_iface = get_linux_default_iface()
 
@@ -116,14 +144,14 @@ def get_primary_ip_address(nonroutableok) :
             address = '127.0.0.1'
         else :
             address = ifacedict[default_iface]
-    elif confutils.platform == 'win32' :
+    elif platform == 'win32' :
         addr = read_win32_default_ifaceaddr()
         if not addr :
             debugprint("ERROR ipaddresslib couldn't determine your IP address, assuming 127.0.0.1 for testing\n", vs='ipaddresslib')
             address = '127.0.0.1'
         else :
             address = addr
-    elif confutils.platform == 'bsd':
+    elif platform == 'bsd':
         ifacedict = read_netbsd_ifconfig()
         default_iface = get_netbsd_default_iface()
 
@@ -132,7 +160,7 @@ def get_primary_ip_address(nonroutableok) :
             address = '127.0.0.1'
         else :
             address = ifacedict[default_iface]
-    elif confutils.platform == 'darwin1':
+    elif platform == 'darwin1':
         ifacedict = read_netbsd_ifconfig(ifconfig_path=__darwin_ifconfig_path)
         default_iface = get_netbsd_default_iface(netstat_path=__darwin_netstat_path)
 
@@ -141,7 +169,7 @@ def get_primary_ip_address(nonroutableok) :
             address = '127.0.0.1'
         else :
             address = ifacedict[default_iface]
-    elif confutils.platform == 'irix' :
+    elif platform == 'irix' :
         ifacedict = read_irix_ifconfig()
         default_iface = get_irix_default_iface()
 
@@ -150,7 +178,7 @@ def get_primary_ip_address(nonroutableok) :
             address = '127.0.0.1'
         else :
             address = ifacedict[default_iface]
-    elif confutils.platform == 'sunos':
+    elif platform == 'sunos':
         ifacedict = read_sunos_ifconfig()
         default_iface = get_sunos_default_iface()
 
@@ -300,14 +328,9 @@ def get_irix_default_iface():
 ########################################################################
 
 def read_win32_default_ifaceaddr(warninglogged_boolean=[]):
-    if string.lower(confutils.confman.dict["USE_ROUTE_TO_GET_WIN32_IPADDR"]) == "yes":
-        return _route_read_win32_default_ifaceaddr()
-    else:
-        if not warninglogged_boolean:
-            debugprint("NOTE: if the broker incorrectly determines your IP address try\n", v=1, vs='ipaddresslib')
-            debugprint("editing config/broker/broker.conf and set USE_ROUTE_TO_GET_WIN32_IPADDR: yes\n", v=1, vs='ipaddresslib')
-            warninglogged_boolean.append(1)
-        return _hostname_read_win32_default_ifaceaddr()
+    # we could use the but it causes problems with some Norton tool
+    # return _route_read_win32_default_ifaceaddr()
+    return _hostname_read_win32_default_ifaceaddr()
 
 def _hostname_read_win32_default_ifaceaddr():
     """return the IP address found by looking up our hostname"""
@@ -335,34 +358,4 @@ def _route_read_win32_default_ifaceaddr():
     else:
         return None
 
-
-########################################################################
-
-def test_ip_detector_host():
-    try:
-        del confutils.confman.dict["IP_ADDRESS_OVERRIDE"]
-    except KeyError:
-        pass
-    confutils.confman["IP_ADDRESS_DETECTOR_HOST"] = '127.0.0.1'
-    addr = get_primary_ip_address(1)
-    assert addr == '127.0.0.1', "using 127.0.0.1 as detector host should have probably returned 127.0.0.1 as the address instead of %s" % addr
-
-def test_read_linux_ifconfig():
-    if confutils.platform == 'linux':
-        ifacedict = read_linux_ifconfig()
-        assert ifacedict['lo'] == '127.0.0.1'
-
-def test_read_win32_default_ifaceaddr():
-    if confutils.platform == 'win32':
-        assert read_win32_default_ifaceaddr()
-
-def test_read_irix_ifconfig():
-    if confutils.platform == 'irix':
-        ifacedict = read_irix_ifconfig()
-        assert ifacedict['lo0'] == '127.0.0.1'
-
-def test_read_bsd_ifconfig():
-    if confutils.platform == 'bsd':
-        ifacedict = read_netbsd_ifconfig()
-        assert ifacedict['lo0'] == '127.0.0.1'
 

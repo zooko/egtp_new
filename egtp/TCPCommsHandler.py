@@ -183,7 +183,7 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
         self._upward_inmsg_handler = inmsg_handler_func
 
         # if dontbind is set, do nothing here, we don't want to listen
-        if self._dontbind :
+        if self._dontbind:
             return
 
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)

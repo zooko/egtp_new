@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.6 2002/09/21 22:08:07 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.7 2002/09/28 04:19:54 myers_carpenter Exp $'
 
 true = 1
 false = 0
@@ -233,7 +233,7 @@ class MojoTransactionManager:
             # if not testing, generate new, secret, secure one
             self._mesgen=mesgen.create_MessageMaker(dbparentdir=self._datadir, recoverdb=recoverdb)
         else:
-            if keyID and dbparentdir:
+            if keyID and self._datadir:
                 self._mesgen=mesgen.MessageMaker(dir=os.path.join(self._datadir, keyID), serialized=serialized, recoverdb=recoverdb)
             else:
                 self._mesgen=mesgen.MessageMaker(dbparentdir=self._datadir, serialized=serialized, recoverdb=recoverdb)
@@ -258,7 +258,7 @@ class MojoTransactionManager:
 
         DoQ.doq.add_task(self._periodic_cleanup, delay=150)
 
-        self._keeper=counterparties.CounterpartyObjectKeeper(dbparentdir, local_id=self.get_id(), recoverdb=true)
+        self._keeper=counterparties.CounterpartyObjectKeeper(dbparentdir=self._datadir, local_id=self.get_id(), recoverdb=true)
         # IMPORTANT NOTE:  handicappers are ordered as some of them are in-progress multipliers (such as
         # the performance handicappers which should come after price so that they can scale independently
         # of later handicappers values)
@@ -477,8 +477,8 @@ class MojoTransactionManager:
         Get our current hello sequence number, incrementing it and
         saving it to the config file if it needs updating.
         """
-        config = ConfigParser()
-        config.read(os.path.join(self._data_dir, 'sequences.conf'))
+        config = ConfigParser.ConfigParser()
+        config.read(os.path.join(self._datadir, 'sequences.conf'))
         asciiid = idlib.to_ascii(self.get_id())
         needtosave = false
         if not config.has_section('sequences'):
@@ -488,7 +488,7 @@ class MojoTransactionManager:
             needtosave = true
         if self.__need_sequence_update:
             self.__need_sequence_update = false
-            config.set('sequences', asciiid, config.getint('sequences', asciiid) + 1)
+            config.set('sequences', asciiid, int(config.get('sequences', asciiid, raw = true)) + 1)
             needtosave = true
             # wipe the cache of who we've sent metainfo to since it is now false as our metainfo has been updated
             self.__counterparties_metainfo_sent_to_map.expire(maxage=0)
@@ -497,9 +497,9 @@ class MojoTransactionManager:
             # save the current sequence number in the config file so that we never lower it
             # (XXX storing it somewhere other than the cfg file such as the mtmdb/<id>/ directory
             # would be a good idea before we implement persistent metainfo... -greg)
-            config.write(open(os.path.join(self._data_dir, 'sequences.conf'), 'w'))
+            config.write(open(os.path.join(self._datadir, 'sequences.conf'), 'w'))
 
-        return config.getint('sequences', asciiid)
+        return int(config.get('sequences', asciiid, raw = true))
 
     def get_contact_info(self):
         """

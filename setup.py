@@ -29,6 +29,8 @@ class download(Command):
             pass        
 
         self.base_dir = os.getcwd()
+        if not os.path.isdir('build'):
+            os.mkdir('build')
         self.download_bsddb3()
         self.download_pyutil()
         self.download_cryptopp()
@@ -93,8 +95,8 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
             patchlist = filter(lambda x: x[0].islower(), patchlist)
             for ii in patchlist:
                 os.system('patch -p0 < %s' % os.path.join(self.base_dir, 'egtp', 'crypto', 'patches', ii))
-            os.unlink(os.path.join('build', 'crypto++-4.2', 'unpatched'))
             os.chdir(self.base_dir)
+            os.unlink(os.path.join('build', 'crypto++-4.2', 'unpatched'))
 
         if not os.path.isfile(os.path.join('build', 'crypto++-4.2', 'libcryptopp.a')):
             print "Building crypto++..."

@@ -13,7 +13,7 @@
 # us, their reputation for coming through with their deals in our eyes,
 # etc.
 #
-__cvsid = '$Id: counterparties.py,v 1.5 2002/09/21 22:08:07 myers_carpenter Exp $'
+__cvsid = '$Id: counterparties.py,v 1.6 2002/09/28 04:19:54 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -248,10 +248,10 @@ class CounterpartyObject :
         self.keeper = keeper
         self.trans = None
         
-        if reliability_percent < float(confman.dict["COUNTERPARTY"]["MIN_RESPONSE_RELIABILITY_FRACTION"]) and size_of_disagreement >= int(confman.dict["COUNTERPARTY"]["MIN_NUM_MO_DIFFERENCE_FOR_RELIABILITY_CHECK"]) :
-            return 1  # they're currently unreliable
-        if size_of_disagreement >= int(confman.dict["COUNTERPARTY"]["MAX_NUM_MO_DIFFERENCE_BEFORE_UNRELIABLE"]) :
-        self.min_response_reliablitMIN_RESPONSE_RELIABILITY_FRACTION
+        # tweakable attribs
+        self.min_response_reliability_fraction = 0.70
+        self.min_num_mo_difference_for_reliability_check = 10
+        self.max_num_mo_difference_before_unreliable = 2000
 
         self._tempawfdelta = 0 # This is used to give a cp a temporary increase which is never written to the persistent db.  (For fast deposits.)
 
@@ -360,15 +360,11 @@ class CounterpartyObject :
                 self._debugprint("extending %s credit to her; new_balance = %s", args=(amount, new_balance,), reasonstr=reasonstr)
                 return true, amtwfront, new_balance
 
-            if true: # (confman.is_true_bool(['KEEP_FUNCTIONING_WHILE_TS_IS_DOWN'])) or (new_balance <= amtwfront):
-                self.keeper.update_mos_others_owe_us_total(amount)  # they owe us more
-                self._debugprint("extending %s credit to her. new_balance = %s", args=(amount, new_balance,), reasonstr=reasonstr)
-                self.vals['total performed'] = self.vals['total performed'] + amount
-                self.save()
-                return true, amtwfront, new_balance
-            else :
-                self._debugprint("XXX amtwfront: %s, cur_balance: %s\n", args=(amtwfront, cur_balance,), reasonstr=reasonstr)
-                return false, amtwfront, cur_balance
+            self.keeper.update_mos_others_owe_us_total(amount)  # they owe us more
+            self._debugprint("extending %s credit to her. new_balance = %s", args=(amount, new_balance,), reasonstr=reasonstr)
+            self.vals['total performed'] = self.vals['total performed'] + amount
+            self.save()
+            return true, amtwfront, new_balance
         finally :
             self.done()
 
@@ -587,9 +583,9 @@ class CounterpartyObject :
             else :
                 reliability_percent = float(num_good) / num_made
                 size_of_disagreement = num_made - num_good
-                if reliability_percent < float(confman.dict["COUNTERPARTY"]["MIN_RESPONSE_RELIABILITY_FRACTION"]) and size_of_disagreement >= int(confman.dict["COUNTERPARTY"]["MIN_NUM_MO_DIFFERENCE_FOR_RELIABILITY_CHECK"]) :
+                if reliability_percent < self.min_response_reliability_fraction and size_of_disagreement >= self.min_num_mo_difference_for_reliability_check :
                     return 1  # they're currently unreliable
-                if size_of_disagreement >= int(confman.dict["COUNTERPARTY"]["MAX_NUM_MO_DIFFERENCE_BEFORE_UNRELIABLE"]) :
+                if size_of_disagreement >= self.max_num_mo_difference_before_unreliable:
                     return 1  # they're currently unreliable
                 return 0
         finally:
