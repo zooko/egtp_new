@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeLookupMan.py,v 1.6 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: NodeLookupMan.py,v 1.7 2002/11/07 03:11:15 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -31,9 +31,10 @@ class NodeLookupMan(interfaces.ILookupManager):
         @param verifier: the object that verifies that what the lookup
                returned is indeed valid.
         """
-        if verifier is None:
-            verifier = NodeMappingVerifier.NodeMappingVerifier() 
-        interfaces.ILookupManager.__init__(self, verifier)
+        self.verifier = verifier
+        if self.verifier is None:
+            self.verifier = NodeMappingVerifier.NodeMappingVerifier() 
+        interfaces.ILookupManager.__init__(self, self.verifier)
         self.lm = lm
 
     def lookup(self, key, lookuphand):
@@ -42,7 +43,7 @@ class NodeLookupMan(interfaces.ILookupManager):
         """
         assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % tuple(map(humanreadable.hr, (key, type(key),)))
 
-        self.lm.lookup(key, NodeLookupHand(lookuphand, key))
+        self.lm.lookup(key, NodeLookupHand(lookuphand, key, self.verifier))
 
     def publish(self, key, object):
         """
@@ -63,7 +64,7 @@ class NodeLookupHand(interfaces.ILookupHandler):
 
     It also asserts the validity of the key->value mapping after lookup.
     """
-    def __init__(self, lh, key):
+    def __init__(self, lh, key, verifier):
         """
         @param lh: the lookup handler object
 
@@ -71,7 +72,7 @@ class NodeLookupHand(interfaces.ILookupHandler):
         """
         assert idlib.is_id(key), "precondition: key must be an id." + " -- " + "key: %s :: %s" % (hr(key), hr(type(key)),)
 
-        interfaces.ILookupHandler.__init__(self)
+        interfaces.ILookupHandler.__init__(self, key, verifier)
         self.lh = lh
         self.key = key
 
