@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __author__   = 'Myers Carpenter'
-__revision__ = "$Id: test_crypto.py,v 1.1 2003/03/22 20:51:00 myers_carpenter Exp $"
+__revision__ = "$Id: test_crypto.py,v 1.2 2003/03/23 16:15:53 myers_carpenter Exp $"
 
 import unittest
 
@@ -14,26 +14,20 @@ class SampleTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def longtobytes(self, n,block=1): #Slow!
-        r = ""
-        while n>0:
-            r = chr(n&0xff) + r
-            n = n >> 8
-        if len(r)% block:
-            r = chr(0)*(block-len(r)%block) + r
-        return r
-
     def testSample1(self):
 
-        text = 'Ripley is a annoying cat'
-
-
-        print dir(egtp.crypto.aesctr)
-        aeskey = egtp.crypto.aesctr.new('0'*16)
+        text = 'Ripley is a annoying cat' * 5000
         
-        ciphertext = aeskey.encrypt('0'*16, text)
-        print '%r' % ciphertext
-        text2 = aeskey.decrypt('0'*16, ciphertext)
+        print len(text)
+
+
+        key = '1'*16
+        
+        aeskey = egtp.crypto.aesctr.new(key)
+        aeskey2 = egtp.crypto.aesctr.new(key)
+        
+        ciphertext = aeskey.encrypt('\x00'*16, text)
+        text2 = aeskey2.decrypt('\x00'*16, ciphertext)
         
         assert text == text2
 

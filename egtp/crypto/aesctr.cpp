@@ -31,7 +31,6 @@ typedef struct
 {
   PyObject_HEAD;
   byte *key;
-  byte *intial_counter;
 }
 aesctr;
 
@@ -114,7 +113,7 @@ aesctr_new (aesctr * self, PyObject * args)
     if (keylength != 16)
       {
         throw Exception (Exception::INVALID_ARGUMENT,
-                         "triple DES key length must be 24");
+                         "AES key length must be 16");
       }
     if (!(newself = PyObject_NEW (aesctr, &aesctr_type)))
       {
@@ -170,7 +169,7 @@ aesctr_encrypt (aesctr * self, PyObject * args)
     //              std::cout << std::endl;
     //              std::cout.flush();
     //      std::cout << "hello enc 0.7.3, iv: " << iv << std::endl; std::cout.flush();
-    CTR_Mode < AES >::Encryption encryption (self->key, 24, initalcounter);
+    CTR_Mode < AES >::Encryption encryption (self->key, 16, initalcounter);
     //              std::cout << "hello enc 0.8" << std::endl; std::cout.flush();
     ciphertext = new byte[textlength];
     //              std::cout << "hello enc 0.9" << std::endl; std::cout.flush();
@@ -228,20 +227,20 @@ aesctr_decrypt (aesctr * self, PyObject * args)
   byte *plaintext = NULL;
   try
   {
-    byte *iv;
-    unsigned int ivlength;
+    byte *initalcounter;
+    unsigned int initalcounterlength;
     byte *text;
     unsigned int textlength;
-    if (!PyArg_ParseTuple (args, "s#s#", &iv, &ivlength, &text, &textlength))
+    if (!PyArg_ParseTuple (args, "s#s#", &initalcounter, &initalcounterlength, &text, &textlength))
       {
         throw Exception (Exception::INVALID_ARGUMENT,
                          "wrong type of parameters passed in from Python");
       }
-    if (ivlength != 16)
+    if (initalcounterlength != 16)
       {
-        throw Exception (Exception::INVALID_ARGUMENT, "IV length must be 16");
+        throw Exception (Exception::INVALID_ARGUMENT, "initalcounter length must be 16");
       }
-    CTR_Mode < AES >::Decryption decryption (self->key, 24, iv);
+    CTR_Mode < AES >::Decryption decryption (self->key, 16, initalcounter);
     plaintext = new byte[textlength];
     if (plaintext == NULL)
       {
@@ -284,21 +283,21 @@ aesctr_decrypt (aesctr * self, PyObject * args)
 
 PyMethodDef aesctr_functions[] = {
   {"new", (PyCFunction) aesctr_new, METH_VARARGS,
-   "Constructs a new aesctr.\n" "Accepts a key of length 24."}
+   "Constructs a new aesctr.\n" "Accepts a key of length 16."}
   ,
   {NULL, NULL}                  /* Sentinel */
 };
 
 char *aesctr_doc =
   "Does 3DES encryption and decyption in CBC mode with ciphertext stealing.\n"
-  "Always uses a key of length 24 and initialization vectors of length 8.\n"
+  "Always uses a key of length 16 and initialization vectors of length 8.\n"
   "\n"
   "Class methods are - \n"
   "new(key) - constructor\n"
   "\n"
   "Instance methods are - \n"
-  "encrypt(iv, plaintext) - encrypt a string\n"
-  "decrypt(iv, ciphertext) - decrypt a string";
+  "encrypt(initalcounter, plaintext) - encrypt a string\n"
+  "decrypt(initalcounter, ciphertext) - decrypt a string";
 
 /* Initialize this module. */
 
