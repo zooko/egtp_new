@@ -1,7 +1,30 @@
 Introduction to the EGTP Architecture:
 
 
-I. General Stuff
+I. Overall Design
+
+A. Nonces and References
+
+The idea is that data is transmitted between EGTP nodes in the form of messages.
+Each message contains a unique (randomly generated) nonce which guarantees that 
+it is unique among all messages ever transmitted universally through all 
+history.  When you receive a message from another EGTP node, and you wish to 
+*reply* to that message so that the sender will get your reply, and will know 
+that it is a reply to that particular message that she sent, you include a hash 
+of the original message in your reply (this hash is called the "reference" -- it 
+refers to the original message).  This allows the sender to know with certainty 
+that your message is a reply to that particular query of his.  This is how the 
+sender's EGTP library associated queries with replies, and it also provides 
+assurance that the messages received as a reply isn't a replay attack or some 
+other active attack.
+
+B. Timeouts
+
+EGTP does not 
+XXX
+
+
+II. General Implementation Stuff
 
 A. nodeIds 
 
@@ -42,7 +65,7 @@ proceed.  Throttling simply artificially enforces this situation: when
 throttled, the TCPConnection will not try to send any data until unthrottled.  
 
 
-II. Classes
+III. Classes
 
 A. CommStrat
 

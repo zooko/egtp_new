@@ -11,8 +11,8 @@ from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTE
 from egtp.OurMessagesPublicKey import *
 
 BASE_COMM_STRAT_TEMPL = {
-    'broker id': OptionMarker([UNIQUE_ID, None]), # The "or `None'" is for backwards-compatibility -- we have accidentally been storing "Nones" under 'broker id' in the metatracker pickle...  --Zooko 2001-09-02
-    'comm strat sequence num': OptionMarker(NON_NEGATIVE_INTEGER),
+    'broker id': OptionMarker(UNIQUE_ID),
+    'comm strat sequence num': NON_NEGATIVE_INTEGER,
     }
 
 TCP_COMM_STRAT_TEMPL = {}
