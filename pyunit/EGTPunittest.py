@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.4 2002/11/07 03:12:36 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.5 2002/11/07 21:48:21 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -38,8 +38,12 @@ HARDCODED_GOOD_EGTP_ADDRESS={'sequence num': 3, 'connection strategies': [{'lowe
 
 assert (type(HARDCODED_GOOD_EGTP_ADDRESS) is types.DictType) and (HARDCODED_GOOD_EGTP_ADDRESS.has_key("connection strategies")) and (HARDCODED_GOOD_EGTP_ADDRESS.get("connection strategies", [{}])[0].has_key("pubkey")), "precondition: `HARDCODED_GOOD_EGTP_ADDRESS' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain." + " -- " + "HARDCODED_GOOD_EGTP_ADDRESS: %s :: %s" % (humanreadable.hr(HARDCODED_GOOD_EGTP_ADDRESS), humanreadable.hr(type(HARDCODED_GOOD_EGTP_ADDRESS)),)
 
-# a lookup man which uses only local data;  In a real app you need remote lookup in the form of MetaTrackers, Tristero, Chord, Plex, Alpine, or something.
 class LocalLookupMan(ILookupManager):
+    """ 
+    a lookup man which uses only local data; In a real app you need
+    remote lookup in the form of MetaTrackers, Tristero, Chord, Plex,
+    Alpine, or something.
+    """
     def __init__(self, verifier):
         ILookupManager.__init__(self, verifier)
         self.data = {}
@@ -61,15 +65,19 @@ class LocalLookupMan(ILookupManager):
 
         self.data[egtpid] = egtpaddr
 
-# a discovery man which uses only local data;  In a real app you need distributed discovery in the form of MetaTrackers, Tristero, Plex, Alpine, or something.
 class LocalDiscoveryMan(IDiscoveryManager):
+    """
+    a discovery man which uses only local data;  In a real app you need
+    distributed discovery in the form of MetaTrackers, Tristero, Plex,
+    Alpine, or something.
+    """
     def __init__(self):
         self.data = {}
     def discover(self, key, discoveryhand):
         discoveryhand.result(self.data.get(key))
         return # `discover()' never returns any return value!
 
-class Testy(unittest.TestCase):
+class EGTPTestCaseTemplate(unittest.TestCase):
     def setUp(self):
         Node.init()
 
@@ -160,19 +168,24 @@ class Testy(unittest.TestCase):
         finishedflag.wait(TIMEOUTLIMIT )
         self.failUnless(finishedflag.isSet(), "didn't complete within timeout limit of %s seconds" % TIMEOUTLIMIT)
 
+class LocalTest(EGTPTestCaseTemplate):
     def test_local_no_block_on_publish(self):
         self._help_test_no_block_on_publish(LocalLookupMan(NodeMappingVerifier()))
 
     def test_local_send_and_receive(self):
         self._help_test_EGTP_send_and_receive(LocalLookupMan(NodeMappingVerifier()))
 
-    ## commenting out the Tristero tests because we don't have a Tristero server component useful for doing unit tests (i.e., tests that don't require any other manual setup by the human tester, and that don't give failures when there are problems such as networking outages that are unrelated to the source code being tested.  --Zooko 2002-04-21
-    def DISABLED_test_tristero_no_block_on_construct(self):
+class TristeroTest(EGTPTestCaseTemplate):
+    def test_tristero_no_block_on_construct(self):
+        """ 
+        This tests that calling `TristeroLookup()' does not block, not
+        even for a second.  
+        
+        The real point is that `TristeroLookup()' should not block at all,
+        even for a microsecond, and especially not in a way that sometimes
+        blocks for a long time (i.e. waiting for network traffic).  
         """
-        This tests that calling `TristeroLookup()' does not block, not even for a second.
-        The real point is that `TristeroLookup()' should not block at all, even for a microsecond, and especially not in a way that sometimes blocks for a long time (i.e. waiting for network traffic).
-        """
-        finishedflag = threading.Event()
+        finishedflag = threading.Event() 
         def doit(finishedflag=finishedflag):
             TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805")
             finishedflag.set()
@@ -182,15 +195,20 @@ class Testy(unittest.TestCase):
         finishedflag.wait(TIMELIMIT)
         self.failUnless(finishedflag.isSet(), "didn't return from a call to `TristeroLookup()' within limit of %s seconds" % TIMELIMIT)
 
-    def DISABLED_test_tristero_no_block_on_publish(self):
+    def test_tristero_no_block_on_publish(self):
         self._help_test_no_block_on_publish(TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805"))
 
-    def DISABLED_test_tristero_send_and_receive(self):
+    def test_tristero_send_and_receive(self):
         self._help_test_EGTP_send_and_receive(TristeroLookup(NodeMappingVerifier(), "http://fnordovax.dyndns.org:10805"))
 
 
+
 def suite():
-    suite = unittest.makeSuite(Testy, 'test')
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(LocalTest, 'test'))
+    ## commenting out the Tristero tests because we don't have a Tristero server component useful for doing unit tests (i.e., tests that don't require any other manual setup by the human tester, and that don't give failures when there are problems such as networking outages that are unrelated to the source code being tested.  --Zooko 2002-04-21
+    ## suite.addTest(unittest.makeSuite(TristeroTest, 'test')
+
     return suite
 
 if __name__ == '__main__':

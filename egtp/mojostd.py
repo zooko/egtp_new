@@ -12,30 +12,14 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.10 2002/10/28 03:17:04 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.11 2002/11/07 21:48:20 myers_carpenter Exp $'
 
 
 # Python standard library modules
-import UserDict
-import copy
-import binascii
-import exceptions
-import glob
-import operator
-import os
+import sys, os, exceptions,  re, glob, operator, Queue, cStringIO, sha, stat
+import string, threading, time, traceback, types, re, whrandom
+import UserDict, copy, binascii, exceptions
 from pprint import pprint
-import Queue
-import cStringIO
-import sha
-import stat
-import string
-import sys
-import threading
-import time
-import traceback
-import types
-import re
-import whrandom
 
 # pyutil modules
 from pyutil.VersionNumber import VersionNumber

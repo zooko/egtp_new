@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode_unittests.py,v 1.3 2002/10/26 20:26:54 zooko Exp $'
+__cvsid = '$Id: mencode_unittests.py,v 1.4 2002/11/07 21:48:22 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -432,6 +432,12 @@ def _real_test_encode_string_implementation_speed():
         o.seek(0)
     t2 = time.time()
     print 'done testing C impl of encode_string.  total encoding time: %3.3f' % (t2 - t1,)
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(Testy, 'test'))
+
+    return suite
 
 if __name__ == '__main__':
     if hasattr(unittest, 'main'):

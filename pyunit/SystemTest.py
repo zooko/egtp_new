@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: SystemTest.py,v 1.5 2002/11/07 03:12:36 myers_carpenter Exp $'
+__cvsid = '$Id: SystemTest.py,v 1.6 2002/11/07 21:48:22 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -123,7 +123,6 @@ class Testy(unittest.TestCase):
 
 
 
-
 def runalltests(tests, expectedfailures=0):
     if expectedfailures > 0:
         print "WARNING: this module is currently failing some of the unit tests.  Number of expected failures: %s" % expectedfailures
@@ -151,9 +150,9 @@ def runalltests(tests, expectedfailures=0):
 
 # runalltests((test_local,), expectedfailures=0)
 
-def suite():
-    suite = unittest.makeSuite(Testy, 'test')
-    return suite
+#def suite():
+#    suite = unittest.makeSuite(Testy, 'test')
+#    return suite
 
 if __name__ == '__main__':
     unittest.main()

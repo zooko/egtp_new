@@ -1,1 +1,1 @@
-from mencode import *
+from egtp.mencode.mencode import *

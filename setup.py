@@ -285,11 +285,15 @@ class test(Command):
         filelist = os.listdir(self.test_dir)
         filelist.sort()
         for ff in filelist:
-            if ff[-3:] != ".py":
+            if os.path.splitext(ff)[1] != ".py":
                 continue
-            print "Running tests found in '%s'..." % ff
-            TEST = __import__(ff[:-3], globals(), locals(), [''])
-            runner.run(TEST.suite())
+            print "Importing %r..." % ff
+            TEST = __import__(os.path.splitext(ff)[0], globals(), locals(), [''])
+            if hasattr(TEST, 'suite'):
+                print "Running tests found in %r..." % ff
+                runner.run(TEST.suite())
+            else:
+                print "Skipping %r as it has no 'suite' function" % ff
         
         sys.path = old_path[:]
                 
@@ -347,7 +351,7 @@ setup (
         Extension (
             'egtp.crypto.win_entropy', 
             sources = [
-                   os.path.join('egtp', 'crypto', 'win_entropy.c'),
+                os.path.join('egtp', 'crypto', 'win_entropy.c'),
             ] 
         ),
         Extension (

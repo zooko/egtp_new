@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: TristeroTest.py,v 1.3 2002/11/07 03:12:36 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroTest.py,v 1.4 2002/11/07 21:48:22 myers_carpenter Exp $'
 
 # standard Python modules
 import threading, types
@@ -20,10 +20,8 @@ from pyutil.timeutil import timer
 # libbase32 modules
 # from humread import hr # XXX for when we switch to base32 encoding...
 
-# (old) MN modules
-from interfaces import *
-
 # EGTP modules
+from egtp.interfaces import *
 from egtp import CommStrat, Node, NodeMappingVerifier
 from egtp.TristeroLookup import TristeroLookup
 
@@ -102,5 +100,5 @@ def runalltests(tests, expectedfailures=0):
 
     assert numsuccessesh[0] == len(tests), "not all tests passed: num successes: %s, num failures: %s" % (numsuccessesh[0], map(lambda x: x[0], filter(lambda x: not x[1].isSet(), ts)),)
 
-runalltests((test_1,), expectedfailures=0)
+#runalltests((test_1,), expectedfailures=0)
 

@@ -15,26 +15,26 @@ code snippets in the Tutorial with the running code in that unit test while
 reading the Tutorial.
 
 
-1.  Initializing EGTP
+ 1.  Initializing EGTP
 
-First import the Python module:
+ First import the Python module:
 
->>> import Node
+ >>> import Node
 
-Now before using Node for anything, you have to call `Node.init()'.
+ Now before using Node for anything, you have to call `Node.init()'.
 
->>> Node.init()
+ >>> Node.init()
 
 
-2.  Creating an EGTP Node
+ 2.  Creating an EGTP Node
 
->>> mynode = Node.Node(lookupman, discoveryman)
+ >>> mynode = Node.Node(lookupman, discoveryman)
 
-Hey waitasecond -- what are these "lookupman" and "discoveryman" things? 
-Well,
+ Hey waitasecond -- what are these "lookupman" and "discoveryman" things? 
+ Well,
 
-Each EGTP node has a unique ID which is cryptographically determined by the
-node's public key.  
+ Each EGTP node has a unique ID which is cryptographically determined by the
+ node's public key.  
 
 """
 
