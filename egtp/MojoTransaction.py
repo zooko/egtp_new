@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.8 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.9 2002/09/29 16:36:23 zooko Exp $'
 
 true = 1
 false = 0
@@ -70,13 +70,6 @@ class LookupHand(ILookupHandler):
             # Hrm?  Not sure what to do here....  --Zooko 2002-01-27
             debugprint("%s.fail(%s)\n", args=(self, failure_reason,))
 
-"""
-When any message arrives that initiates a new mojotransaction then the appropriate "receive
-func" that you registered will be called, but only after the counterparty has been charged the
-appropriate amount.  How much is the appropriate amount?  That is determined by a dymanic 2nd
-best price auctioning system.
-"""
-
 class Widget:
     def __init__(self, counterparty_id, firstmsgId=None):
         """
@@ -102,7 +95,6 @@ class Widget:
 
 class Error(exceptions.StandardError): pass
 class FailureError(Error): pass # FailureError is for failures in the conversation/transaction layer
-class PricerError(Error): pass
 
 class ResponseMarker: pass
 
@@ -218,11 +210,6 @@ class MojoTransactionManager:
 
         self._metatrackers_sent_hello = []  # list of (id, info) tuples of metatrackers we most recently said hello to
 
-        # a map of counterpartyids -> the last time we tried sending a token to them in order to stay paid up
-        # (used as a quick 'works in most all cases' hack to prevent sending several tokens to someone at once
-        # to stay paid up)
-        self._stay_paid_up_time_map = Cache.StatsCacheSingleThreaded(maxitems=5000, autoexpireinterval=300, autoexpireparams={'maxage': 60})
-
         if handler_funcs:
             self._handler_funcs=copy.copy(handler_funcs)
         else:
@@ -258,9 +245,7 @@ class MojoTransactionManager:
         DoQ.doq.add_task(self._periodic_cleanup, delay=150)
 
         self._keeper=counterparties.CounterpartyObjectKeeper(dbparentdir=self._datadir, local_id=self.get_id(), recoverdb=true)
-        # IMPORTANT NOTE:  handicappers are ordered as some of them are in-progress multipliers (such as
-        # the performance handicappers which should come after price so that they can scale independently
-        # of later handicappers values)
+        # IMPORTANT NOTE:  handicappers are ordered as some of them are in-progress multipliers
         # When reading the following list, remember that all scalar additives are squared before
         # being added.  The "@return" doco below is _before_ squaring.  All "@return" numbers
         # below are additives unless specified to be multipliers.
