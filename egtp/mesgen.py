@@ -26,14 +26,8 @@ from pyutil import fileutil
 from pyutil.humanreadable import hr
 
 # (old-)EGTP modules
-from CleanLogDb import CleanLogDbEnv
-import HashRandom
-import MojoKey
-import confutils
-import idlib
-import mencode
-import mojosixbit
-import mojoutil
+from egtp.CleanLogDb import CleanLogDbEnv
+from egtp import HashRandom, MojoKey, confutils, idlib, mencode, mojosixbit, mojoutil
 
 from egtp.crypto import modval
 from egtp.crypto import tripledescbc

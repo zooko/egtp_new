@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-import evilcryptopp
+from egtp.crypto import evilcryptopp
 
 __doc__ = evilcryptopp._randsource_doc
 get = evilcryptopp._randsource_get
@@ -19,7 +19,7 @@ if sys.platform == 'win32':
     # this is part of the win32all python package, get it from:
     # http://www.activestate.com/Products/ActivePython/win32all.html
     import win32api
-    import win_entropy # A module that gets entropy on win32
+    from egtp.crypto import win_entropy # A module that gets entropy on win32
 
 # our modules
 

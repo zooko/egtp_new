@@ -12,9 +12,8 @@ import types
 # our modules
 true = 1
 false = 0
-from MojoErrors import BadFormatError
-import mojosixbit
-import std
+from egtp.MojoErrors import BadFormatError
+from egtp import mojosixbit, std
 
 def NONEMPTY(thing, verbose):
     pass

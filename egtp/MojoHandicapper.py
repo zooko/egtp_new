@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoHandicapper.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: MojoHandicapper.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -21,8 +21,7 @@ from pyutil.compat import setdefault
 from pyutil import humanreadable
 
 # (old-)EGTP modules
-import idlib
-import mojoutil
+from egtp import idlib, mojoutil
 
 DISQUALIFIED = ()
 

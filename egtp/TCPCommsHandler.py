@@ -22,20 +22,13 @@ import types
 from pyutil.config import DEBUG_MODE, REALLY_SLOW_DEBUG_MODE
 from pyutil.debugprint import debugprint
 from pyutil.humanreadable import hr
-from pyutil import pyutilasync, Cache, DoQ, LazySaver
+from pyutil import Asyncore, Cache, DoQ, LazySaver
 
 # (old-)EGTP modules
-import BandwidthThrottler
-import CommsError
-from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-import CommStrat
-import TCPConnection
-import confutils
-import idlib
-import mojoutil
-from mojoutil import bool
-from confutils import confman
-import ipaddresslib
+from egtp import BandwidthThrottler, CommsError, CommStrat, TCPConnection, confutils, idlib, mojoutil, ipaddresslib
+from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
+from egtp.mojoutil import bool
+from egtp.confutils import confman
 
 true = 1
 false = None

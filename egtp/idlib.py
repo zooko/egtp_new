@@ -11,7 +11,7 @@
 # Everything in this file is optimized for speed, it gets called a
 # -lot- throughout the program, including many hot spots.
 #
-# $Id: idlib.py,v 1.2 2002/07/27 00:31:22 myers_carpenter Exp $
+# $Id: idlib.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $
 
 # standard modules
 import re
@@ -23,10 +23,8 @@ import types
 from pyutil.config import DEBUG_MODE
 
 # Mojo Nation modules
-import std
-import mojosixbit
+from egtp import std, mojosixbit, std
 from egtp.crypto import randsource
-import std
 
 _asciihash_re = mojosixbit._asciihash_re
 

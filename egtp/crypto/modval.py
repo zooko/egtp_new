@@ -5,8 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-import evilcryptopp
-import randsource
+from egtp.crypto import evilcryptopp, randsource
 
 
 __doc__ = evilcryptopp._modval_doc
@@ -20,7 +19,7 @@ Error = evilcryptopp.ModValError
 
 def _help_test(size_n, pub_exp):
     import time
-    import mojoutil
+    from egtp import mojoutil
 
     starttime = time.time()
     servervalue = new_random(size_n, pub_exp)                  

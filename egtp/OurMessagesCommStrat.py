@@ -6,9 +6,9 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 
-from DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
+from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
 
-from OurMessagesPublicKey import *
+from egtp.OurMessagesPublicKey import *
 
 BASE_COMM_STRAT_TEMPL = {
     'broker id': OptionMarker([UNIQUE_ID, None]), # The "or `None'" is for backwards-compatibility -- we have accidentally been storing "Nones" under 'broker id' in the metatracker pickle...  --Zooko 2001-09-02

@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: Conversation.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: Conversation.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard Python modules
 import threading
@@ -26,18 +26,13 @@ from pyutil import Cache
 from pyutil import DoQ
 from pyutil import humanreadable
 
-# EGTP/Mnet modules
-import CommStrat
-from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-import MojoKey
-import MojoMessage
-from confutils import confman
-import idlib
-import mencode
-import mojosixbit
-import mojoutil
-import std
-from MojoHandicapper import DISQUALIFIED
+# EGTP modules
+from egtp import CommStrat
+from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
+from egtp import MojoKey, MojoMessage
+from egtp.confutils import confman
+from egtp import idlib, mencode, mojosixbit, mojoutil, std
+from egtp.MojoHandicapper import DISQUALIFIED
 from egtp.crypto import modval
 from egtp.crypto import randsource
 
@@ -116,9 +111,9 @@ class ConversationManager:
 
     def initiate_and_return_first_message(self, counterparty_id, conversationtype, firstmsgbody, outcome_func, timeout = 300, notes = None, mymetainfo=None, post_timeout_outcome_func=None):
         """
-        @precondition `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % humanreadable.hr(id)
+        @precondition: `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % humanreadable.hr(id)
 
-        returns a tuple of (message_id, binary_message_string)
+        @return: a tuple of (message_id, binary_message_string)
         """
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be  an id." + " -- " + "id: %s" % humanreadable.hr(id)
 
@@ -174,7 +169,7 @@ class ConversationManager:
 
     def is_unsatisfied_message(self, msgId):
         """
-        @returns `true' if and only if the msg identified by `msgId' has been sent out to a
+        @return: `true' if and only if the msg identified by `msgId' has been sent out to a
             counterparty, and it is a message to which we expect a response, and we have not
             yet received a response, and we have not yet timed out and given up hope of
             getting a response
@@ -189,14 +184,14 @@ class ConversationManager:
 
     def send_response(self, prevmsgId, msgbody, mymetainfo=None, hint=HINT_NO_HINT):
         """
-        @param msgbody the message body to be sent back
+        @param msgbody: the message body to be sent back
         
-        @precondition `prevmsgId' must be a binary id.: idlib.is_binary_id(prevmsgId): "prevmsgId: %s" % humanreadable.hr(prevmsgId)
-        @precondition `msgbody' must be either None or else the full msg dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not msgbody) or is_mojo_message(msgbody): "msgbody: %s" % humanreadable.hr(msgbody)
-        @precondition internal1: self._map_inmsgid_to_info.get(prevmsgId) is not None: "prevmsgId: %s" % humanreadable.hr(prevmsgId)
-        @precondition internal2: (type(self._map_inmsgid_to_info.get(prevmsgId)) in (types.TupleType, types.ListType)): "self._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (humanreadable.hr(self._map_inmsgid_to_info.get(prevmsgId)), humanreadable.hr(type(self._map_inmsgid_to_info.get(prevmsgId))))
-        @precondition internal3: self._map_inmsgid_to_info.get(prevmsgId)[2] == EXPECTING_RESPONSE: "self._map_inmsgid_to_info.get(prevmsgId): %s" % humanreadable.hr(self._map_inmsgid_to_info.get(prevmsgId))
-        @precondition internal4: idlib.is_binary_id(self._map_inmsgid_to_info.get(prevmsgId)[0]): "self._map_inmsgid_to_info.get(prevmsgId)[0]: %s :: %s" % (humanreadable.hr(self._map_inmsgid_to_info.get(prevmsgId)[0]), humanreadable.hr(type(self._map_inmsgid_to_info.get(prevmsgId)[0])))
+        @precondition: `prevmsgId' must be a binary id.: idlib.is_binary_id(prevmsgId): "prevmsgId: %s" % humanreadable.hr(prevmsgId)
+        @precondition: `msgbody' must be either None or else the full msg dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not msgbody) or is_mojo_message(msgbody): "msgbody: %s" % humanreadable.hr(msgbody)
+        @precondition: internal1: self._map_inmsgid_to_info.get(prevmsgId) is not None: "prevmsgId: %s" % humanreadable.hr(prevmsgId)
+        @precondition: internal2: (type(self._map_inmsgid_to_info.get(prevmsgId)) in (types.TupleType, types.ListType)): "self._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (humanreadable.hr(self._map_inmsgid_to_info.get(prevmsgId)), humanreadable.hr(type(self._map_inmsgid_to_info.get(prevmsgId))))
+        @precondition: internal3: self._map_inmsgid_to_info.get(prevmsgId)[2] == EXPECTING_RESPONSE: "self._map_inmsgid_to_info.get(prevmsgId): %s" % humanreadable.hr(self._map_inmsgid_to_info.get(prevmsgId))
+        @precondition: internal4: idlib.is_binary_id(self._map_inmsgid_to_info.get(prevmsgId)[0]): "self._map_inmsgid_to_info.get(prevmsgId)[0]: %s :: %s" % (humanreadable.hr(self._map_inmsgid_to_info.get(prevmsgId)[0]), humanreadable.hr(type(self._map_inmsgid_to_info.get(prevmsgId)[0])))
         """
         assert idlib.is_binary_id(prevmsgId), "precondition: `prevmsgId' must be a binary id." + " -- " + "prevmsgId: %s" % humanreadable.hr(prevmsgId)
         assert (not msgbody) or is_mojo_message(msgbody), "precondition: `msgbody' must be either None or else the full msg dict, containing either a \"mojo header\" subdict or a \"mojo message\" subdict or both." + " -- " + "msgbody: %s" % humanreadable.hr(msgbody)
@@ -218,15 +213,15 @@ class ConversationManager:
         message's integrity and either send it to a handler func to generate a response or send
         it to the appropriate callback func.
 
-        @returns a tuple whose first element is the full msg body (containing a 'mojo header' and/or 'mojo message' subdict) in dict form and whose second element is a CommHint, or std.NO_RESPONSE or std.ASYNC_RESPONSE
+        @return: a tuple whose first element is the full msg body (containing a 'mojo header' and/or 'mojo message' subdict) in dict form and whose second element is a CommHint, or std.NO_RESPONSE or std.ASYNC_RESPONSE
 
-        @throws MojoMessage.BadFormatError if the message isn't properly formatted in
+        @raises MojoMessage.BadFormatError: if the message isn't properly formatted in
             MojoMessage format
 
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 
-        @postcondition Result must not be `None'.: result is not None: "result: %s" % humanreadable.hr(result)
-        @postcondition Result must be either std.NO_RESPONSE or std.ASYNC_RESPONSE or else a tuple whose first element is the full msg body dict and whose second element is a commshint, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (result is std.NO_RESPONSE) or (result is std.ASYNC_RESPONSE) or ((type(result) in (types.TupleType, types.ListType,)) and (len(result) == 2) and is_mojo_message(result[0]) and CommHints.is_hint(result[1])): "result: %s" % humanreadable.hr(result)
+        @postcondition: Result must not be `None'.: result is not None: "result: %s" % humanreadable.hr(result)
+        @postcondition: Result must be either std.NO_RESPONSE or std.ASYNC_RESPONSE or else a tuple whose first element is the full msg body dict and whose second element is a commshint, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (result is std.NO_RESPONSE) or (result is std.ASYNC_RESPONSE) or ((type(result) in (types.TupleType, types.ListType,)) and (len(result) == 2) and is_mojo_message(result[0]) and CommHints.is_hint(result[1])): "result: %s" % humanreadable.hr(result)
         """ 
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 

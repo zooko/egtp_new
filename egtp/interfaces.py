@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: interfaces.py,v 1.3 2002/08/17 21:01:43 zooko Exp $'
+__cvsid = '$Id: interfaces.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -15,7 +15,7 @@ import exceptions
 from pyutil.humanreadable import hr
 
 # EGTP modules
-from IRemoteOpHandler import IRemoteOpHandler
+from egtp.IRemoteOpHandler import IRemoteOpHandler
 
 class ILookupManager:
     """

@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: Node.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: Node.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 
 # standard modules
@@ -21,10 +21,7 @@ from pyutil.humanreadable import hr
 # import MetaTrackerDiscoveryMan
 
 # Mojo Nation modules
-import CommStrat
-import MojoMessage
-import MojoTransaction
-import idlib
+from egtp import CommStrat, MojoMessage, MojoTransaction, idlib
 
 true = 1
 false = 0

@@ -13,7 +13,7 @@
 # us, their reputation for coming through with their deals in our eyes,
 # etc.
 #
-__cvsid = '$Id: counterparties.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: counterparties.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -33,14 +33,12 @@ from pyutil.humanreadable import hr
 from pyutil import Cache
 from pyutil import fileutil
 
-# Mnet modules
-from CleanLogDb import CleanLogDbEnv
 from bsddb3 import db, dbobj
-import confutils
-from confutils import confman
-import idlib
-import mojoutil
-import mojosixbit
+
+# egtp modules
+from egtp.CleanLogDb import CleanLogDbEnv
+from egtp.confutils import confman
+from egtp import confutils, idlib, mojoutil, mojosixbit
 
 true = 1
 false = None

@@ -10,10 +10,7 @@
 import sha
 
 ### our modules
-import mencode
-import mojosixbit
-
-import std
+from egtp import mencode, mojosixbit, std
 
 def shafunc(inpstr):
     return sha.new(inpstr).digest()

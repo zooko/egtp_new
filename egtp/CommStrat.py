@@ -11,6 +11,7 @@ import exceptions
 import time # actually just for debugging
 import traceback # actually just for debugging
 import types
+import string
 
 # pyutil modules
 from pyutil.config import DEBUG_MODE
@@ -18,25 +19,16 @@ from pyutil.debugprint import debugprint
 from pyutil.humanreadable import hr
 
 # our modules
-import DataTypes
-import OurMessages
-import idlib
+from egtp import DataTypes, OurMessages, idlib
+from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
+from egtp.DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
+from egtp import MojoKey, MojoMessage, OurMessages
+from egtp.OurMessagesCommStrat import *
+from egtp import TCPConnection, ipaddresslib, mencode, mojoutil
+from egtp.crypto import modval
 
-# Mnet modules
-from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
-from DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
 true = 1
 false = 0
-import MojoKey
-import MojoMessage
-import OurMessages
-from OurMessagesCommStrat import *
-import TCPConnection
-import ipaddresslib
-import mencode
-from crypto import modval
-import mojoutil
-import string
 
 
 
@@ -72,10 +64,10 @@ def choose_best_strategy(cs1, cs2):
     preferred, so we use the newly suggested one.  If two strategies both use the same crypto key and they both
     use the *same* open TCP connection, then they are the *same* and we keep using the current one.)
 
-    @param cs1 an instance of CommStrat; Can be `None'.
-    @param cs2 an instance of CommStrat; Can be `None'.
+    @param cs1: an instance of CommStrat; Can be `None'.
+    @param cs2: an instance of CommStrat; Can be `None'.
 
-    @return a reference to whichever of `cs1' or `cs2' is most preferable
+    @return: a reference to whichever of `cs1' or `cs2' is most preferable
     """
     # If either one is `None' then we prefer the other.
     if cs1 is None:
@@ -142,7 +134,7 @@ def choose_best_strategy(cs1, cs2):
 class CommStrat:
     def __init__(self, broker_id=None, commstratseqno=None):
         """
-        @precondition `broker_id' must be `None' or an id.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s" % hr(broker_id)
+        @precondition: `broker_id' must be `None' or an id.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s" % hr(broker_id)
         """
         assert (broker_id is None) or (idlib.is_sloppy_id(broker_id)), "precondition: `broker_id' must be `None' or an id." + " -- " + "broker_id: %s" % hr(broker_id)
 
@@ -164,17 +156,19 @@ class CommStrat:
         return self._broker_id
 
     def is_useful(self):
-        """@returns boolean indicating if this CommStrat has any reason to exist anymore"""
+        """
+        @return: boolean indicating if this CommStrat has any reason to exist anymore
+        """
         return None   # if nothing overrides this, its not very useful...
 
 class TCP(CommStrat):
     def __init__(self, tcpch, broker_id, host=None, port=None, asyncsock=None, commstratseqno=None):
         """
-        @param tcpch the TCPCommsHandler
-        @param asyncsock an instance of TCPConnection
+        @param tcpch: the TCPCommsHandler
+        @param asyncsock: an instance of TCPConnection
 
-        @precondition `asyncsock' must be an instance of TCPConnection or nothing.: (asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection): "asyncsock: %s :: %s" % (hr(asyncsock), hr(type(asyncsock)))
-        @precondition `broker_id' must be a binary id or None.: (broker_id is None) or idlib.is_binary_id(broker_id): "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)),)
+        @precondition: `asyncsock' must be an instance of TCPConnection or nothing.: (asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection): "asyncsock: %s :: %s" % (hr(asyncsock), hr(type(asyncsock)))
+        @precondition: `broker_id' must be a binary id or None.: (broker_id is None) or idlib.is_binary_id(broker_id): "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)),)
         """
         assert (asyncsock is None) or isinstance(asyncsock, TCPConnection.TCPConnection), "precondition: `asyncsock' must be an instance of TCPConnection or nothing." + " -- " + "asyncsock: %s :: %s" % (hr(asyncsock), hr(type(asyncsock)))
         assert (broker_id is None) or idlib.is_binary_id(broker_id), "precondition: `broker_id' must be a binary id or None." + " -- " + "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)),)
@@ -191,7 +185,7 @@ class TCP(CommStrat):
 
     def send(self, msg, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=None, commstratseqno=None):
         """
-        @precondition `self._broker_id' must be an id.: idlib.is_binary_id(self._broker_id): "self._broker_id: %s :: %s" % (hr(self._broker_id), hr(type(self._broker_id)),)
+        @precondition: `self._broker_id' must be an id.: idlib.is_binary_id(self._broker_id): "self._broker_id: %s :: %s" % (hr(self._broker_id), hr(type(self._broker_id)),)
         """
         assert idlib.is_binary_id(self._broker_id), "precondition: `self._broker_id' must be an id." + " -- " + "self._broker_id: %s :: %s" % (hr(self._broker_id), hr(type(self._broker_id)),)
 
@@ -208,7 +202,7 @@ class TCP(CommStrat):
         """
         Two TCP's are same iff they both have the same non-None socket object or if they both have None socket objects and the same host and port
 
-        @return `true' iff `self' and `other' are actually the same strategy
+        @return: `true' iff `self' and `other' are actually the same strategy
         """
         if not hasattr(other, 'asyncsock'):
             assert hasattr(self, 'asyncsock')
@@ -254,7 +248,7 @@ class TCP(CommStrat):
 class Relay(CommStrat):
     def __init__(self, relayer_id, broker_id, mtm, commstratseqno=None):
         """
-        @precondition `relayer_id' must be an id.: idlib.is_sloppy_id(relayer_id): "relayer_id: %s" % hr(relayer_id)
+        @precondition: `relayer_id' must be an id.: idlib.is_sloppy_id(relayer_id): "relayer_id: %s" % hr(relayer_id)
         """
         assert idlib.is_sloppy_id(relayer_id), "precondition: `relayer_id' must be an id." + " -- " + "relayer_id: %s" % hr(relayer_id)
 
@@ -274,7 +268,7 @@ class Relay(CommStrat):
         """
         Two Relay's are same iff they have the same `_relayer_id'.
 
-        @return `true' iff `self' and `other' are actually the same strategy
+        @return: `true' iff `self' and `other' are actually the same strategy
         """
         if not hasattr(other, '_relayer_id'):
             assert hasattr(self, '_relayer_id')
@@ -292,7 +286,7 @@ class Relay(CommStrat):
 
     def send(self, msg, hint=HINT_NO_HINT, fast_fail_handler=None, timeout=None, commstratseqno=None):
         """
-        @param commstratseqno This relay comm strat must have a comm strat sequence num strictly greater than `commstratseqno';  If `None', then that means this is being initiated by the local higher level user, or it is a "pass this along" from an old broker that does not send commstratseqno with its "pass this along"'s.  If it is `None', then you send it.
+        @param commstratseqno: This relay comm strat must have a comm strat sequence num strictly greater than `commstratseqno';  If `None', then that means this is being initiated by the local higher level user, or it is a "pass this along" from an old broker that does not send commstratseqno with its "pass this along"'s.  If it is `None', then you send it.
         """
         timeout = long(timeout)
 
@@ -339,14 +333,15 @@ class Relay(CommStrat):
 class Crypto(CommStrat):
     def __init__(self, pubkey, lowerstrategy, broker_id=None):
         """
-        @param lowerstrategy the lower-level comms strategy, either given by meta-tracking or
-            suggested by the way that the last message arrived (e.g. For TCP, the suggested
-            strategy is to send a message back down the connection over which the last message
+        @param lowerstrategy: the lower-level comms strategy, either given
+            by meta-tracking or suggested by the way that the last message
+            arrived (e.g. For TCP, the suggested strategy is to send a
+            message back down the connection over which the last message
             arrived.)
 
-        @precondition `pubkey' must be a well-formed MojoKey.: MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pubkey)
-        @precondition `lowerstrategy' must be a CommStrat.: isinstance(lowerstrategy, CommStrat): "lowerstrategy: %s" % hr(lowerstrategy)
-        @precondition `broker_id' must be the id of `pubkey', or else it must be `None'.: (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)): "broker_id: %s" % hr(broker_id)
+        @precondition: `pubkey' must be a well-formed MojoKey.: MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pubkey)
+        @precondition: `lowerstrategy' must be a CommStrat.: isinstance(lowerstrategy, CommStrat): "lowerstrategy: %s" % hr(lowerstrategy)
+        @precondition: `broker_id' must be the id of `pubkey', or else it must be `None'.: (broker_id is None) or (idlib.equal(idlib.make_id(pubkey, 'broker'), broker_id)): "broker_id: %s" % hr(broker_id)
         """
         assert MojoKey.publicKeyForCommunicationSecurityIsWellFormed(pubkey), "precondition: `pubkey' must be a well-formed MojoKey."
         assert isinstance(lowerstrategy, CommStrat), "precondition: `lowerstrategy' must be a CommStrat." + " -- " + "lowerstrategy: %s" % hr(lowerstrategy)
@@ -364,7 +359,7 @@ class Crypto(CommStrat):
         """
         Two Crypto's are same iff they have the same pub key and their lowerstrategies are same.
 
-        @return `true' iff `self' and `other' are actually the same strategy
+        @return: `true' iff `self' and `other' are actually the same strategy
         """
         # debugprint("%s.same(%s); stack: %s\n", args=(self, other, traceback.extract_stack(),))
         if not hasattr(other, '_pubkey'):
@@ -403,7 +398,7 @@ class Pickup(CommStrat):
         """
         Two Pickup's are always the same.
 
-        @return `true' iff `self' and `other' are actually the same strategy
+        @return: `true' iff `self' and `other' are actually the same strategy
         """
         return isinstance(other, Pickup)
 
@@ -415,7 +410,7 @@ def crypto_dict_to_pub_key(dict):
 
 def crypto_dict_to_id(dict):
     """
-    @precondition `dict' must be a dict.: type(dict) is types.DictType: "dict: %s :: %s" % (hr(dict), hr(type(dict)),)
+    @precondition: `dict' must be a dict.: type(dict) is types.DictType: "dict: %s :: %s" % (hr(dict), hr(type(dict)),)
     """
     assert type(dict) is types.DictType, "precondition: `dict' must be a dict." + " -- " + "dict: %s :: %s" % (hr(dict), hr(type(dict)),)
 
@@ -423,7 +418,7 @@ def crypto_dict_to_id(dict):
 
 def addr_to_id(addr):
     """
-    @precondition `addr' must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(addr) is types.DictType) and (addr.has_key("connection strategies")) and (addr.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(addr) is types.InstanceType) and (isinstance(addr, CommStrat)) and (addr._broker_id is not None)): "addr: %s :: %s" % (hr(addr), hr(type(addr)),)
+    @precondition: `addr' must be a dict with a ["connection strategies"][0]["pubkey"] key chain, or else a CommStrat instance with a broker_id.: ((type(addr) is types.DictType) and (addr.has_key("connection strategies")) and (addr.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(addr) is types.InstanceType) and (isinstance(addr, CommStrat)) and (addr._broker_id is not None)): "addr: %s :: %s" % (hr(addr), hr(type(addr)),)
     """
     assert ((type(addr) is types.DictType) and (addr.has_key("connection strategies")) and (addr.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(addr) is types.InstanceType) and (isinstance(addr, CommStrat)) and (addr._broker_id is not None)), "precondition: `addr' must be a dict with a [\"connection strategies\"][0][\"pubkey\"] key chain, or else a CommStrat instance with a broker_id." + " -- " + "addr: %s :: %s" % (hr(addr), hr(type(addr)),)
 
@@ -434,9 +429,9 @@ def addr_to_id(addr):
 
 def dict_to_strategy(dict, mtm, broker_id=None, commstratseqno=None):
     """
-    @raises an UnsupportedTypeError if `dict' is not either a TCP, Relay, Crypto, or Pickup
+    @raises: an UnsupportedTypeError if `dict' is not either a TCP, Relay, Crypto, or Pickup
     
-    @precondition `broker_id' must be an id or None.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)))
+    @precondition: `broker_id' must be an id or None.: (broker_id is None) or (idlib.is_sloppy_id(broker_id)): "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)))
     """
     assert (broker_id is None) or (idlib.is_sloppy_id(broker_id)), "precondition: `broker_id' must be an id or None." + " -- " + "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)))
 

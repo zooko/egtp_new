@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeLookupMan.py,v 1.3 2002/08/26 19:35:26 artimage Exp $'
+__cvsid = '$Id: NodeLookupMan.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
@@ -15,12 +15,10 @@ import types
 from pyutil.humanreadable import hr
 
 # EGTP modules
-import CommStrat
-import interfaces
-import NodeMappingVerifier
+from egtp import CommStrat, interfaces, NodeMappingVerifier
 
 # (old) MN modules
-import idlib
+from egtp import idlib
 
 class NodeLookupMan(interfaces.ILookupManager):
     """

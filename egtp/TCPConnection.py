@@ -10,18 +10,15 @@
 import asyncore, socket, struct, sys, threading, time, traceback, types
 
 # pyutil modules
-from pyutil import DoQ
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
-from pyutil import humanreadable
-from pyutil import pyutilasync
+from pyutil import humanreadable, Asyncore, DoQ
 
 # (old-)EGTP modules
-from confutils import confman
+from egtp.confutils import confman
 
 # EGTP modules
-import CommsError
-import idlib
+from egtp import CommsError, idlib
 
 true = 1
 false = None

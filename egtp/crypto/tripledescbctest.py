@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-import tripledescbc
+from egtp.crypto import tripledescbc
 
 x = tripledescbc.new("hegonugetonugetorgcronig")
 iv = "oeugoteg"

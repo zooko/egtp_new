@@ -6,7 +6,7 @@
 #
 # A library for determining the IP addresses of the local machine.
 #
-__cvsid = '$Id: ipaddresslib.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: ipaddresslib.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard modules
 import sys
@@ -25,7 +25,7 @@ if sys.platform == 'win32':
 from pyutil.debugprint import debugprint
 
 # (old-)EGTP modules
-import confutils
+from egtp import confutils
 
 class Error(StandardError): pass
 class NonRoutableIPError(Error): pass

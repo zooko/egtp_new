@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-import evilcryptopp
+from egtp.crypto import evilcryptopp
 
 __doc__ = evilcryptopp._tripledescbc_doc
 new = evilcryptopp._tripledescbc_new

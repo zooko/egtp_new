@@ -10,7 +10,7 @@
 #
 # BirthDate: 2000-06-08
 # CVS:
-__cvsid = '$Id: confutils.py,v 1.3 2002/08/17 21:01:43 zooko Exp $'
+__cvsid = '$Id: confutils.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 
 # standard modules
@@ -26,7 +26,7 @@ from pyutil import humanreadable
 true = 1
 false = 0
 
-from mojostd import confman, platform
+from egtp.mojostd import confman, platform
 
 ## These functions are used to ensure that retrieved prices from confutils
 ## are always integers.  yeah, it's ugly

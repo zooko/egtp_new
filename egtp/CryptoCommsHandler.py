@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: CryptoCommsHandler.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: CryptoCommsHandler.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard modules
 import traceback
@@ -21,15 +21,9 @@ from pyutil import DoQ
 from pyutil import humanreadable
 
 # our modules
-import CommsError
-import CommStrat
+from egtp import CommsError, CommStrat
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-import MojoKey
-import confutils
-import idlib
-import mesgen
-import mojosixbit
-import mojoutil
+from egtp import MojoKey, confutils, idlib, mesgen, mojosixbit, mojoutil
 
 true = 1
 false = None
@@ -68,7 +62,7 @@ class CryptoCommsHandler:
 
     def __init__(self, mesgen, tcpch):
         """
-        @param mesgen the crypto object
+        @param mesgen: the crypto object
         """
         self._mesgen = mesgen
         self._tcpch = tcpch
@@ -92,19 +86,19 @@ class CryptoCommsHandler:
         """
         Start trying to get incoming messages which you will then pass to `inmsg_handler_func()'.
 
-        @param inmsg_handler_func the function to be called whenever a message for us comes in
+        @param inmsg_handler_func: the function to be called whenever a message for us comes in
         """
         self._upward_inmsg_handler = inmsg_handler_func
 
     def send_msg(self, counterparty_id, msg, fast_fail_handler, hint=HINT_NO_HINT, timeout=None, commstratseqno=None):
         """
-        @param commstratseqno the sequence number of the comm strat which has already
+        @param commstratseqno: the sequence number of the comm strat which has already
             been tried;  If you attempt a recursive delivery mechanism (relay), then you can
             avoid loops by ensuring that the next comm strategy you try has seqno > than
             this one.
 
-        @precondition `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
-        @precondition `msg' must be a string.: type(msg) == types.StringType
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        @precondition: `msg' must be a string.: type(msg) == types.StringType
         """
         assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         assert type(msg) == types.StringType, "precondition: `msg' must be a string."
@@ -151,11 +145,11 @@ class CryptoCommsHandler:
         """
         Processes an incoming message.
 
-        @param lowerstrategy a comm strategy which is suggested by the caller;  Currently if the caller is a TCP comms handler, then this is a strategy for using the extant TCP connection, upon which `msg' arrived, to send further messages to the counterparty.  If the caller is a Relay comms handler, then this is `None'.  TODO: make it so that you consider using the same relay server to send back
-        @param strategy_id_for_debug is a unique identifier which the *lower-level* comms handler uses to identify `lowerstrategy';  This is only used for diagnostic output.  Currently if the lower-level comms is TCP, and we don't yet know a public key which has signed messages that were sent over this TCP connection, then it is a random id, else it is the id of the public key which has signed messages that were sent over this TCP connection.  If the lower-level comms is Relay, then this is `None'.
+        @param lowerstrategy: a comm strategy which is suggested by the caller;  Currently if the caller is a TCP comms handler, then this is a strategy for using the extant TCP connection, upon which `msg' arrived, to send further messages to the counterparty.  If the caller is a Relay comms handler, then this is `None'.  TODO: make it so that you consider using the same relay server to send back
+        @param strategy_id_for_debug: is a unique identifier which the *lower-level* comms handler uses to identify `lowerstrategy';  This is only used for diagnostic output.  Currently if the lower-level comms is TCP, and we don't yet know a public key which has signed messages that were sent over this TCP connection, then it is a random id, else it is the id of the public key which has signed messages that were sent over this TCP connection.  If the lower-level comms is Relay, then this is `None'.
 
-        @precondition `msg' must be a string.: type(msg) == types.StringType: "msg: %s :: %s" % (humanreadable.hr(msg), humanreadable.hr(type(msg)))
-        @precondition `strategy_id_for_debug' must be None if and only if `lowerstrategy' is None.: (strategy_id_for_debug is None) == (lowerstrategy is None): "strategy_id_for_debug: %s, lowerstrategy: %s" % (humanreadable.hr(strategy_id_for_debug), humanreadable.hr(lowerstrategy))
+        @precondition: `msg' must be a string.: type(msg) == types.StringType: "msg: %s :: %s" % (humanreadable.hr(msg), humanreadable.hr(type(msg)))
+        @precondition: `strategy_id_for_debug' must be None if and only if `lowerstrategy' is None.: (strategy_id_for_debug is None) == (lowerstrategy is None): "strategy_id_for_debug: %s, lowerstrategy: %s" % (humanreadable.hr(strategy_id_for_debug), humanreadable.hr(lowerstrategy))
         """
         assert type(msg) == types.StringType, "precondition: `msg' must be a string." + " -- " + "msg: %s :: %s" % (humanreadable.hr(msg), humanreadable.hr(type(msg)))
         assert (strategy_id_for_debug is None) == (lowerstrategy is None), "precondition: `strategy_id_for_debug' must be None if and only if `lowerstrategy' is None." + " -- " + "strategy_id_for_debug: %s, lowerstrategy: %s" % (humanreadable.hr(strategy_id_for_debug), humanreadable.hr(lowerstrategy))
@@ -220,7 +214,7 @@ class CryptoCommsHandler:
 
     def _forget_comm_strategy(self, counterparty_id, commstrat=None):
         """
-        @precondition This thread must be the DoQ thread.: DoQ.doq.is_currently_doq()
+        @precondition: This thread must be the DoQ thread.: DoQ.doq.is_currently_doq()
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This thread must be the DoQ thread."
 
@@ -262,14 +256,14 @@ class CryptoCommsHandler:
 
         Fourth, start using the new one.
 
-        @param commstrat a CommStrat.Crypto which is suggested to use;  The `_lowerstrategy' may
+        @param commstrat: a CommStrat.Crypto which is suggested to use;  The `_lowerstrategy' may
             or may not be adopted depending on whether it is better than the current one.  If
             you want to force adoption of a new strategy, call `forget_comm_strategy()' first.
 
-        @precondition This thread must be the DoQ thread.: DoQ.doq.is_currently_doq()
-        @precondition `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
-        @precondition `commstrat' must be a CommStrat.: isinstance(commstrat, CommStrat.CommStrat): "commstrat: %s :: %s" % (humanreadable.hr(commstrat), humanreadable.hr(type(commstrat)),)
-        @precondition `counterparty_id' must match the commstrat public key.: idlib.equals(idlib.make_id(commstrat._pubkey, 'broker'), counterparty_id): "counterparty_id: %s, commstrat: %s" % (humanreadable.hr(counterparty_id), humanreadable.hr(commstrat),)
+        @precondition: This thread must be the DoQ thread.: DoQ.doq.is_currently_doq()
+        @precondition: `counterparty_id' must be a binary id.: idlib.is_binary_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        @precondition: `commstrat' must be a CommStrat.: isinstance(commstrat, CommStrat.CommStrat): "commstrat: %s :: %s" % (humanreadable.hr(commstrat), humanreadable.hr(type(commstrat)),)
+        @precondition: `counterparty_id' must match the commstrat public key.: idlib.equals(idlib.make_id(commstrat._pubkey, 'broker'), counterparty_id): "counterparty_id: %s, commstrat: %s" % (humanreadable.hr(counterparty_id), humanreadable.hr(commstrat),)
         """
         assert DoQ.doq.is_currently_doq(), "precondition: This thread must be the DoQ thread."
         assert idlib.is_binary_id(counterparty_id), "precondition: `counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)

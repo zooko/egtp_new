@@ -15,9 +15,8 @@ import os
 from pyutil import LazySaver
 
 # (old-)EGTP modules
-import CommStrat
-import DataTypes
-from confutils import confman
+from egtp import CommStrat, DataTypes
+from egtp.confutils import confman
 
 true = 1
 false = None

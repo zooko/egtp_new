@@ -6,16 +6,16 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 
-import mojostd
+from egtp import mojostd
 
-from DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BOOLEAN
+from egtp.DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BOOLEAN
 
 # `templs' is a dict from message types to templates that messages of that type must match.
-from templs import templs
+from egtp.templs import templs
 
 
-from OurMessagesCommStrat import *
-from OurMessagesPublicKey import *
+from egtp.OurMessagesCommStrat import *
+from egtp.OurMessagesPublicKey import *
 
 
 # `templs' is a dict from message types to templates that messages of that type must match.

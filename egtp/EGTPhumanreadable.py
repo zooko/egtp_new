@@ -7,15 +7,20 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # CVS:
-__cvsid = '$Id: EGTPhumanreadable.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPhumanreadable.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard modules
+import string 
 
 # pyutil modules
 from pyutil import humanreadable
+from egtp.mojosixbit import _asciihash_re, b2a
 
 true = 1
 false = 0
+
+nulltrans = string.maketrans('', '')
+printableascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=+!@#$%^&*()~[]\{}|;':\",./<>? \t" # I just typed this in by looking at my keyboard.  It probably doesn't matter much if I missed some, because I only use it to guess whether a 20-byte string should be represented as a string or as an ID.  If all of the characters in the string are found `printableascii', then we guess that it is a string, not an id.
 
 class EGTPRepr(humanreadable.BetterRepr):
     """
@@ -25,7 +30,7 @@ class EGTPRepr(humanreadable.BetterRepr):
         BetterRepr.__init__(self)
         self.repr_string = self.repr_str
 
-    def repr_str(self, obj, level, asciihashmatch=_asciihash_re.match, b2a=b2a, translate=translate, nulltrans=nulltrans, printableascii=printableascii):
+    def repr_str(self, obj, level, asciihashmatch=_asciihash_re.match, b2a=b2a, translate=string.translate, nulltrans=nulltrans, printableascii=printableascii):
         if len(obj) == 20:
             # But maybe it was just a 20-character human-readable string, like "credit limit reached", so this is an attempt to detect that case.
             if len(translate(obj, nulltrans, printableascii)) == 0:

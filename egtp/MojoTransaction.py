@@ -6,8 +6,10 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
+true = 1
+false = 0
 
 # Python standard library modules
 import copy
@@ -34,38 +36,17 @@ from pyutil import DoQ
 from pyutil.humanreadable import hr
 from pyutil import timeutil
 
-# Mojo Nation modules
-from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-import CommStrat
-import CommsError
-import Conversation
-import CryptoCommsHandler
-import ListenerManager
-true = 1
-false = 0
-from MojoHandicapper import MojoHandicapper
-import MojoKey
-import MojoMessage
-import MojoTransaction
-import RelayListener
-import TCPCommsHandler
-from UnreliableHandicapper import UnreliableHandicapper
-import confutils
-from confutils import confman
-import counterparties
-import idlib
-import ipaddresslib
-import loggedthreading
-import mencode
-import mesgen
-import mojosixbit
-import mojoutil
-from mojoutil import strpopL, intorlongpopL
-import std
-
+# EGTP modules
+from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
+from egtp.MojoHandicapper import MojoHandicapper
+from egtp.UnreliableHandicapper import UnreliableHandicapper
+from egtp.confutils import confman
+from egtp.mojoutil import strpopL, intorlongpopL
 from egtp.crypto import randsource
-
-from interfaces import *
+from egtp.interfaces import *
+from egtp import MojoKey, MojoMessage, RelayListener, TCPCommsHandler
+from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
+from egtp import confutils, counterparties, idlib, ipaddresslib, loggedthreading, mencode, mesgen, mojosixbit, mojoutil, std
 
 
 # make users throttle a lot less than the metatracker

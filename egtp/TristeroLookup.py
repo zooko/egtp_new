@@ -6,21 +6,21 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: TristeroLookup.py,v 1.3 2002/08/26 19:35:27 artimage Exp $'
+__cvsid = '$Id: TristeroLookup.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard Python modules
 from xmlrpclib import *
 from interfaces import *
 from binascii import *
 from urllib import *
-from tristero import *
 from string import *
 
 # pyutil modules
 from pyutil.humanreadable import hr
 
 # egtp modules
-import interfaces 
+from egtp import interfaces 
+from egtp.tristero import *
 
 class TristeroLookup(ILookupManager):
     class TristeroVerifier(interfaces.IVerifier):

@@ -10,17 +10,12 @@
 import re
 
 ### our modules
-from DataTypes import ANY, MOD_VAL, NON_NEGATIVE_INTEGER, UNIQUE_ID, ASCII_ARMORED_DATA
-import OurMessages
+from egtp.DataTypes import ANY, MOD_VAL, NON_NEGATIVE_INTEGER, UNIQUE_ID, ASCII_ARMORED_DATA
+from egtp import OurMessages, MojoMessage, idlib, mencode, mojosixbit, mojoutil
+from egtp.crypto import modval, randsource
+
 true = 1
 false = 0
-import MojoMessage
-import idlib
-import mencode
-from crypto import modval
-import mojosixbit
-import mojoutil
-from crypto import randsource
 
 
 def pubkey_to_id(key):

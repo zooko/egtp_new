@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: UnreliableHandicapper.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: UnreliableHandicapper.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # standard modules
 import whrandom
@@ -14,9 +14,7 @@ import whrandom
 from pyutil.humanreadable import hr
 
 # our modules
-import confutils
-import idlib
-import mojoutil
+from egtp import confutils, idlib, mojoutil
 
 # The most reliable broker is still handicapped this much.
 TUNING_FACTOR=float(2**8)

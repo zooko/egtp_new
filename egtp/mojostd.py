@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.4 2002/08/17 21:01:43 zooko Exp $'
+__cvsid = '$Id: mojostd.py,v 1.5 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -377,9 +377,11 @@ else:
 
 mojolog = DebugStream(logstream=__logstream, logfile=__logfile)
 stderr = mojolog  # DEPRECATED: old was debug.stderr.write, new is debug.mojolog.write, newest is "debugprint" from the debugprint module in the pyutil project
-if not ('--interact' in sys.argv):
-    sys.stdout = mojolog
-    sys.stderr = mojolog
+
+
+#if not ('--interact' in sys.argv):
+#    sys.stdout = mojolog
+#    sys.stderr = mojolog
 
 # create a mojolog-current symlink on systems that support it.
 if (__logfile is not None) and hasattr(os, 'symlink'):
@@ -427,13 +429,13 @@ from pyutil.humanreadable import hr
 
 ########################################## HERE IS THE idlib.py PART OF mojostd.py
 
-from idlib import make_id, make_ascii_id, canonicalize, equal, equals, make_new_random_id, string_to_id, id_to_abbrev, is_sloppy_id, is_mojosixbitencoded_id, is_ascii_id, is_binary_id, sloppy_id_to_bare_binary_id, to_binary, to_mojosixbit, new_random_uniq, identifies, newRandomUniq, new_random_uniq
+from egtp.idlib import make_id, make_ascii_id, canonicalize, equal, equals, make_new_random_id, string_to_id, id_to_abbrev, is_sloppy_id, is_mojosixbitencoded_id, is_ascii_id, is_binary_id, sloppy_id_to_bare_binary_id, to_binary, to_mojosixbit, new_random_uniq, identifies, newRandomUniq, new_random_uniq
 
 ########################################## HERE IS THE DataTypes.py PART OF mojostd.py
 
-from DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, BINARY_SHA1, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BadFormatError, checkTemplate, BOOLEAN
+from egtp.DataTypes import UNIQUE_ID, ASCII_ID, ANY, ASCII_ARMORED_DATA, BINARY_SHA1, INTEGER, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker, NONEMPTY, NOT_PRESENT, STRING, BadFormatError, checkTemplate, BOOLEAN
 
-from MojoErrors import MojoMessageError
+from egtp.MojoErrors import MojoMessageError
 
 ########################################## HERE IS THE SEXP.py PART OF mojostd.py
 
@@ -881,7 +883,7 @@ def test_canon_empty():
 General notes:
 -   The typical way to use this module is like this:
 # Begin Code Example:
-from mojostd import confman
+from egtp.mojostd import confman
 x = confman[key]
 confman[key] = x
 confman.save()
@@ -897,7 +899,7 @@ confman["PATH"] = mypathdict
     Instead, do this:
 
 # Begin Code Example:
-import dictutil
+from pyutil import dictutil
 dictutil.deep_update(confman["PATH"], mypathdict)
 # End Code Example.
 
@@ -933,7 +935,7 @@ dictutil.deep_update(confman["PATH"], mypathdict)
 ### Constants:
 # As the heading implies, these values should not be altered.
 
-import EGTPVersion
+from egtp import EGTPVersion
 
 from egtp.crypto import evilcryptopp
 if hasattr(evilcryptopp, "cryptopp_version"):

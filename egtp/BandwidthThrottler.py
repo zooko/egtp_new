@@ -6,7 +6,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 #
-__cvsid = '$Id: BandwidthThrottler.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: BandwidthThrottler.py,v 1.3 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 
 # standard modules
@@ -28,10 +28,10 @@ class BandwidthThrottler:
     """
     def __init__(self, Kbps, throttle=false, granularity=10, time=timeutil.timer.time):
         """
-        @param Kbps max throughput in kilobits/second
-        @param throttle `true' if and only if comms should be throttled when more than `Kbps'
+        @param Kbps: max throughput in kilobits/second
+        @param throttle: `true' if and only if comms should be throttled when more than `Kbps'
             bandwidth has been used (averaged over the last `granularity' seconds)
-        @param granularity how many seconds long are the periods
+        @param granularity: how many seconds long are the periods
         """
         self._maxbytes = long(((Kbps / 8.0) * 1024.0) * granularity)
         self._throttle = throttle
@@ -51,7 +51,7 @@ class BandwidthThrottler:
 
     def used(self, bytes, time=timeutil.timer.time):
         """
-        @param bytes the number of bytes (not bits!) you just used
+        @param bytes: the number of bytes (not bits!) you just used
         """
         now = time()
         if now > (self._lasttick + self._granularity):

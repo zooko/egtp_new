@@ -17,10 +17,9 @@ from pyutil import humanreadable
 from pyutil import Cache
 
 # our modules
-from DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER
-from MojoErrors import MojoMessageError
-import idlib
-import mencode
+from egtp.DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER
+from egtp.MojoErrors import MojoMessageError
+from egtp import idlib, mencode
 
 
 # Generate messages with the following Mojo version number.

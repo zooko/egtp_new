@@ -20,18 +20,14 @@ from pyutil import LazySaver
 from pyutil import timeutil
 
 # (old-)EGTP modules
-import CommHints
-from CommHints import HINT_EXPECT_MORE_TRANSACTIONS
-import CommStrat
-import DataTypes
-import MojoMessage
-import OurMessages
-from confutils import confman
-import idlib
+from egtp import CommHints, CommStrat, DataTypes, MojoMessage, OurMessages, idlib
+
+from egtp.CommHints import HINT_EXPECT_MORE_TRANSACTIONS
+from egtp.confutils import confman
 
 from egtp.crypto import randsource
 
-from interfaces import *
+from egtp.interfaces import *
 
 true = 1
 false = None

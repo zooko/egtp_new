@@ -11,11 +11,11 @@ import string
 import types
 import binascii
 
-import std
 
 true = 1
 false = 0
-import mojosixbit
+from egtp import std
+
 
 
 class Error(StandardError):

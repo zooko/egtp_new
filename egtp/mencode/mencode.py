@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: mencode.py,v 1.3 2002/08/20 19:37:35 myers_carpenter Exp $'
+__cvsid = '$Id: mencode.py,v 1.4 2002/08/28 18:03:59 myers_carpenter Exp $'
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -30,7 +30,7 @@ c_encode_io = None
 c_MencodeError = None
 c_decode_raw_string = None
 try:
-    from c_mencode import _c_mencode_help    
+    from egtp.mencode.c_mencode import _c_mencode_help    
     c_encodersdict = _c_mencode_help._c_encoder_dict
     c_encode_string = _c_mencode_help._c_encode_string
     c_encode_dict = _c_mencode_help._c_encode_dict
