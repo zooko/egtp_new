@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CryptoCommsHandler.py,v 1.7 2002/12/02 19:58:46 myers_carpenter Exp $"
+__revision__ = "$Id: CryptoCommsHandler.py,v 1.8 2002/12/02 20:04:32 myers_carpenter Exp $"
 
 # standard modules
 import traceback, types, sha, string, zlib
@@ -11,13 +11,12 @@ import traceback, types, sha, string, zlib
 # pyutil modules
 from pyutil.config import DEBUG_MODE, REALLY_SLOW_DEBUG_MODE
 from pyutil.debugprint import debugprint
-from pyutil import Cache
-from pyutil import DoQ
+from pyutil import Cache, DoQ, zlibutil
 
 # our modules
 from egtp import CommsError, CommStrat
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-from egtp import keyutil, humanreadable, idlib, mesgen, mojosixbit, mojoutil
+from egtp import keyutil, humanreadable, idlib, mesgen
 
 true = 1
 false = None
@@ -192,11 +191,11 @@ class CryptoCommsHandler:
             debugprint("msg from %s dropped due to length: %s\n", args=(counterparty_id, len(cleartext)), v=0, vs="ERROR")
             return
         try:
-            decomptext = mojoutil.safe_zlib_decompress_to_retval(cleartext, maxlen=MAX_CLEARTEXT_LEN)
-        except (mojoutil.UnsafeDecompressError, mojoutil.TooBigError), le:
+            decomptext = zlibutil.safe_zlib_decompress_to_retval(cleartext, maxlen=MAX_CLEARTEXT_LEN)
+        except (zlibutil.UnsafeDecompressError, zlibutil.TooBigError), le:
             debugprint("msg from %s dropped. le: %s\n", args=(counterparty_id, le), v=0, vs="ERROR")
             return
-        except mojoutil.ZlibError, le:
+        except zlibutil.ZlibError, le:
             debugprint("msg from %s not zlib encoded. processing it anyway for backwards compatibility. le: %s\n", args=(counterparty_id, le,), v=3, vs="debug")
             decomptext = cleartext
 
