@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.8 2002/09/28 17:45:36 zooko Exp $'
+__cvsid = '$Id: mojostd.py,v 1.9 2002/10/28 01:56:04 zooko Exp $'
 
 
 # Python standard library modules
@@ -40,6 +40,7 @@ import whrandom
 # pyutil modules
 from pyutil.VersionNumber import VersionNumber
 from pyutil import compat
+from pyutil.debugprint import debugprint
 from pyutil import dictutil
 from pyutil import fileutil
 from pyutil import timeutil
@@ -156,182 +157,6 @@ def hilight(string, colorcode=COLORCODE_NONE):
     return colorcode % string
 
 ### Classes:
-class DebugStream:
-    '''Acts like a file, such as sys.stderr; Writes debug info to logstream.'''
-    def __init__(self, logstream = sys.stderr, logfile=None, filters=[], log_vs=[]):
-        """
-        logstream and logfile are both files.  (-I don't see a distinction! --Neju 2001-02-06)
-
-        filters is a list of filter functions.  These take a single string argument and return a single string
-            argument.  DebugStream formats calls to its write method, and then passes the result to
-            the first filter (if any).  The return from that filter is applied to the next, and so on.
-            The final return value (or the original string if there are no filters) is written to
-            logstream and logfile.
-
-        Note: The filter design could eliminate the need for the other two files altogether!
-        Furthermore the filters can be modified at runtime.  An example of this being used
-        in real life is for the BrokerTk MojoMod, which installs a filter to copy all DebugStream
-        to a GUI widget before it is sent out to a file.
-        """
-        self.filters = filters[:] # Copy it (don't modify the default!)
-        self._writeQ = Queue.Queue(0) # holds tuples of (output, v, vs, args)
-    
-        if logfile:
-            # Supposedly `touch()' should have created all directories that appear in the PATH key in confutils.
-            # But that's not happening in practice and anyway it sometimes causes problems by trying to create
-            # directories that aren't needed (for example, when you're just trying to do some util like extracting
-            # file metadata instead of trying to start an actual live broker).
-            # So I'm just gonna make sure the path exists here, which is where I am getting runtime errors
-            # due to its non-existence.  --Zooko 2001-09-29
-            fileutil.make_dirs(os.path.dirname(logfile))
-            self._logfile = open(logfile, "wt")
-            #print "log being written to", logfile
-        else:
-            self._logfile = None
-        self.logstream = logstream
-        self.lastchar = '\n'
-        if len(log_vs):
-            self.log_vs = {}
-            for i in log_vs:
-                self.log_vs[i] = 1
-        else:
-            self.log_vs = None
-
-        return
-
-    def shutdown(self):
-        if self._logfile:
-            self._logfile.close()
-
-    def __getattr__(self, attribute):
-        '''Pretend to be self.logstream.'''
-        return eval("self.logstream.%s" % attribute)
-
-    def close(self):
-        if self._logfile:
-            self._logfile.close()
-            self._logfile = None
-    
-    def get_log_vs(self):
-        if self.log_vs:
-            return self.log_vs.keys()
-        else:
-            return None
-    def reset_log_vs(self, new_vs):
-        if len(new_vs):
-            self.log_vs = {}
-            for i in new_vs:
-                self.log_vs[i] = 1
-        else:
-            self.log_vs = None
-            
-    def get_name(self):
-        if self._logfile:
-            return self._logfile.name
-        else:
-            return ''
-
-    def rotate_logfile(self, newfilename):
-        if not self._logfile:
-            return
-        oldlogfile = self._logfile
-        self.write("Rotating mojolog: Closing %s, Opening %s\n" % (self.get_name(), newfilename), vs='mojolog')
-        newlogfile = open(newfilename, "wt")
-        self._logfile = newlogfile
-        self.write("This log file is continuation of: %s\n" % (oldlogfile.name,), vs='mojolog')
-        oldlogfile.close()
-
-    def _filter(self, output):
-        for filter in self.filters:
-            try:
-                output = filter(output)
-            except:
-                # Bad filter!
-                output = output + '\nACK!  DebugStream filter %s raised exception:\n' % `filter`
-                f = cStringIO.StringIO()
-                traceback.print_exc(file=f)
-                output = output + f.getvalue()
-                del f
-        return output
-    
-    def writer_loop(self):
-        while 1:
-            pass #XXXX Amber left off here.   --Zooko 2000-10-16
-
-    def write(self, output, v=0, vs="", args=()):
-        """
-        Writes output to stderr.  Pretty-prints non-strings.  Filters specific stuff out.
-
-        @param v: the verbosity level of this message;  If it is less than or equal to
-            MAX_VERBOSITY, then the string will be written.
-        @param vs: the purpose of this message;  This string is included in the output.  In the
-            future we may use this string to determine whether to print the message out to the
-            user, log it to a log file, drop it on the floor, etc.  Suggested values: "error",
-            "debug", "user", or specific things that you might want to get diagnostics on e.g.
-            "commstrats", "comm hints", "accounting".
-        @param args: if a tuple is specified output will be run through the % operator with args:
-            "output = output % humanreadable.hr(args)"  The advantage of this is that the possibly expensive %
-            and`humanreadable.hr()' functions won't be executed unless the message is being printed.
-        """
-        # Note:  This interface overloads the standard file write interface.  Make sure this is always a compatible
-        # superset of the standard file interface, so we can pass this around to third-party or standard modules
-        # which use files!
-        if type(v) != types.IntType:
-            self.write('ERROR: the next debug message called write() with a non-integer v: %s\n', args=(v,), v=0)
-            v = 0
-        if v:
-            if v > int(confman.get("MAX_VERBOSITY", "1")):
-                return # Don't write this, because it is too verbose for us.
-
-        if self.log_vs and vs:
-            if not self.log_vs.has_key(vs):
-                return
-        if type(output) is types.StringType:
-            # This code gets executed a lot, so it is a shame to do a regex here.  Ultimately, all code should call debugprint() from the debugprint module to prepend the time, and this code, or better yet the new Python standard library logging module, will just be responsible for writing it to a log file.
-            if (self.lastchar == '\n') and not (timeutil.ISO_UTC_TIME_RE.match(output)):
-                timestr = iso_utc_time()
-                if not vs:
-                    vs=""
-                #outline = "%s (%s): [%s]: " % (threading.currentThread().getName(), vs, timestr)
-                outline = "%s (%s) " % (timestr, vs)
-            else:
-                outline = ""
-
-            if args:
-                try:
-                    output = output % tuple(map(humanreadable.hr, args))
-                except TypeError, e:
-                    output = "ERROR: output string '%s' contained invalid %% expansion (note that we only do %%s around here), error: %s, args: %s\n" % (`output`, e, `args`)
-
-            outline = outline + re.sub(r"\n", r"\n: ", output[:-1]) + output[-1:]
-
-            outline = self._filter(outline)
-
-            if self._logfile:
-                self._logfile.write(outline)
-                self._logfile.flush()
-
-            if self.logstream:
-                self.logstream.write(outline)
-                self.logstream.flush()
-
-            self.lastchar = output[-1]
-
-        elif type(output) == types.DictType:
-            self.dict_id("", output)
-        else:
-            pprint(output, self)
-
-    def dict_id(self, key, dict, depth=0):
-        indent = "    " * depth
-        self.write("%s%s: <%d>\n" % (indent, key, id(dict)))
-        for key in dict.keys():
-            if type(dict[key]) == types.DictType:
-                self.dict_id(key, dict[key], depth + 1)
-            else:
-                self.write("%s%s: %s\n" % (indent + "    ", key, dict[key]))
-        return
-
 def generate_mojolog_filename():
     # remove :s from time, they're not allowed in filenames on dos.
     logdir = os.path.expandvars(BROKER_DIR)
@@ -357,70 +182,6 @@ def cleanup_old_mojologs(maxage_in_hours, currentfilename, timer=timeutil.timer)
                 mojolog.write('Removed old mojolog %s\n', args=(logfile,), vs='mojolog')
             except:
                 mojolog.write('Unable to remove old mojolog %s\n', args=(logfile,), vs='mojolog')
-
-# Now instantiate a DebugStream wrapper to be our mojolog:
-if ('--no-log-file' in sys.argv):
-    __logfile = None
-else:
-    for arg in sys.argv:
-        if arg[:len('--log-file=')] == '--log-file=':
-            __logfile = arg[len('--log-file='):]
-            break
-    else:
-        # write directly to a log file by default on windows
-        __logfile = generate_mojolog_filename()
-
-if '--no-log-stderr' in sys.argv:
-    __logstream = None
-else:
-    __logstream = sys.stderr
-
-mojolog = DebugStream(logstream=__logstream, logfile=__logfile)
-stderr = mojolog  # DEPRECATED: old was debug.stderr.write, new is debug.mojolog.write, newest is "debugprint" from the debugprint module in the pyutil project
-
-
-#if not ('--interact' in sys.argv):
-#    sys.stdout = mojolog
-#    sys.stderr = mojolog
-
-# create a mojolog-current symlink on systems that support it.
-if (__logfile is not None) and hasattr(os, 'symlink'):
-    basedir = os.path.dirname(__logfile)
-    linkname = os.path.join(basedir, 'mojolog-current')
-    try:
-        os.unlink(linkname)  # remove any previous one
-    except:
-        pass
-    try:
-        os.symlink(__logfile, linkname)
-    except OSError, le:
-        le.args = (__logfile, linkname, le.args,)
-        print "__logfile: %s, linkname: %s, le.args: %s" % (str(__logfile), str(linkname), str(le.args),)
-        raise le
-
-    del basedir, linkname
-
-
-def rotate_mojolog(doq=None, delay=87600):
-    """this only works for log files we're actually writing to directly"""
-    if doq:
-        doq.add_task(rotate_mojolog, delay=delay, kwargs={'doq': doq, 'delay': delay})
-    if ('--no-log-file' in sys.argv):
-        return
-    if sys.platform == 'win32' or ('--rotated-log' in sys.argv):
-        logfile = generate_mojolog_filename()
-        mojolog.rotate_logfile(logfile)
-        cleanup_old_mojologs(int(confman['MOJOLOG']['MAX_ROTATED_LOG_AGE_IN_HOURS']), logfile)
-        # create a mojolog-current symlink on systems that support it.
-        if hasattr(os, 'symlink'):
-            basedir = os.path.dirname(logfile)
-            linkname = os.path.join(basedir, 'mojolog-current')
-            try:
-                os.unlink(linkname)  # remove any previous one
-            except:
-                pass
-            os.symlink(logfile, linkname)
-            del basedir, linkname
 
 
 ########################################## HERE IS THE idlib.py PART OF mojostd.py
@@ -1090,7 +851,6 @@ def gen_per_kb_price_dict(onekbprice, scalingfactor=0.95) : # XXX Shouldn't this
 ## Application Data:
 dictutil.deep_update(confdefaults,
                      dictutil.UtilDict({
-            "MAX_VERBOSITY" : "2",
             "EGTP_VERSION_STR" : EGTPVersion.versionstr_full,
             
             # for General Preferences
@@ -1540,7 +1300,7 @@ class ConfManager(UserDict.UserDict):
             return
 
         self.dict["EGTP_VERSION_STR"] = EGTPVersion.versionstr_full
-        mojolog.write('saving conf file %s (%s); PATH section:\n%s\n', args=(self.dict["PATH"]["BROKER_CONF"], os.path.expandvars(self.dict["PATH"]["BROKER_CONF"]), self.dict["PATH"],), v=6, vs='conf')
+        debugprint('saving conf file %s (%s); PATH section:\n%s\n', args=(self.dict["PATH"]["BROKER_CONF"], os.path.expandvars(self.dict["PATH"]["BROKER_CONF"]), self.dict["PATH"],), v=6, vs='conf')
         file = open(os.path.expandvars(self.dict["PATH"]["BROKER_CONF"]), 'w')
         file.writelines(dict_to_lines(self.dict))
         file.flush()
