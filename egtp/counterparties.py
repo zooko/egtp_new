@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: counterparties.py,v 1.9 2002/12/02 19:58:51 myers_carpenter Exp $"
+__revision__ = "$Id: counterparties.py,v 1.10 2003/01/12 20:19:14 zooko Exp $"
 
 """ 
 Implements counter party objects used for storing information about the
@@ -159,8 +159,8 @@ class CounterpartyObjectKeeper:
         # debugprint("xxx %s.load_mojooffer_stats() stack[-5:-1]: %s\n", args=(self, traceback.extract_stack()[-5:-1],))
         others_owe_us = 0L
         we_owe_others = 0L
-        for countarparty_id in self.extres.balances_db.keys() :
-            val = CounterpartyObject(countarparty_id, self).get_amount_owe()
+        for counterparty_id in self.extres.balances_db.keys() :
+            val = CounterpartyObject(counterparty_id, self).get_amount_owe()
             if val > 0 :
                 we_owe_others = we_owe_others + val
             else :

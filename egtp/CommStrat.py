@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.11 2003/01/09 15:18:14 zooko Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.12 2003/01/12 20:19:14 zooko Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -303,7 +303,7 @@ class Relay(CommStrat):
         # debugprint("commstratseqno: %s, self._commstratseqno: %s\n", args=(commstratseqno, self._commstratseqno,))
         if (commstratseqno is not None) and ((self._commstratseqno is None) or (commstratseqno >= self._commstratseqno)):
             # This message is not guaranteed to terminate -- it could form a remailing loop -- dump it.
-            fast_fail_handler(failure_reason="aborting a non-guaranteed-termination relay; commstratseqno: %s, self._commstratseqno: %s" % tuple(map(humanreadable.hr, (commstratseqno, self._commstratseqno,)))
+            fast_fail_handler(failure_reason="aborting a non-guaranteed-termination relay; commstratseqno: %s, self._commstratseqno: %s" % tuple(map(humanreadable.hr, (commstratseqno, self._commstratseqno,))))
             return
 
         if DEBUG_MODE:

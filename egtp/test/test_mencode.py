@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: test_mencode.py,v 1.2 2002/12/02 19:58:56 myers_carpenter Exp $"
+__revision__ = "$Id: test_mencode.py,v 1.3 2003/01/12 20:19:15 zooko Exp $"
 
 # Python standard library modules
 import operator, random, traceback, unittest
@@ -267,10 +267,11 @@ class MencodeTestCase(unittest.TestCase):
 
     def _help_test_no_byte_leakage(self, f):
         # measure one and throw it away, in order to reach a "steady state" in terms of initialization of memory state.
-        memutil.measure_mem_leakage(f, 2**3, iterspersample=2**3)
-        slope = memutil.measure_mem_leakage(f, 2**3, iterspersample=2**3)
+        memutil.measure_mem_leakage(f, 2**8, iterspersample=2**3)
+        slope = memutil.measure_mem_leakage(f, 2**8, iterspersample=2**3)
 
         # print "slope: ", slope
+        MIN_SLOPE = 1.0 # If it leaks less than 64.0 bytes per iteration, then it's probably just some kind of noise from the interpreter or something...
         MIN_SLOPE = 64.0 # If it leaks less than 64.0 bytes per iteration, then it's probably just some kind of noise from the interpreter or something...
         # MIN_SLOPE is high because samples is low, which is because doing statistically useful numbers of samples take too long.
         # For a *good* test, turn samples up as high as you can stand (maybe 2**8 for both invocations of measure_mem_leakage()) and set MIN_SLOPE to about 1.0.
