@@ -7,13 +7,66 @@
 """
 Interfaces that should be implemented by code that uses EGTP
 """
-__revision__ = "$Id: interfaces.py,v 1.12 2003/02/22 21:00:20 myers_carpenter Exp $"
+__revision__ = "$Id: interfaces.py,v 1.13 2003/03/02 14:40:03 myers_carpenter Exp $"
 
 import exceptions
 
 from pyutil import humanreadable
 
-from egtp.IRemoteOpHandler import IRemoteOpHandler
+class IRemoteOpHandler:
+    """
+    This is an "interface" class, which in Python means that it is really
+    just a form of documentation.  Hello, hackers!
+
+    A "remote op handler" is an object which handles the results of one
+    specific remote operation.
+    """
+    def __init__(self):
+        pass
+
+    def result(self, object):
+        """
+        The results are in!
+        """
+        raise NotImplementedError
+        pass
+
+    def done(self, failure_reason=None):
+        """
+
+        Your remote op manager invokes this to let you know that after this
+        point, he absolutely positively cannot get the result you were
+        looking for.  There is no chance that he will later call `result()'
+        for this operation.  You can safely forget all about this particular
+        operation.
+
+        If this operation is "done" because it has successfully been
+        completed (i.e., the manager has already called `result()', and
+        given you the result that you were looking for), then the
+        `failure_reason' argument will be None.
+
+        @param failure_reason: None or a string describing why it failed
+
+        """
+        raise NotImplementedError
+        pass
+
+    def soft_timeout(self):
+        """
+        Your remote op manager invokes this to let you know that time has
+        passed and the results have not come in.  You might want to use this
+        opportunity to get impatient and do something else.  However, the
+        results might still come in, in which case your remote op manager
+        will call `result()', just as if the results had come in more
+        promptly.
+
+        A "hard" timeout, which means that the remote op manager gives up
+        and will ignore any results which come in after this point, is
+        signalled by a call to `done()' with a `failure_reason' argument of
+        "hard timeout".
+        """
+        raise NotImplementedError
+        pass
 
 class ILookupManager:
     """
@@ -232,50 +285,59 @@ class IDiscoveryHandler(IRemoteOpHandler):
 
     def result(self, object):
         """
-        The results are in!  You can now do what you want with the results.  Note that `None' is a
-        valid result.  Whether your discovery manager chooses to tell you that the answer is `None',
-        or whether he chooses to keep searching for a non-None answer is up to him.
+        The results are in!  You can now do what you want with the results. 
+        Note that `None' is a valid result.  Whether your discovery manager
+        chooses to tell you that the answer is `None', or whether he chooses
+        to keep searching for a non-None answer is up to him.
         """
         raise NotImplementedError
         pass
 
     def done(self, failure_reason=None):
         """
-        The search is finished.  If it failed (i.e., if you haven't already received any result
-        via a call to the `result()' method), then `failure_reason' will contain a human-readable
-        string explaining for the failure.  (Most likely: "hard timeout".)
+        The search is finished.  If it failed (i.e., if you haven't already
+        received any result via a call to the `result()' method), then
+        `failure_reason' will contain a human-readable string explaining for
+        the failure.  (Most likely: "hard timeout".)
 
-        Whether the search succeeded or failed, your discovery manager invokes this to let you
-        know that after this point he absolutely positively cannot find the kind of things you
-        were looking for.  There is no chance that he will later call `result()' for this query.
-        You can safely forget all about this particular query.
+        Whether the search succeeded or failed, your discovery manager
+        invokes this to let you know that after this point he absolutely
+        positively cannot find the kind of things you were looking for. 
+        There is no chance that he will later call `result()' for this
+        query.  You can safely forget all about this particular query.
 
-        When does the discovery manager consider it a failure and call `done()' with a non-None
-        `failure_reason' instead of calling `result(None)' and calling `done(None)'?  The answer
-        is that a "failure" should indicate a technical failure (for example, the discovery man
-        was unable to send the query out, or the nodes that he queried did not send a response in
-        a timely way even though they were expected to do so), and `result(None);done(None)'
-        should indicate that everything is working fine as far as the discovery man can tell, but
-        nobody knows the answer to your query (for example, a reasonable number of nodes responded
-        in a timely manner, but they all said they had no answer).  This distinction is
-        necessarily fuzzy, but it can be important as technical failure can trigger attempts to
-        try alternate routes or to rebuild your network, etc..
+        When does the discovery manager consider it a failure and call
+        `done()' with a non-None `failure_reason' instead of calling
+        `result(None)' and calling `done(None)'?  The answer is that a
+        "failure" should indicate a technical failure (for example, the
+        discovery man was unable to send the query out, or the nodes that he
+        queried did not send a response in a timely way even though they
+        were expected to do so), and `result(None);done(None)' should
+        indicate that everything is working fine as far as the discovery man
+        can tell, but nobody knows the answer to your query (for example, a
+        reasonable number of nodes responded in a timely manner, but they
+        all said they had no answer).  This distinction is necessarily
+        fuzzy, but it can be important as technical failure can trigger
+        attempts to try alternate routes or to rebuild your network, etc..
 
-        @param reason: a string describing why it failed (used for human-readable diagnostic output)
+        @param reason: a string describing why it failed (used for
+            human-readable diagnostic output)
         """
         raise NotImplementedError
         pass
 
     def soft_timeout(self):
         """
-        Your discoveryl manager invokes this to let you know that time has passed and the results
-        have not come in.  You might want to use this opportunity to get impatient and do something
-        else.  However, the results might still come in, in which case your discovery manager will
-        call `result()', just as if the results had come in more promptly.
+        Your discoveryl manager invokes this to let you know that time has
+        passed and the results have not come in.  You might want to use this
+        opportunity to get impatient and do something else.  However, the
+        results might still come in, in which case your discovery manager
+        will call `result()', just as if the results had come in more
+        promptly.
 
-        A "hard" timeout, which means that the lookup manager gives up and will ignore any results
-        which come in after this point, is signalled by a call to `done()' with `failure_reason'
-        "hard timeout"..
+        A "hard" timeout, which means that the lookup manager gives up and
+        will ignore any results which come in after this point, is signalled
+        by a call to `done()' with `failure_reason' "hard timeout"..
         """
         raise NotImplementedError
         pass 

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.26 2003/02/17 09:35:20 artimage Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.27 2003/03/02 14:40:03 myers_carpenter Exp $"
 
 true = 1
 false = 0
@@ -83,8 +83,10 @@ class Widget:
 
 class Error(exceptions.StandardError): 
     pass
+
 class FailureError(Error): 
-    """FailureError is for failures in the conversation/transaction layer
+    """
+    FailureError is for failures in the conversation/transaction layer
     """
     pass 
 

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoHandicapper.py,v 1.11 2003/02/28 04:35:53 artimage Exp $"
+__revision__ = "$Id: MojoHandicapper.py,v 1.12 2003/03/02 14:40:02 myers_carpenter Exp $"
 
 # Python standard library modules
 import bisect
@@ -161,7 +161,7 @@ class MojoHandicapper :
             service_info_dict contains a key 'Peer Object' whose value is an
             instance of Peer.Peer.  It is okay to be an empty dict.
 
-        @return: a list of Peer.Peer instances sorted into descending order of preference
+        @returns: a list of Peer.Peer instances sorted into descending order of preference
 
         @precondition: `counterparties' must be a dict.: type(counterparties) is types.DictType: "counterparties: %s :: %s" % (hr(counterparties), hr(type(counterparties)),)
         @precondition: `message_type' must be a string.: type(message_type) == types.StringType

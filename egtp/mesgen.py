@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.16 2003/02/17 09:35:21 artimage Exp $"
+__revision__ = "$Id: mesgen.py,v 1.17 2003/03/02 14:40:04 myers_carpenter Exp $"
 
 
 # Python standard library modules
@@ -61,8 +61,12 @@ class UnknownSession(Error):
         assert len(counterparty_id) == SIZE_OF_UNIQS
         self.invalidate_session_msg = '\000\000\002\002' + id_in + counterparty_id
 
-# raised by mesgen.parse() when an 'invalidate session' message is received and handled successfully
-class SessionInvalidated(Error): pass
+class SessionInvalidated(Error): 
+    """
+    raised by mesgen.parse() when an 'invalidate session' message is
+    received and handled successfully
+    """
+    pass
 
 
 def _mix_counterparties(cp1, cp2, data):
@@ -87,7 +91,7 @@ class SessionKeeper:
             self.counterparty_map = counterparty_map
 
         def __del__(self):
-            # debugprint("%s.__del__()\n", args=(self,))
+            debugprint("%s.__del__()\n", args=(self,))
             if self.session_map is not None:
                 self.session_map.close()
                 self.session_map = None
@@ -101,7 +105,7 @@ class SessionKeeper:
                 self.db_env.close()
                 # debugprint("%s.__del__(): self.db_env = None\n", args=(self,))
                 self.db_env = None
-            # debugprint("%s.__del__(): done\n", args=(self,))
+            debugprint("%s.__del__(): done\n", args=(self,))
 
     def __init__(self, dbparentdir=None, dir=None, serialized = None, maxitems = 1000, recoverdb=true):
         """
