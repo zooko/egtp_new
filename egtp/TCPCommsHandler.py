@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: TCPCommsHandler.py,v 1.14 2003/02/01 23:31:58 myers_carpenter Exp $"
+__revision__ = "$Id: TCPCommsHandler.py,v 1.15 2003/02/04 03:43:02 zooko Exp $"
 
 # standard modules
 import UserDict, asyncore, os, socket, string, struct, threading, time
@@ -142,11 +142,8 @@ class TCPCommsHandler(asyncore.dispatcher, LazySaver.LazySaver):
     def shutdown(self):
         self._throttlerin.unregister(self._throttle, self._unthrottle)
         self.stop_listening()
-        # TODO: del this?   LazySaver no longer has a shutdown?  -- icepick 2003-02-01
-        # LazySaver.LazySaver.shutdown(self)
         self._cid_to_cs = None
         self._cid_to_activation = None
-        self._mtm = None
 
     def stop_listening(self):
         # The following try: block is to work around weirdness/bugs in Python Standard Library asyncore.

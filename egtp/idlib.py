@@ -11,7 +11,7 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.10 2003/02/03 04:04:26 zooko Exp $"
+__revision__ = "$Id: idlib.py,v 1.11 2003/02/04 03:43:02 zooko Exp $"
 
 # Python Standard Library modules
 import re, sha, struct, types
@@ -22,6 +22,9 @@ from pyutil.xor.xor import xor
 # egtp modules
 from egtp import std, mojosixbit, std
 from egtp.crypto import randsource
+
+true = 1
+false = 0
 
 _asciihash_re = mojosixbit._asciihash_re
 
@@ -143,7 +146,7 @@ def int_to_id_prefix(i):
 def is_canonical_uniq(thing, _strtypes=_strtypes):
     """slightly slower than is_binary_id, but more accurate due to the type check"""
     if type(thing) not in _strtypes:
-        return None
+        return false
     return len(thing) == 20
 
 def identifies(id, thing, thingtype=None):

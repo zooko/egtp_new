@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: ListenerManager.py,v 1.8 2003/02/02 19:31:37 myers_carpenter Exp $"
+__revision__ = "$Id: ListenerManager.py,v 1.9 2003/02/04 03:43:02 zooko Exp $"
 
 # standard modules
 import os
@@ -108,7 +108,7 @@ class ListenerManager(LazySaver.LazySaver):
             self._commstratseqno = self._commstratseqno + 1
             # debugprint("ListenerManager.get_comm_strategy_and_newflag(): new comm strat seq no: %s, result: %s, self._lastannouncedcommstratdict: %s, oldstrat: %s, result.same(oldstrat): %s\n", args=(self._commstratseqno, result, self._lastannouncedcommstratdict, oldstrat, result.same(oldstrat),))
             self._lastannouncedcommstratdict = result.to_dict()
-            self._lazy_save(delay=0)
+            self._lazy_save()
             newflag = true
         else:
             newflag = false
