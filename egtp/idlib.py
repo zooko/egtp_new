@@ -11,10 +11,13 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.8 2003/02/02 22:21:13 myers_carpenter Exp $"
+__revision__ = "$Id: idlib.py,v 1.9 2003/02/03 03:58:29 zooko Exp $"
 
-# standard modules
+# Python Standard Library modules
 import re, sha, struct, types
+
+# pyutil modules
+from pyutil.xor import xor
 
 # egtp modules
 from egtp import std, mojosixbit, std
