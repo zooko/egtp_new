@@ -7,7 +7,7 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # XXX FIXME: this unit test leaves behind permanent files in your "${EGTPDIR}/broker/mtmdb" directory.  It should be fixed to clean them up on exit.  --Zooko 2002-08-03
-__cvsid = '$Id: EGTPunittest.py,v 1.5 2002/11/07 21:48:21 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPunittest.py,v 1.6 2002/11/10 22:50:18 artimage Exp $'
 
 # standard Python modules
 import threading, types, unittest
@@ -153,7 +153,7 @@ class EGTPTestCaseTemplate(unittest.TestCase):
                 finishedflag.set()
 
             d['n1'].set_handler_func(mtype="ping", handler_func=l_ping_handler)
-            # print d['n1'].get_address()
+            # print "EGTPunittest: get_address", d['n1'].get_address()
 
             # Make a sender.  He'll keep a reference to `lm' for later use.
             d['n2'] = Node.Node(allownonrouteableip=true, lookupman=lm, discoveryman=dm, datadir="/tmp/egtp_test")
