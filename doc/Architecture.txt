@@ -8,8 +8,9 @@ A. nodeIds
 nodeIds (formerly known as "broker Ids") are universally unique 20-byte 
 identifiers.  They are formed by taking the SHA1 hash of the public key of 
 the Node, along with some extra fixed strings for cryptographic/engineering 
-reasons.  When you are talking about the nodeId of a peer, you call it a 
-"peerId" (formerly known as "counterparty Id").
+reasons.  When you are talking about the nodeId of a peer (as opposed to the 
+node Id of yourself), you call it a "peerId" (formerly known as 
+"counterparty Id").
 
 B. Relay
 
