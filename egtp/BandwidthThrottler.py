@@ -3,12 +3,11 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: BandwidthThrottler.py,v 1.4 2002/12/02 19:58:44 myers_carpenter Exp $"
+__revision__ = "$Id: BandwidthThrottler.py,v 1.5 2003/02/02 19:31:35 myers_carpenter Exp $"
 
 # pyutil modules
-from pyutil.debugprint import debugprint
 from pyutil.config import DEBUG_MODE
-from pyutil import timeutil
+from pyutil import timeutil, debugprint
 
 true = 1
 false = None
@@ -34,6 +33,11 @@ class BandwidthThrottler:
         self._lasttick = time()
         self._throttlecbs = []
         self._unthrottlecbs = []
+        self._tick_doq_loop()
+
+    def _tick_doq_loop(self):
+        DoQ.doq._asyncorelooper.add_task(self.used, args=(0,))
+        DoQ.doq.add_task(self._tick_doq_loop, delay=60)
 
     def register(self, throttle_callback, unthrottle_callback):
         self._throttlecbs.append(throttle_callback)
@@ -50,7 +54,7 @@ class BandwidthThrottler:
         now = time()
         if now > (self._lasttick + self._granularity):
             if DEBUG_MODE:
-                debugprint("BandwidthThrottler measuring: %s bytes in %s seconds (%s Kbps)\n", args=(self._used, "%0.0f" % (now - self._lasttick), "%0.3f" % (((self._used * 8.0) / 1024.0) / self._granularity)), v=7, vs="TCPCommsHandler") ### for faster operation, comment this line out.  --Zooko 2000-12-11
+                debugprint.debugprint("BandwidthThrottler measuring: %s bytes in %s seconds (%s Kbps)\n", args=(self._used, "%0.0f" % (now - self._lasttick), "%0.3f" % (((self._used * 8.0) / 1024.0) / self._granularity)), v=7, vs="TCPCommsHandler") ### for faster operation, comment this line out.  --Zooko 2000-12-11
 
             self._lasttick = now
             self._used = bytes
@@ -61,6 +65,6 @@ class BandwidthThrottler:
         self._used = self._used + bytes
 
         if (self._throttle) and (self._used >= self._maxbytes):
-            debugprint("BandwidthThrottler maxed out: %s bytes in %s seconds (%s Kbps); throttling\n", args=(self._used, "%0.0f" % (now - self._lasttick), "%0.3f" % (((self._used * 8.0) / 1024.0) / self._granularity)), v=7, vs="TCPCommsHandler") ### for faster operation, comment this line out.  --Zooko 2000-12-11
+            debugprint.debugprint("BandwidthThrottler maxed out: %s bytes in %s seconds (%s Kbps); throttling\n", args=(self._used, "%0.0f" % (now - self._lasttick), "%0.3f" % (((self._used * 8.0) / 1024.0) / self._granularity)), v=7, vs="TCPCommsHandler") ### for faster operation, comment this line out.  --Zooko 2000-12-11
             for throttlecb in self._throttlecbs:
                 throttlecb()

@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mesgen.py,v 1.13 2003/01/18 20:46:35 zooko Exp $"
+__revision__ = "$Id: mesgen.py,v 1.14 2003/02/02 19:31:38 myers_carpenter Exp $"
 
 
 # Python standard library modules
@@ -24,18 +24,17 @@ from pyutil import fileutil
 from egtp.humanreadable import hr
 from egtp.CleanLogDb import CleanLogDbEnv
 from egtp.crypto import modval, tripledescbc, cryptutil, randsource
-from egtp import hashrandom, keyutil, idlib, mencode, mojosixbit
+from egtp import hashrandom, keyutil, idlib, mencode, mojosixbit, EGTPConstants
 
 true = 1
 false = 0
 
-SIZE_OF_MODULAR_VALUES = 128
 SIZE_OF_UNIQS = 20
 HARDCODED_RSA_PUBLIC_EXPONENT = 3
 
 
 # Size of public keys generated here-in.
-SIZE_OF_PUBLIC_KEYS = SIZE_OF_MODULAR_VALUES
+SIZE_OF_PUBLIC_KEYS = EGTPConstants.SIZE_OF_MODULAR_VALUES
 
 MINS_BETWEEN_DB_CHECKPOINTS = 5
 

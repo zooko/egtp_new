@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.22 2003/01/07 19:51:29 zooko Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.23 2003/02/02 19:31:37 myers_carpenter Exp $"
 
 true = 1
 false = 0
@@ -234,6 +234,7 @@ class MojoTransactionManager:
         if not ready:
             self._mesgen=mesgen.create_MessageMaker(dbparentdir=dbparentdir, recoverdb=recoverdb)
 
+        self.keyID = self._mesgen.get_id()
         self._dbdir=os.path.join(dbparentdir, idlib.to_mojosixbit(self._mesgen.get_id()))
 
         self.response_times = {}
@@ -329,7 +330,7 @@ class MojoTransactionManager:
 
     def _shutdown_members(self):
         debugprint("%s._shutdown_members()\n", args=(self,))
-        for member in ('_blobserver', '_handicapper', '_keeper', '_mesgen', '_metamtm', '_cm', '_listenermanager',):
+        for member in ('_blobserver', '_handicapper', '_keeper', '_mesgen', '_metamtm', '_cm', '_listenermanager', '_ch',):
             if hasattr(self, member):
                 o = getattr(self, member)
                 if hasattr(o, 'shutdown'):
@@ -347,6 +348,7 @@ class MojoTransactionManager:
         self._ch.stop_listening()
         self._ch.shutdown()
         self._shutdown_members()
+        self._listenermanager = None
         self._save_response_times()
         debugprint("%s.shutdown() exiting\n", args=(self,))
 

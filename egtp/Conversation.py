@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Conversation.py,v 1.11 2003/02/01 23:31:58 myers_carpenter Exp $"
+__revision__ = "$Id: Conversation.py,v 1.12 2003/02/02 19:31:37 myers_carpenter Exp $"
 
 # Python standard library modules
 import threading
@@ -21,7 +21,7 @@ from traceback import print_exc
 # pyutil modules
 from pyutil.debugprint import debugprint, debugstream
 from pyutil import Cache
-from pyutil import DoQ
+from pyutil import DoQ, nummedobj
 
 # EGTP modules
 from egtp import CommStrat
@@ -42,6 +42,41 @@ TUNING_FACTOR=float(2**8)
 
 def is_mojo_message(thingie):
     return (type(thingie) is types.DictType) and (thingie.has_key('mojo header') or thingie.has_key('mojo message'))
+
+class DebugDiagLoop(DoQ.DoQLoop, nummedobj.NummedObj):
+    def __init__(self, cm):
+        self.maxcbs = 0
+        self.maxpcbs = 0
+        self.maxoms = 0
+        self.maxli2i = 0
+        self.maxfps = 0
+        DoQ.DoQLoop.__init__(self)
+        nummedobj.NummedObj.__init__(self)
+        self.cm = cm
+        self.schedule_event()
+
+    def event(self):
+        if len(self.cm._callback_functions) > self.maxcbs:
+            self.maxcbs = len(self.cm._callback_functions)
+            debugprint("%s.event(): new max len(self.cm._callback_functions): %s, len(self.cm._posttimeout_callback_functions): %s, len(self.cm._map_inmsgid_to_info): %s, len(self.cm._map_cid_to_freshness_proof): %s\n", args=(self, len(self.cm._callback_functions), len(self.cm._posttimeout_callback_functions), len(self.cm._map_inmsgid_to_info), len(self.cm._map_cid_to_freshness_proof),), v=3, vs="Conversation")
+
+        if len(self.cm._posttimeout_callback_functions) > self.maxpcbs:
+            self.maxpcbs = len(self.cm._posttimeout_callback_functions)
+            debugprint("%s.event(): len(self.cm._callback_functions): %s, new max len(self.cm._posttimeout_callback_functions): %s, len(self.cm._map_inmsgid_to_info): %s, len(self.cm._map_cid_to_freshness_proof): %s\n", args=(self, len(self.cm._callback_functions), len(self.cm._posttimeout_callback_functions), len(self.cm._map_inmsgid_to_info), len(self.cm._map_cid_to_freshness_proof),), v=3, vs="Conversation")
+
+        if len(self.cm._callback_functions) > self.maxoms:
+            self.maxoms = len(self.cm._callback_functions)
+            debugprint("%s.event(): len(self.cm._callback_functions): %s, len(self.cm._posttimeout_callback_functions): %s, new max len(self.cm._callback_functions): %s, len(self.cm._map_inmsgid_to_info): %s, len(self.cm._map_cid_to_freshness_proof): %s\n", args=(self, len(self.cm._callback_functions), len(self.cm._posttimeout_callback_functions), len(self.cm._callback_functions), len(self.cm._map_inmsgid_to_info), len(self.cm._map_cid_to_freshness_proof),), v=3, vs="Conversation")
+
+        if len(self.cm._map_inmsgid_to_info) > self.maxli2i:
+            self.maxli2i = len(self.cm._map_inmsgid_to_info)
+            debugprint("%s.event(): len(self.cm._callback_functions): %s, len(self.cm._posttimeout_callback_functions): %s, new max len(self.cm._map_inmsgid_to_info): %s, len(self.cm._map_cid_to_freshness_proof): %s\n", args=(self, len(self.cm._callback_functions), len(self.cm._posttimeout_callback_functions), len(self.cm._map_inmsgid_to_info), len(self.cm._map_cid_to_freshness_proof),), v=3, vs="Conversation")
+
+        if len(self.cm._map_cid_to_freshness_proof) > self.maxfps:
+            self.maxfps = len(self.cm._map_cid_to_freshness_proof)
+            debugprint("%s.event(): len(self.cm._callback_functions): %s, len(self.cm._posttimeout_callback_functions): %s, len(self.cm._map_inmsgid_to_info): %s, new max len(self.cm._map_cid_to_freshness_proof): %s\n", args=(self, len(self.cm._callback_functions), len(self.cm._posttimeout_callback_functions), len(self.cm._map_inmsgid_to_info), len(self.cm._map_cid_to_freshness_proof),), v=3, vs="Conversation")
+
+        self.schedule_event(delay=60)
 
 class ConversationManager:
     def __init__(self, MTM):
@@ -70,6 +105,9 @@ class ConversationManager:
 
         self._in_message_num = 0L   # used only in debugging
 
+        if DEBUG_MODE:
+            DebugDiagLoop(self) # this will spew a debug diags line every 60 seconds
+
     def shutdown(self):
         debugprint("self._map_inmsgid_to_info: %s\n", args=(self._map_inmsgid_to_info,), v=6, vs="debug")
         self.__callback_functions = {}
@@ -77,7 +115,9 @@ class ConversationManager:
         # self._posttimeout_callback_functions.clear()
         self._map_inmsgid_to_info = {}
         self._map_cid_to_freshness_proof.clear()
-   
+        if hasattr(self, '_MTM'):
+            del self._MTM  # break our circular reference
+
     def initiate_and_return_first_message(self, counterparty_id, conversationtype, firstmsgbody, outcome_func, timeout = 300, notes = None, mymetainfo=None, post_timeout_outcome_func=None):
         """
         @precondition: `counterparty_id' must be  an id.: idlib.is_sloppy_id(counterparty_id): "id: %s" % humanreadable.hr(id)
@@ -177,6 +217,10 @@ class ConversationManager:
         assert idlib.is_binary_id(counterparty_id), "`counterparty_id' must be a binary id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         self.drop_request_state(prevmsgId)
 
+        if idlib.equal(counterparty_id, self._MTM.get_id()):
+            extrametainfo = None
+        else:
+            extrametainfo = MetaTrackerLib.get_preencoded_extra_metainfo_for(counterparty_id, self._MTM)
         msgstr = MojoMessage.makeResponseMessage(inmsgtype + ' response', msgbody, prevmsgId, freshnessproof=self._map_cid_to_freshness_proof.get(counterparty_id), mymetainfo=mymetainfo, extrametainfo=None)
         self._MTM.send_message_with_lookup(counterparty_id, msgstr, hint=hint | HINT_THIS_IS_A_RESPONSE)
 
@@ -216,6 +260,32 @@ class ConversationManager:
         recipient_id = MojoMessage.getRecipient(msg)
         senders_metainfo = MojoMessage.getSendersMetaInfo(msg)
         extra_metainfo = MojoMessage.getExtraMetaInfo(msg)
+
+        if senders_metainfo and senders_metainfo.has_key('connection strategies') and self._MTM._allow_send_metainfo:  # (the allow_send also means allow_receive, bad name..)
+            try:
+                metainfo_id = MetaTrackerLib.metainfo_dict_to_id(senders_metainfo)
+                # verify that counterparty_id is the id of the info described in senders_metainfo
+                if idlib.equal(counterparty_id, metainfo_id):
+                    # if it is, we'll accept it as authentic
+                    debugprint("received contact info for counterparty %s in a message from them: %s\n", args=(counterparty_id, senders_metainfo,), v=4, vs="conversation")
+                    # fully trust the sender 100% to tell us its own metainfo
+                    MetaTrackerLib.cache_meta_tracker_responses([senders_metainfo], trustmetric=1.0)
+                else:
+                    debugprint("counterparty %s sent us unauthenticated metainfo for %s, ignoring.\n", args=(counterparty_id, metainfo_id), v=3, vs="conversation")
+            except:
+                debugprint("non-fatal error parsing metainfo in message from %s: %s\n", args=(counterparty_id, senders_metainfo,), v=3, vs="conversation")
+                if int(confman.dict.get('MAX_VERBOSITY', 0)) >= 3:
+                    traceback.print_exc(file=debugstream)
+
+        if extra_metainfo and ((type(extra_metainfo) in (types.ListType, types.TupleType,)) or (isinstance(extra_metainfo, mencode.PreEncodedThing))) and self._MTM._allow_send_metainfo:  # (the allow_send also means allow_receive, bad name..) # the type checking here should be moved into a template.  --Zooko 2001-11-14
+            try:
+                # don't fully trust gossip supplied metainfo
+                MetaTrackerLib.cache_meta_tracker_responses(extra_metainfo, trustmetric=0.5)
+                debugprint("received %s extra metainfo entries from counterparty %s.\n", args=(len(extra_metainfo), counterparty_id), v=4, vs="conversation")
+            except:
+                debugprint("non-fatal error caching extra metainfo in message from %s: %s\n", args=(counterparty_id, extra_metainfo,), v=3, vs="conversation")
+                if int(confman.dict.get('MAX_VERBOSITY', 0)) >= 3:
+                    traceback.print_exc(file=debugstream)
 
         if nonce is not None :
             # this is a first message
@@ -350,4 +420,5 @@ class ConversationManager:
 
         except MojoMessage.BadFormatError, le:
             debugprint("_process(): BadFormatError in message from %s, msg: %s, error: %s\n", args=(counterparty_id, inmsg, le,), v=2, vs="conversation")
+
 

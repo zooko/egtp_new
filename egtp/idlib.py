@@ -11,7 +11,7 @@ Everything in this file is optimized for speed, it gets called a
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: idlib.py,v 1.6 2002/12/02 19:58:52 myers_carpenter Exp $"
+__revision__ = "$Id: idlib.py,v 1.7 2003/02/02 19:31:38 myers_carpenter Exp $"
 
 # standard modules
 import re, sha, struct, types
@@ -65,6 +65,32 @@ def distance(id1, id2):
     dif2 = Size_of_NativeId_Int_Space - dif1
  
     return min(dif1, dif2)
+
+def xor_distance(id1, id2):
+    """
+    @param id1 an id
+    @param id2 an id
+
+    @returns the distance between the two == the native-int representation of the XOR of the two ids
+
+    @precondition id1 must be an id.: is_id(id1): "id1: %s :: %s" % tuple(map(humanreadable.hr (id1, type(id1),)))
+    @precondition id2 must be an id.: is_id(id2): "id2: %s :: %s" % tuple(map(humanreadable.hr (id2, type(id2),)))
+    """
+    assert is_id(id1), "precondition: id1 must be an id." + " -- " + "id1: %s :: %s" % tuple(map(humanreadable.hr (id1, type(id1),)))
+    assert is_id(id2), "precondition: id2 must be an id." + " -- " + "id2: %s :: %s" % tuple(map(humanreadable.hr (id2, type(id2),)))
+
+    return id_to_native_int(xor(id1[:3], id2[:3]))
+
+def sort_ids(refid, ids):
+    """
+    @param refid the reference id
+    @param a list of ids
+
+    @returns a copy of the list `ids', sorted according to their XOR distance from `refid'.
+    """
+    l = map(lambda id, refid=refid: (xor_distance(refid, id), id,), ids)
+    l.sort()
+    return map(lambda x: x[1], l)
 
 def id_to_native_int(id, IntType=types.IntType, LongType=types.LongType, FloatType=types.FloatType):
     """

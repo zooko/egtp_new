@@ -3,14 +3,15 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: cryptutil.py,v 1.5 2002/12/14 04:50:21 myers_carpenter Exp $"
+__revision__ = "$Id: cryptutil.py,v 1.6 2003/02/02 19:31:39 myers_carpenter Exp $"
 
-import sha
+import sha, types
 
 from pyutil.xor.xor import xor
 
 from egtp.crypto import tripledescbc, randsource
 from egtp import hashrandom, EGTPConstants
+from egtp import mencode, idlib
 
 def hashexpand(inpstr, expbytes, HRClass=hashrandom.SHARandom):
     return HRClass(inpstr).get(expbytes)
@@ -41,6 +42,31 @@ def desx_decrypt(ciphertext, key):
 
     return tripledescbc.new(hashrandom.hashexpand(key + 'key', 24)).decrypt(hashrandom.hashexpand(key + 'iv', 8), ciphertext)
 
+def gen_piece_keyseed(chunkId):
+    """
+    @precondition `chunkId' must be a string.: type(chunkId) == types.StringType: "chunkId: %s" % humanreadable.hr(chunkId)
+    """
+    assert type(chunkId) == types.StringType, "precondition: `chunkId' must be a string." + " -- " + "chunkId: %s" % humanreadable.hr(chunkId)
+
+    canonicalseed = mencode.mencode({'pieceid': idlib.to_mojosixbit(chunkId)})
+
+    return hashrandom.hashexpand(canonicalseed, EGTPConstants.SIZE_OF_UNIQS)
+
+def gen_chunk_id(chunkdata):
+    """
+    The old-style Id of a chunk is the SHA1 hash of the data.
+    """
+    return sha.new(chunkdata).digest()
+
+def gen_share_keyseed(sharenum, keyseed):
+    """
+    @precondition `keyseed' must be a string.: type(keyseed) == types.StringType: "keyseed: %s" % humanreadable.hr(keyseed)
+    """
+    assert type(keyseed) == types.StringType, "precondition: `keyseed' must be a string." + " -- " + "keyseed: %s" % humanreadable.hr(keyseed)
+
+    canonicalseed = mencode.mencode({'sharenum': sharenum, 'keyseed': keyseed})
+
+    return hashrandom.hashexpand(canonicalseed, EGTPConstants.SIZE_OF_UNIQS)
 
 class cryptutilError(StandardError):
     pass

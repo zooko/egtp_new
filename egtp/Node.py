@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: Node.py,v 1.9 2003/01/06 03:00:23 myers_carpenter Exp $"
+__revision__ = "$Id: Node.py,v 1.10 2003/02/02 19:31:38 myers_carpenter Exp $"
 
 # standard modules
 import types
@@ -59,6 +59,9 @@ class Node:
     def start(self):
         self.mtm.start_listening()
 
+    def get_id(self):
+        return self.mtm.get_id()
+        
     def get_address(self):
         """
         @return: the current EGTP address used to contact this Node or

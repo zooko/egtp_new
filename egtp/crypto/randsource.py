@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: randsource.py,v 1.4 2002/12/02 19:58:55 myers_carpenter Exp $"
+__revision__ = "$Id: randsource.py,v 1.5 2003/02/02 19:31:40 myers_carpenter Exp $"
 
 from egtp.crypto import evilcryptopp
 
@@ -25,28 +25,14 @@ def add(seedbytes, entropybits):
    
 
 # TODO add entropy gathering for other OSes
-if sys.platform == "win32" :
-#    print 'WOOT: a better random entropy source is here for this OS\n'
-    # Anyone know good ways to gather more starting entropy on windows? 
-#     shabits = sha.sha()
-#     shabits.update(str(win32api.GetCursorPos()))
-#     shabits.update(str(time.time()))
-#     shabits.update(sys.exec_prefix)
-#     shabits.update(str(time.time()))
-#     shabits.update(str(win32api.GetCursorPos()))
-#     shabits.update(str(os.environ))
-#     shabits.update(str(win32api.GetCursorPos()))
-#     shabits.update(str(time.time()))
-#     shabits.update(str(win32api.GetCurrentProcessId()))
-#     shabits.update(str(sys.dllhandle))
-#     add(shabits.digest(), 160)
+if sys.platform == "win32":
     add(win_entropy.read(160), 160)
-elif string.find(sys.platform, "linux") >= 0 :
+elif string.find(sys.platform, "linux") >= 0:
     urandomdata = open('/dev/urandom', 'rb').read(20)
     add(urandomdata, len(urandomdata)*8)
-elif string.find(string.lower(sys.platform), "bsd") >= 0 :
+elif string.find(string.lower(sys.platform), "bsd") >= 0:
     urandomdata = open('/dev/urandom', 'rb').read(20)
     add(urandomdata, len(urandomdata)*8)
-else :
+else:
     print 'WARNING: a better random entropy source is needed for this OS\n'
     add(sha.sha( sys.platform + sys.version + str(time.time()) ).digest(), 160)

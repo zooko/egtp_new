@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: ListenerManager.py,v 1.7 2003/02/01 23:31:58 myers_carpenter Exp $"
+__revision__ = "$Id: ListenerManager.py,v 1.8 2003/02/02 19:31:37 myers_carpenter Exp $"
 
 # standard modules
 import os
@@ -51,8 +51,6 @@ class ListenerManager(LazySaver.LazySaver):
 
     def shutdown(self):
         self._shutdown_members()
-        # del this?  no shutdown method -- icepick 2003-02-01
-        #LazySaver.LazySaver.shutdown(self)
 
     def start_listening(self, inmsg_handler_func):
         """
@@ -122,4 +120,5 @@ class ListenerManager(LazySaver.LazySaver):
                 result._lowerstrategy._commstratseqno = self._commstratseqno
 
         return (result, newflag,)
+
 
