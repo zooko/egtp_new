@@ -8,14 +8,14 @@
 @see ListenerManager class
 """
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 # $Source: /home/zooko/playground/egtp_new/rescue-party/gw/../egtp_new/egtp_new/egtp/ListenerManager.py,v $
 
 # Python Standard Library modules
 import os
 
 # pyutil modules
-from debugprint import debugprint
+from pyutil.debugprint import debugprint
 from pyutil import LazySaver
 
 # (old-)EGTP modules

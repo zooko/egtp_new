@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoHandicapper.py,v 1.12 2003/03/02 14:40:02 myers_carpenter Exp $"
+__revision__ = "$Id: MojoHandicapper.py,v 1.13 2003/03/28 13:41:18 myers_carpenter Exp $"
 
 # Python standard library modules
 import bisect
@@ -117,7 +117,9 @@ class MojoHandicapper :
         """
         @return: the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
 
-        @param counterparties: a sequence of (counterparty_id, service_info_dict);  It is okay to be an empty list.
+        @param counterparties: a sequence of 
+            C{(counterparty_id, service_info_dict)}. It is okay to be an
+            empty list.
 
         @precondition: `counterparties' must be a sequence of (id, infodict,) tuples.: (type(counterparties) in (types.ListType, types.TupleType,)) and (len(filter(lambda x: not ((type(x) in (types.TupleType, types.DictType,)) and (len(x) == 2) and idlib.is_sloppy_id(x[0])), counterparties)) == 0): "counterparties: %s" % humanreadable.hr(counterparties)
         """
@@ -133,11 +135,12 @@ class MojoHandicapper :
                     best = cpid
         return best
 
+
     def pick_best_from_dict(self, counterparties, message_type, message_body):
         """
         @param counterparties: a dict of key: counterparty_id, value: service_info_dict;  It is okay to be an empty dict.
 
-        @return: the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
+        @returns: the id of the best (lowest handicap, not DISQUALIFIED) counterparty, or `None' if none (i.e., they were all disqualified, or the input `counterparties' was of length 0)
         """
         best = None
         bestcost = None

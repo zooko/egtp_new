@@ -3,7 +3,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: counterparties.py,v 1.11 2003/03/09 18:54:57 zooko Exp $"
+__revision__ = "$Id: counterparties.py,v 1.12 2003/03/28 13:41:18 myers_carpenter Exp $"
 
 """ 
 Implements counter party objects used for storing information about the
@@ -555,7 +555,7 @@ class CounterpartyObject :
         try:
             self.vals['reliability'] = float(reliability)
             self.save()
-            return self.vals[statname]
+            return self.vals['reliability']
         finally:
             self.done()
 
