@@ -6,7 +6,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: TristeroLookup.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroLookup.py,v 1.3 2002/08/26 19:35:27 artimage Exp $'
 
 # standard Python modules
 from xmlrpclib import *
@@ -19,8 +19,35 @@ from string import *
 # pyutil modules
 from pyutil.humanreadable import hr
 
+# egtp modules
+import interfaces 
+
 class TristeroLookup(ILookupManager):
-    def __init__(self, verifier, url):
+    class TristeroVerifier(interfaces.IVerifier):
+        """
+        This verfier always returns true.
+        XXX Maybe we should not be using a verifier for Tristero. This needs
+        more thought.
+        """
+        def __init__(self):
+            interfaces.IVerifier.__init__(self)
+
+        def verify_mapping(self, key, object):
+            """
+            @returns true. (Does nothing)
+            """
+            return 1
+
+        def verify_key(self, key):
+            """
+            @returns true. (Does nothing)
+            """
+            return 1
+
+    # XXX We are not yet sure that Tristero should have a verifier.
+    def __init__(self, url, verifier=None):
+        if verifier is None:
+            verifier = TristeroVerifier()
         ILookupManager.__init__(self, verifier)
         self.url=url
         self.server=Server(url)

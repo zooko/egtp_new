@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: NodeLookupMan.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
+__cvsid = '$Id: NodeLookupMan.py,v 1.3 2002/08/26 19:35:26 artimage Exp $'
 
 # standard Python modules
 import exceptions
@@ -17,6 +17,7 @@ from pyutil.humanreadable import hr
 # EGTP modules
 import CommStrat
 import interfaces
+import NodeMappingVerifier
 
 # (old) MN modules
 import idlib
@@ -29,11 +30,15 @@ class NodeLookupMan(interfaces.ILookupManager):
     It also asserts the validity of the key->value mapping before publish.  It also asserts that
     the key is well-formed before publish and before lookup.
     """
-    def __init__(self, lm):
+    def __init__(self, lm, verifier=None):
         """
         @param lm the lookup manager object that implements publish and lookup
+        @param verifier the object that verifies that what the lookup returned
+               is indeed valid.
         """
-        interfaces.ILookupManager.__init__(self)
+        if verifier is None:
+            verifier = NodeMappingVerifier.NodeMappingVerifier() 
+        interfaces.ILookupManager.__init__(self, verifier)
         self.lm = lm
 
     def lookup(self, key, lookuphand):
