@@ -107,37 +107,15 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
         fullname = self.get_ext_fullname(ext.name)
         print fullname
         if fullname == 'egtp.crypto.evilcryptopp':
-            print "subverting the norm"
             save_compiler = self.compiler
-            print self.compiler.executables
-            print self.compiler.linker_so
             self.compiler.compiler = ['g++']
             self.compiler.linker_exe = ['g++']
             self.compiler.compiler_so = ['g++']
             self.compiler.linker_so = ['g++', '-shared']
-            print self.compiler.executables
-            
-            """
-            ### the following code is to make it use `g++' instead of `gcc' to compile and link.
-            ### It is a very ugly way to do it, but I can't figure out a nice way to do it.   --Zooko 2001-09-16
-            ### I got this code from http://mail.python.org/pipermail/python-list/2001-March/032381.html
-            from distutils import sysconfig
-            
-            save_init_posix = sysconfig._init_posix
-            def my_init_posix():
-                # print 'my_init_posix: changing gcc to g++'
-                save_init_posix()
-                g = sysconfig._config_vars
-                g['CC'] = 'g++'
-                g['LDSHARED'] = 'g++ -shared'
-            sysconfig._init_posix = my_init_posix
-            sysconfig.customize_compiler(self.compiler)
-            """        
 
         tmp = distutils.command.build_ext.build_ext.build_extension(self, ext)
         if fullname == 'egtp.crypto.evilcryptopp':
             self.compiler = save_compiler
-            print self.compiler.executables
         return tmp
         
 class test(Command):

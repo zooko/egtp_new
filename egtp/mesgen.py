@@ -7,10 +7,8 @@
 #
 
 # standard modules
-import modval
 import xdrlib
 from xdrlib import Packer,Unpacker
-import tripledescbc
 from sha import sha
 import traceback
 from bsddb3 import db, dbobj
@@ -22,22 +20,25 @@ import time
 import types
 
 # pyutil modules
-from debugprint import debugprint
+from pyutil.debugprint import debugprint
+from pyutil import Cache
+from pyutil import fileutil
+from pyutil.humanreadable import hr
 
 # (old-)EGTP modules
-import Cache
 from CleanLogDb import CleanLogDbEnv
 import HashRandom
 import MojoKey
 import confutils
-import cryptutil
-import fileutil
-from humanreadable import hr
 import idlib
 import mencode
 import mojosixbit
 import mojoutil
-import randsource
+
+from egtp.crypto import modval
+from egtp.crypto import tripledescbc
+from egtp.crypto import cryptutil
+from egtp.crypto import randsource
 
 true = 1
 false = 0

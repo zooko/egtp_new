@@ -7,12 +7,12 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 # CVS:
-__cvsid = '$Id: EGTPhumanreadable.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
+__cvsid = '$Id: EGTPhumanreadable.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 # standard modules
 
 # pyutil modules
-import humanreadable
+from pyutil import humanreadable
 
 true = 1
 false = 0

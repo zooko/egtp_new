@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoHandicapper.py,v 1.1 2002/07/26 18:56:23 myers_carpenter Exp $'
+__cvsid = '$Id: MojoHandicapper.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -15,10 +15,10 @@ import traceback
 import types
 
 # pyutil modules
-import DoQ
-from debugprint import debugprint, debugstream
-from compat import setdefault
-import humanreadable
+from pyutil import DoQ
+from pyutil.debugprint import debugprint, debugstream
+from pyutil.compat import setdefault
+from pyutil import humanreadable
 
 # (old-)EGTP modules
 import idlib

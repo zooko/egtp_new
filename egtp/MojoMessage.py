@@ -11,12 +11,12 @@ import string
 import types
 
 # pyutil modules
-from config import DEBUG_MODE
-from debugprint import debugprint
-import humanreadable
+from pyutil.config import DEBUG_MODE
+from pyutil.debugprint import debugprint
+from pyutil import humanreadable
+from pyutil import Cache
 
 # our modules
-import Cache
 from DataTypes import BadFormatError, ANY, STRING, UNIQUE_ID, checkTemplate, OptionMarker, NON_NEGATIVE_INTEGER
 from MojoErrors import MojoMessageError
 import idlib

@@ -6,15 +6,15 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 #
-__cvsid = '$Id: BandwidthThrottler.py,v 1.1 2002/07/26 18:56:21 myers_carpenter Exp $'
+__cvsid = '$Id: BandwidthThrottler.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 
 # standard modules
 
 # pyutil modules
-from debugprint import debugprint
-from config import DEBUG_MODE
-import timeutil
+from pyutil.debugprint import debugprint
+from pyutil.config import DEBUG_MODE
+from pyutil import timeutil
 
 true = 1
 false = None

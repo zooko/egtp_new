@@ -12,11 +12,11 @@ import os
 
 # pyutil modules
 # from debugprint import debugprint
+from pyutil import LazySaver
 
 # (old-)EGTP modules
 import CommStrat
 import DataTypes
-import LazySaver
 from confutils import confman
 
 true = 1

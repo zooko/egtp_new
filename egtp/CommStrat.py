@@ -13,15 +13,16 @@ import traceback # actually just for debugging
 import types
 
 # pyutil modules
-from config import DEBUG_MODE
-from debugprint import debugprint
+from pyutil.config import DEBUG_MODE
+from pyutil.debugprint import debugprint
+from pyutil.humanreadable import hr
 
 # our modules
 import DataTypes
 import OurMessages
 import idlib
 
-# Mojo Nation modules
+# Mnet modules
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_NO_HINT
 from DataTypes import UNIQUE_ID, ANY, ASCII_ARMORED_DATA, NON_NEGATIVE_INTEGER, MOD_VAL, INTEGER, ListMarker, OptionMarker
 true = 1
@@ -31,10 +32,9 @@ import MojoMessage
 import OurMessages
 from OurMessagesCommStrat import *
 import TCPConnection
-from humanreadable import hr
 import ipaddresslib
 import mencode
-import modval
+from crypto import modval
 import mojoutil
 import string
 

@@ -28,9 +28,9 @@ import random
 import zlib
 
 # pyutil modules
-from humanreadable import hr
-from debugprint import debugprint
-import fileutil
+from pyutil.humanreadable import hr
+from pyutil.debugprint import debugprint
+from pyutil import fileutil
 
 # old-EGTP modules
 from confutils import confman
@@ -48,10 +48,10 @@ except ImportError, le:
     pass
 
 # Backwards-compatible names.
-from cryptutil import *
+from crypto.cryptutil import *
 from mojosixbit import *
-from fileutil import *
-from dictutil import *
+from pyutil.fileutil import *
+from pyutil.dictutil import *
 from canon import *
 from mojostd import iso_utc_time, iso_utc_time_to_localseconds, test_iso8601_utc_time, test_iso_utc_time_to_localseconds
 

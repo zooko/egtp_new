@@ -6,13 +6,13 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: interfaces.py,v 1.1 2002/07/26 18:56:21 myers_carpenter Exp $'
+__cvsid = '$Id: interfaces.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 # standard Python modules
 import exceptions
 
 # pyutil modules
-from humanreadable import hr
+from pyutil.humanreadable import hr
 
 # EGTP modules
 from IRemoteOpHandler import IRemoteOpHandler

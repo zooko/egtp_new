@@ -5,14 +5,14 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: loggedthreading.py,v 1.1 2002/07/26 18:56:29 myers_carpenter Exp $'
+__cvsid = '$Id: loggedthreading.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 # standard modules
 from threading import *
 import traceback
 
 # pyutil modules
-from debugprint import debugprint, debugstream
+from pyutil.debugprint import debugprint, debugstream
 
 # remove stuff from our namespace to allow a polite 'from X import *'
 _print_exc = traceback.print_exc

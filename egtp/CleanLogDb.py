@@ -1,7 +1,7 @@
 ## Subclass of DB that cleans up it's log files periodically
 
 # pyutil modules
-from debugprint import debugprint
+from pyutil.debugprint import debugprint
 
 from bsddb3 import db, dbobj
 import re

@@ -5,7 +5,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: Conversation.py,v 1.1 2002/07/26 18:56:22 myers_carpenter Exp $'
+__cvsid = '$Id: Conversation.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 # standard Python modules
 import threading
@@ -21,25 +21,25 @@ import types
 from traceback import print_exc
 
 # pyutil modules
-from debugprint import debugprint
+from pyutil.debugprint import debugprint
+from pyutil import Cache
+from pyutil import DoQ
+from pyutil import humanreadable
 
 # EGTP/Mnet modules
-import Cache
-from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 import CommStrat
-import DoQ
+from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 import MojoKey
 import MojoMessage
 from confutils import confman
 import idlib
-import humanreadable
 import mencode
-import modval
 import mojosixbit
 import mojoutil
-import randsource
 import std
 from MojoHandicapper import DISQUALIFIED
+from egtp.crypto import modval
+from egtp.crypto import randsource
 
 true = 1
 false = 0

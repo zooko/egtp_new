@@ -6,7 +6,7 @@
 #
 # A library for determining the IP addresses of the local machine.
 #
-__cvsid = '$Id: ipaddresslib.py,v 1.1 2002/07/26 18:56:29 myers_carpenter Exp $'
+__cvsid = '$Id: ipaddresslib.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 # standard modules
 import sys
@@ -22,7 +22,7 @@ if sys.platform == 'win32':
     import win32pipe
 
 # pyutil modules
-from debugprint import debugprint
+from pyutil.debugprint import debugprint
 
 # (old-)EGTP modules
 import confutils

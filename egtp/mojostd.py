@@ -12,7 +12,7 @@
 # the sub modules that import things from this (debug, confutils,
 # mojoutil, idlib, etc..)
 #
-__cvsid = '$Id: mojostd.py,v 1.2 2002/07/27 00:31:22 myers_carpenter Exp $'
+__cvsid = '$Id: mojostd.py,v 1.3 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -1457,7 +1457,7 @@ def lines_to_dict(lines):
                 last = last + 1
             dict[key] = lines_to_dict(lines[first:last])
     if len(dict) == 0:
-        return None
+        return ''
     else:
         return dict
 

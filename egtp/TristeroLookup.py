@@ -6,7 +6,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: TristeroLookup.py,v 1.1 2002/07/26 18:56:20 myers_carpenter Exp $'
+__cvsid = '$Id: TristeroLookup.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 # standard Python modules
 from xmlrpclib import *
@@ -17,7 +17,7 @@ from tristero import *
 from string import *
 
 # pyutil modules
-from humanreadable import hr
+from pyutil.humanreadable import hr
 
 class TristeroLookup(ILookupManager):
     def __init__(self, verifier, url):

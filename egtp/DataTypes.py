@@ -6,10 +6,10 @@
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
 
-### standard modules
+# standard modules
 import types
 
-### our modules
+# our modules
 true = 1
 false = 0
 from MojoErrors import BadFormatError

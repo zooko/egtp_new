@@ -6,7 +6,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 #
-__cvsid = '$Id: MojoTransaction.py,v 1.1 2002/07/26 18:56:28 myers_carpenter Exp $'
+__cvsid = '$Id: MojoTransaction.py,v 1.2 2002/07/27 17:58:15 myers_carpenter Exp $'
 
 
 # Python standard library modules
@@ -23,20 +23,23 @@ import traceback
 from traceback import print_stack, print_exc
 import types
 import pickle
+import whrandom
 
 # pyutil modules
-from compat import setdefault
-from config import DEBUG_MODE
-from debugprint import debugprint
+from pyutil.compat import setdefault
+from pyutil.config import DEBUG_MODE
+from pyutil.debugprint import debugprint
+from pyutil import Cache
+from pyutil import DoQ
+from pyutil.humanreadable import hr
+from pyutil import timeutil
 
 # Mojo Nation modules
-import Cache
 from CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
 import CommStrat
 import CommsError
 import Conversation
 import CryptoCommsHandler
-import DoQ
 import ListenerManager
 true = 1
 false = 0
@@ -50,7 +53,6 @@ from UnreliableHandicapper import UnreliableHandicapper
 import confutils
 from confutils import confman
 import counterparties
-from humanreadable import hr
 import idlib
 import ipaddresslib
 import loggedthreading
@@ -59,10 +61,9 @@ import mesgen
 import mojosixbit
 import mojoutil
 from mojoutil import strpopL, intorlongpopL
-import randsource
 import std
-import timeutil
-import whrandom
+
+from egtp.crypto import randsource
 
 from interfaces import *
 

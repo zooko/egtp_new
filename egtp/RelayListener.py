@@ -12,23 +12,24 @@ import traceback
 import types
 
 # pyutil modules
-from debugprint import debugprint
+from pyutil.debugprint import debugprint
+from pyutil import DoQ
+from pyutil.humanreadable import hr
+from pyutil import dictutil
+from pyutil import LazySaver
+from pyutil import timeutil
 
 # (old-)EGTP modules
 import CommHints
 from CommHints import HINT_EXPECT_MORE_TRANSACTIONS
 import CommStrat
 import DataTypes
-import DoQ
-import LazySaver
 import MojoMessage
 import OurMessages
 from confutils import confman
-import dictutil
-from humanreadable import hr
 import idlib
-import randsource
-import timeutil
+
+from egtp.crypto import randsource
 
 from interfaces import *
 

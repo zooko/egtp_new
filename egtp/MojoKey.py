@@ -17,10 +17,10 @@ false = 0
 import MojoMessage
 import idlib
 import mencode
-import modval
+from crypto import modval
 import mojosixbit
 import mojoutil
-import randsource
+from crypto import randsource
 
 
 def pubkey_to_id(key):

@@ -1,11 +1,18 @@
 How to install:
 
-You simply need to check out the source from public cvs and run "make" to build 
-it.  For step-by-step directions, please read "cvsinstall.sh" in the egtp/ 
-directory, or at this URL:
+We now use Python's Distutils for this package.
 
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/egtp/egtp/cvsinstall.sh?content-type=text/plain
+To install type:
 
+  python setup.py install
+
+To test before you install:
+
+  python setup.py test
+  
+This will run all the unit tests found in tests/
+
+Soon we hope to have some better examples of how to use this in examples/
 
 How to learn the API:
 
