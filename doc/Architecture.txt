@@ -1,0 +1,34 @@
+Introduction to the EGTP Architecture:
+
+There is a class named "CommStrat".  It is a generalization of an address.  
+Subclasses of it include CommStrat.TCP (which handles both the case that you 
+have an IP address and port num, and the case that you have an open TCP 
+socket), CommStrat.Relay (which means that messages get sent via a relay 
+server), and CommStrat.Crypto (which means that messages get encrypted and 
+then passed on to a "lower-level strategy" for actual delivery).
+
+I now believe that it was a mistake to make CommStrat.Crypto have the same 
+role as the actual transport strats, but oh well.
+
+Strategy objects should have a send() method, but in an older version of the 
+code they didn't, and one of the classes (CommStrat.TCP, I think) still 
+doesn't, so the current version first checks if they have a send method and if 
+so calls it, and if not it invokes the right "CommsHandler" object 
+(TCPCommsHandler I think) and asks it to send.
+
+
+TCPCommsHandler is mostly responsible for managing when to open and close 
+connections.  It tries to be very clever about keeping connections open if it 
+expects to use them again.  It's complicated.  We don't know for sure that the 
+behavior is good enough to justify the performance, but on the other hand it 
+is the product of three years of evolution, and it works, so please don't 
+break it unless you need to.
+
+TCPConnection is responsible for: a) twiddling the socket objects and managing 
+buffers of incoming and outgoing data.  Closing the connection.  This is the 
+part that most closely touches Asyncore.  b) prepending lengths to outgoing 
+messages and "chunking" incoming streams into known-length messages.  Also 
+letting the higher-level code know if an outgoing message couldn't be sent 
+(known as "fast fail").  c) making calls to a "Throttler" object to enable 
+bandwidth throttling.
+
