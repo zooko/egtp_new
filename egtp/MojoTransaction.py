@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoTransaction.py,v 1.18 2002/12/14 04:50:21 myers_carpenter Exp $"
+__revision__ = "$Id: MojoTransaction.py,v 1.19 2002/12/17 05:35:02 zooko Exp $"
 
 true = 1
 false = 0
@@ -19,19 +19,20 @@ from traceback import print_stack, print_exc
 from pyutil.compat import setdefault
 from pyutil.config import DEBUG_MODE
 from pyutil.debugprint import debugprint, debugstream
-from pyutil.compat import strpopL, intorlongpopL
-from pyutil.humanreadable import hr
 from pyutil import Cache, DoQ, timeutil
 
 # egtp modules
 from egtp.CommHints import HINT_EXPECT_RESPONSE, HINT_EXPECT_MORE_TRANSACTIONS, HINT_EXPECT_NO_MORE_COMMS, HINT_EXPECT_TO_RESPOND, HINT_THIS_IS_A_RESPONSE, HINT_NO_HINT
-from egtp.MojoHandicapper import MojoHandicapper
-from egtp.UnreliableHandicapper import UnreliableHandicapper
-from egtp.crypto import randsource
-from egtp.interfaces import *
-from egtp import MojoMessage, RelayListener, TCPCommsHandler
 from egtp import CommStrat, CommsError, Conversation, CryptoCommsHandler, ListenerManager
+from egtp import DataTypes
+from egtp.MojoHandicapper import MojoHandicapper
+from egtp import MojoMessage, RelayListener, TCPCommsHandler
+from egtp import OurMessagesCommStrat
+from egtp.UnreliableHandicapper import UnreliableHandicapper
+from egtp import humanreadable
+from egtp.interfaces import *
 from egtp import counterparties, idlib, ipaddresslib, loggedthreading, mencode
+from egtp.crypto import randsource
 from egtp import mesgen, mojosixbit, mojoutil, std
 
 class LookupHand(ILookupHandler):
@@ -45,9 +46,9 @@ class LookupHand(ILookupHandler):
 
     def result(self, value):
         """
-        @precondition: `value' must be a dict.: type(value) is types.DictType: "value: %s :: %s" % (hr(value), hr(type(value)),)
+        @precondition: `value' must be a dict.: type(value) is types.DictType: "value: %s :: %s" % (humanreadable.hr(value), humanreadable.hr(type(value)),)
         """
-        assert type(value) is types.DictType, "precondition: `value' must be a dict." + " -- " + "value: %s :: %s" % (hr(value), hr(type(value)),)
+        assert type(value) is types.DictType, "precondition: `value' must be a dict." + " -- " + "value: %s :: %s" % (humanreadable.hr(value), humanreadable.hr(type(value)),)
 
         self._ch.use_comm_strategy(self._counterparty_id, CommStrat.dict_to_strategy(value["connection strategies"][0], mtm=self._ch._tcpch._mtm))
         self._ch.send_msg(self._counterparty_id, self._msg, hint=self._hint, fast_fail_handler=self._fast_fail_handler, timeout=self._timeout)
@@ -60,9 +61,9 @@ class LookupHand(ILookupHandler):
 class Widget:
     def __init__(self, counterparty_id, firstmsgId=None):
         """
-        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         """
-        assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
+        assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 
         counterparty_id = idlib.canonicalize(counterparty_id, "broker")
 
@@ -71,7 +72,7 @@ class Widget:
 
     def __repr__(self):
         return "<MojoTransaction.Widget instance (id: %x), counterparty_id: %s, conversation_id: %s>" % \
-               (id(self), hr(self._counterparty_id), hr(self._firstmsgId))
+               (id(self), humanreadable.hr(self._counterparty_id), humanreadable.hr(self._firstmsgId))
 
     def get_counterparty_id(self):
         return self._counterparty_id
@@ -153,19 +154,19 @@ class MojoTransactionManager:
         @param neverpoll: `true' if you don't want to poll relayers
         @param allownonrouteableip: `true' if you want the MTM to ignore the fact that its detected IP address is non-routeable and go ahead and report it as a valid comm strategy;  This is for testing, although it might also be useful some day for routing within a LAN.
 
-        @precondition: `announced_service_dicts' must be a list.: type(announced_service_dicts) == types.ListType: "announced_service_dicts: %s" % hr(announced_service_dicts)
-        @precondition: `handler_funcs' must be a dict.: type(handler_funcs) == types.DictType: "handler_funcs: %s" % hr(handler_funcs)
-        @precondition: `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) == types.IntType) and (listenport > 0)): "listenport: %s" % hr(listenport)
-        @precondition: `lookupman' must be an instance of interfaces.ILookupManager.: isinstance(lookupman, ILookupManager): "lookupman: %s :: %s" % (hr(lookupman), hr(type(lookupman)),)
-        @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
-        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq(): "currentThread(): %s" % hr(threading.currentThread())
+        @precondition: `announced_service_dicts' must be a list.: type(announced_service_dicts) == types.ListType: "announced_service_dicts: %s" % humanreadable.hr(announced_service_dicts)
+        @precondition: `handler_funcs' must be a dict.: type(handler_funcs) == types.DictType: "handler_funcs: %s" % humanreadable.hr(handler_funcs)
+        @precondition: `listenport' must be a non-negative integer or `None'.: (listenport is None) or ((type(listenport) == types.IntType) and (listenport > 0)): "listenport: %s" % humanreadable.hr(listenport)
+        @precondition: `lookupman' must be an instance of interfaces.ILookupManager.: isinstance(lookupman, ILookupManager): "lookupman: %s :: %s" % (humanreadable.hr(lookupman), humanreadable.hr(type(lookupman)),)
+        @precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager.: isinstance(discoveryman, IDiscoveryManager): "discoveryman: %s :: %s" % (humanreadable.hr(discoveryman), humanreadable.hr(type(discoveryman)),)
+        @precondition: This method must be called on the DoQ.: DoQ.doq.is_currently_doq(): "currentThread(): %s" % humanreadable.hr(threading.currentThread())
         """
-        assert type(announced_service_dicts) == types.ListType, "precondition: `announced_service_dicts' must be a list." + " -- " + "announced_service_dicts: %s" % hr(announced_service_dicts)
-        assert type(handler_funcs) == types.DictType, "precondition: `handler_funcs' must be a dict." + " -- " + "handler_funcs: %s" % hr(handler_funcs)
-        assert (listenport is None) or ((type(listenport) == types.IntType) and (listenport > 0)), "precondition: `listenport' must be a non-negative integer or `None'." + " -- " + "listenport: %s" % hr(listenport)
-        assert isinstance(lookupman, ILookupManager), "precondition: `lookupman' must be an instance of interfaces.ILookupManager." + " -- " + "lookupman: %s :: %s" % (hr(lookupman), hr(type(lookupman)),)
-        assert isinstance(discoveryman, IDiscoveryManager), "precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager." + " -- " + "discoveryman: %s :: %s" % (hr(discoveryman), hr(type(discoveryman)),)
-        assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ." + " -- " + "currentThread(): %s" % hr(threading.currentThread())
+        assert type(announced_service_dicts) == types.ListType, "precondition: `announced_service_dicts' must be a list." + " -- " + "announced_service_dicts: %s" % humanreadable.hr(announced_service_dicts)
+        assert type(handler_funcs) == types.DictType, "precondition: `handler_funcs' must be a dict." + " -- " + "handler_funcs: %s" % humanreadable.hr(handler_funcs)
+        assert (listenport is None) or ((type(listenport) == types.IntType) and (listenport > 0)), "precondition: `listenport' must be a non-negative integer or `None'." + " -- " + "listenport: %s" % humanreadable.hr(listenport)
+        assert isinstance(lookupman, ILookupManager), "precondition: `lookupman' must be an instance of interfaces.ILookupManager." + " -- " + "lookupman: %s :: %s" % (humanreadable.hr(lookupman), humanreadable.hr(type(lookupman)),)
+        assert isinstance(discoveryman, IDiscoveryManager), "precondition: `discoveryman' must be an instance of interfaces.IDiscoveryManager." + " -- " + "discoveryman: %s :: %s" % (humanreadable.hr(discoveryman), humanreadable.hr(type(discoveryman)),)
+        assert DoQ.doq.is_currently_doq(), "precondition: This method must be called on the DoQ." + " -- " + "currentThread(): %s" % humanreadable.hr(threading.currentThread())
 
         self._shuttingdownflag = false
 
@@ -361,13 +362,13 @@ class MojoTransactionManager:
         """
         Add more announced services to our list of servers we run.
 
-        @precondition: `service_dict_list' must be a list.: type(service_dict_list) == types.ListType: "service_dict_list: %s" % hr(service_dict_list)
+        @precondition: `service_dict_list' must be a list.: type(service_dict_list) == types.ListType: "service_dict_list: %s" % humanreadable.hr(service_dict_list)
         """
-        assert type(service_dict_list) == types.ListType, "`service_dict_list' must be a list." + " -- " + "service_dict_list: %s" % hr(service_dict_list)
+        assert type(service_dict_list) == types.ListType, "`service_dict_list' must be a list." + " -- " + "service_dict_list: %s" % humanreadable.hr(service_dict_list)
 
         self.__handler_funcs_and_services_dicts_update_lock.acquire()
         try:
-            assert type(self.__announced_service_dicts) == types.ListType, "self.__announced_service_dicts: %s" % hr(self.__announced_service_dicts)
+            assert type(self.__announced_service_dicts) == types.ListType, "self.__announced_service_dicts: %s" % humanreadable.hr(self.__announced_service_dicts)
             self.__announced_service_dicts.extend(service_dict_list)
         finally:
             self.__handler_funcs_and_services_dicts_update_lock.release()
@@ -378,7 +379,7 @@ class MojoTransactionManager:
         """
         remove handler functions for the specified message types.
         """
-        assert type(message_type_list) == types.ListType, "%s is not a list." % hr(message_type_list)
+        assert type(message_type_list) == types.ListType, "%s is not a list." % humanreadable.hr(message_type_list)
         self.__handler_funcs_and_services_dicts_update_lock.acquire()
         try:
             for msgtype in message_type_list:
@@ -392,7 +393,7 @@ class MojoTransactionManager:
         """
         remove service announcements for the given service types
         """
-        assert type(service_name_list) == types.ListType, "%s is not a list." % hr(service_name_list)
+        assert type(service_name_list) == types.ListType, "%s is not a list." % humanreadable.hr(service_name_list)
         self.__handler_funcs_and_services_dicts_update_lock.acquire()
         try:
             new_service_dicts = []
@@ -421,7 +422,7 @@ class MojoTransactionManager:
         @return: a contact info dict which can have no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
         """
         (cs, newflag,) = self._listenermanager.get_comm_strategy_and_newflag()
-        # debugprint("xxxxxxx %s._get_our_hello_msgbody(); cs: %s, newflag: %s\n", args=(self, cs, newflag,))
+        DataTypes.check_template(cs.to_dict(), OurMessagesCommStrat.CRYPTO_COMM_STRAT_TEMPL)
 
         if newflag:
             self._hello_sequence_num_needs_increasing()
@@ -435,9 +436,9 @@ class MojoTransactionManager:
             hello_body['services']=self.__announced_service_dicts
         hello_body['broker version'] = self._client_version
         hello_body['platform'] = sys.platform
+        hello_body['pyver'] = sys.version
 
         hello_body['sequence num'] = self.get_hello_sequence_num()
-        hello_body['dynamic pricing'] = "true" # This was for smooth changeover and can now be grandfathered out.  --Zooko 2001-09-06
 
         return hello_body
 
@@ -459,6 +460,8 @@ class MojoTransactionManager:
             self.__need_sequence_update = false
             config.set('sequences', asciiid, int(config.get('sequences', asciiid, raw = true)) + 1)
             needtosave = true
+            # wipe the cache of who we've sent metainfo to since it is now false as our metainfo has been updated
+            self.__counterparties_metainfo_sent_to_map.clear()
         if needtosave:
             self._contactinfochangedtime = timer.time()
             # save the current sequence number in the config file so that we never lower it
@@ -474,7 +477,7 @@ class MojoTransactionManager:
         MetaTrackerLib (basically this is what a meta tracker lookup
         of us would return)
 
-        @return: a contact info dict with no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet)
+        @return: a contact info dict (which can have no comm strategies if there is no strategy yet (which can happen in practice because you haven't found a relayer to announce yet))
         """
         hello_dict=self._get_our_hello_msgbody()
         metainfo_dict = copy.copy(hello_dict)
@@ -505,8 +508,8 @@ class MojoTransactionManager:
             # Hm.  We haven't figured out how people can talk to us yet.  Might as well not bother announcing then.
             return
 
-        assert ((type(hello_body) is types.DictType) and (hello_body.has_key("connection strategies")) and (hello_body.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(hello_body) is types.InstanceType) and (isinstance(hello_body, CommStrat)) and (hello_body._broker_id is not None)), "hello_body: %s" % hr(hello_body)
-        assert idlib.equal(self.get_id(), CommStrat.addr_to_id(hello_body)), "self.get_id(): %s, hello_body: %s" % (hr(self.get_id()), hr(hello_body),)
+        assert ((type(hello_body) is types.DictType) and (hello_body.has_key("connection strategies")) and (hello_body.get("connection strategies", [{}])[0].has_key("pubkey"))) or ((type(hello_body) is types.InstanceType) and (isinstance(hello_body, CommStrat)) and (hello_body._broker_id is not None)), "hello_body: %s" % humanreadable.hr(hello_body)
+        assert idlib.equal(self.get_id(), CommStrat.addr_to_id(hello_body)), "self.get_id(): %s, hello_body: %s" % (humanreadable.hr(self.get_id()), humanreadable.hr(hello_body),)
         self._lookupman.publish(self.get_id(), hello_body)
 
     def send_goodbye_to_metatrackers(self):
@@ -545,18 +548,18 @@ class MojoTransactionManager:
         @param prevmsgId: the id of the message to which this is a response
         @param msgbody: the body of the response
 
-        @precondition: `msgbody' is just the innermost message body, not having a "mojo header" or "mojo message" subdict.: (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))): "msgbody: %s" % hr(msgbody)
+        @precondition: `msgbody' is just the innermost message body, not having a "mojo header" or "mojo message" subdict.: (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))): "msgbody: %s" % humanreadable.hr(msgbody)
 
-        @precondition internal1: self._cm._map_inmsgid_to_info.get(prevmsgId) is not None: "prevmsgId: %s, msgbody: %s" % (hr(prevmsgId), hr(msgbody))
-        @precondition internal2: (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.TupleType) or (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.ListType): "self._cm._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (hr(self._cm._map_inmsgid_to_info.get(prevmsgId)), hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId))))
-        @precondition internal3: self._cm._map_inmsgid_to_info.get(prevmsgId)[2] == Conversation.EXPECTING_RESPONSE: "self._cm._map_inmsgid_to_info.get(prevmsgId): %s" % hr(self._cm._map_inmsgid_to_info.get(prevmsgId))
-        @precondition internal4: idlib.is_sloppy_id(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]): "self._cm._map_inmsgid_to_info.get(prevmsgId)[0]: %s :: %s" % (hr(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]), hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId)[0])))
+        @precondition internal1: self._cm._map_inmsgid_to_info.get(prevmsgId) is not None: "prevmsgId: %s, msgbody: %s" % (humanreadable.hr(prevmsgId), humanreadable.hr(msgbody))
+        @precondition internal2: (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.TupleType) or (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.ListType): "self._cm._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (humanreadable.hr(self._cm._map_inmsgid_to_info.get(prevmsgId)), humanreadable.hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId))))
+        @precondition internal3: self._cm._map_inmsgid_to_info.get(prevmsgId)[2] == Conversation.EXPECTING_RESPONSE: "self._cm._map_inmsgid_to_info.get(prevmsgId): %s" % humanreadable.hr(self._cm._map_inmsgid_to_info.get(prevmsgId))
+        @precondition internal4: idlib.is_sloppy_id(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]): "self._cm._map_inmsgid_to_info.get(prevmsgId)[0]: %s :: %s" % (humanreadable.hr(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]), humanreadable.hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId)[0])))
         """
-        assert (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))), "precondition: `msgbody' is just the innermost message body, not having a \"mojo header\" or \"mojo message\" subdict." + " -- " + "msgbody: %s" % hr(msgbody)
-        assert self._cm._map_inmsgid_to_info.get(prevmsgId) is not None, "precondition: internal1" + " -- " + "prevmsgId: %s, msgbody: %s" % (hr(prevmsgId), hr(msgbody))
-        assert (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.TupleType) or (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.ListType), "precondition: internal2" + " -- " + "self._cm._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (hr(self._cm._map_inmsgid_to_info.get(prevmsgId)), hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId))))
-        assert self._cm._map_inmsgid_to_info.get(prevmsgId)[2] == Conversation.EXPECTING_RESPONSE, "precondition: internal3" + " -- " + "self._cm._map_inmsgid_to_info.get(prevmsgId): %s" % hr(self._cm._map_inmsgid_to_info.get(prevmsgId))
-        assert idlib.is_sloppy_id(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]), "precondition: internal4" + " -- " + "self._cm._map_inmsgid_to_info.get(prevmsgId)[0]: %s :: %s" % (hr(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]), hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId)[0])))
+        assert (type(msgbody) != types.DictType) or ((not msgbody.has_key('mojo header')) and (not msgbody.has_key('mojo message'))), "precondition: `msgbody' is just the innermost message body, not having a \"mojo header\" or \"mojo message\" subdict." + " -- " + "msgbody: %s" % humanreadable.hr(msgbody)
+        assert self._cm._map_inmsgid_to_info.get(prevmsgId) is not None, "precondition: internal1" + " -- " + "prevmsgId: %s, msgbody: %s" % (humanreadable.hr(prevmsgId), humanreadable.hr(msgbody))
+        assert (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.TupleType) or (type(self._cm._map_inmsgid_to_info.get(prevmsgId)) == types.ListType), "precondition: internal2" + " -- " + "self._cm._map_inmsgid_to_info.get(prevmsgId): %s :: %s" % (humanreadable.hr(self._cm._map_inmsgid_to_info.get(prevmsgId)), humanreadable.hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId))))
+        assert self._cm._map_inmsgid_to_info.get(prevmsgId)[2] == Conversation.EXPECTING_RESPONSE, "precondition: internal3" + " -- " + "self._cm._map_inmsgid_to_info.get(prevmsgId): %s" % humanreadable.hr(self._cm._map_inmsgid_to_info.get(prevmsgId))
+        assert idlib.is_sloppy_id(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]), "precondition: internal4" + " -- " + "self._cm._map_inmsgid_to_info.get(prevmsgId)[0]: %s :: %s" % (humanreadable.hr(self._cm._map_inmsgid_to_info.get(prevmsgId)[0]), humanreadable.hr(type(self._cm._map_inmsgid_to_info.get(prevmsgId)[0])))
 
         counterparty_id = self._cm._map_inmsgid_to_info.get(prevmsgId, [''])[0]  # XXX HACK (ideally this would be in Conversation or Conversation and MojoTransaction would be merged)
 
@@ -579,11 +582,11 @@ class MojoTransactionManager:
 
         @return: the full msg body to be sent back in response (containing a 'mojo header' and/or 'mojo message' subdict) in dict form, or None, or std.ASYNC_RESPONSE
 
-        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 
-        @postcondition: Result must be either None or std.ASYNC_REPONSE or else the full msg body dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not result) or (result is std.ASYNC_RESPONSE) or result.has_key('mojo header') or result.has_key('mojo message'): "result: %s" % hr(result)
+        @postcondition: Result must be either None or std.ASYNC_REPONSE or else the full msg body dict, containing either a "mojo header" subdict or a "mojo message" subdict or both.: (not result) or (result is std.ASYNC_RESPONSE) or result.has_key('mojo header') or result.has_key('mojo message'): "result: %s" % humanreadable.hr(result)
         """ 
-        assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
+        assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
 
         serverfunc = self._handler_funcs.get(msgtype)
         if not serverfunc:
@@ -674,10 +677,10 @@ class MojoTransactionManager:
             message that actually originates with you.
         @param hint: an optional comms hint (see CommHints.py)
 
-        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         @precondition: This MTM must not be shutting down.: not self._shuttingdownflag
         """
-        assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
+        assert idlib.is_sloppy_id(counterparty_id), "precondition: `counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
         assert not self._shuttingdownflag, "precondition: This MTM must not be shutting down."
 
         counterparty_id = idlib.to_binary(counterparty_id)
@@ -811,9 +814,9 @@ class MojoTransactionManager:
         XXX adding yet another feature to this handler (it already has several separate feature not adequately described by "to do mojo header").  The new one is forget a comm strategy if a conversation fails.  --Zooko 2001-05-04
         XXX In the future, we need to keep track of which actual specific comm strategy the conversation was trying to use, and only forget that one, rather than forgetting whatever one we are using *now*.  --Zooko 2001-05-04
 
-        @precondition: `outcome' is none or else the full message body, having a "mojo header" or "mojo message" subdict.: (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'): "outcome: %s" % hr(outcome)
+        @precondition: `outcome' is none or else the full message body, having a "mojo header" or "mojo message" subdict.: (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'): "outcome: %s" % humanreadable.hr(outcome)
         """
-        assert (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'), "`outcome' is none or else the full message body, having a \"mojo header\" or \"mojo message\" subdict." + " -- " + "outcome: %s" % hr(outcome)
+        assert (not outcome) or outcome.has_key('mojo header') or outcome.has_key('mojo message'), "`outcome' is none or else the full message body, having a \"mojo header\" or \"mojo message\" subdict." + " -- " + "outcome: %s" % humanreadable.hr(outcome)
 
         counterparty_id = notes['counterparty_id']
         outer_outcome_func = notes['outer_outcome_func']
@@ -903,11 +906,11 @@ class MojoTransactionManager:
 
     def send_message_with_lookup_internal(self, counterparty_id, msg, timeout=300, hint=HINT_NO_HINT, commstratseqno=None):
         """
-        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % hr(counterparty_id)
-        @precondition: `msg' must be a string, and non-empty.: (type(msg) is types.StringType) and (len(msg) > 0): "msg: %s" % hr(msg)
+        @precondition: `counterparty_id' must be an id.: idlib.is_sloppy_id(counterparty_id): "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        @precondition: `msg' must be a string, and non-empty.: (type(msg) is types.StringType) and (len(msg) > 0): "msg: %s" % humanreadable.hr(msg)
         """
-        assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % hr(counterparty_id)
-        assert (type(msg) is types.StringType) and (len(msg) > 0), "`msg' must be a string, and non-empty." + " -- " + "msg: %s" % hr(msg)
+        assert idlib.is_sloppy_id(counterparty_id), "`counterparty_id' must be an id." + " -- " + "counterparty_id: %s" % humanreadable.hr(counterparty_id)
+        assert (type(msg) is types.StringType) and (len(msg) > 0), "`msg' must be a string, and non-empty." + " -- " + "msg: %s" % humanreadable.hr(msg)
 
         counterparty_id = idlib.canonicalize(counterparty_id, "broker")
 
@@ -953,7 +956,7 @@ class MojoTransactionManager:
             return
         except CommsError.CannotSendError, le:
             # debugprint("MojoTransaction.send_message_with_lookup(): called `_ch.send_msg(%s, msgId:%s)' and got CannotSendError: %s\n", args=(counterparty_id, msgId, le), v=10, vs="commstrats")
-            fast_fail_handler(failure_reason=hr(le))
+            fast_fail_handler(failure_reason=humanreadable.hr(le))
         # _debugprint(diagstr="sent", v=15)
 
     def __query_for_counterparty_and_send(self, counterparty_id, msg, timeout=300, fast_fail_handler=None, hint=HINT_NO_HINT):

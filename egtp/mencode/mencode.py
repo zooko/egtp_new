@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: mencode.py,v 1.8 2002/12/02 19:58:55 myers_carpenter Exp $"
+__revision__ = "$Id: mencode.py,v 1.9 2002/12/17 05:35:02 zooko Exp $"
 
 # Python standard library modules
 from cStringIO import StringIO
@@ -115,7 +115,7 @@ def encode_none(data, result):
     result.write('(4:null)')
 
 def encode_preencoded(data, result):
-    assert isinstance(data, PreEncodedThing), "the only class that can be mencoded are PreEncodedThing classes"
+    assert isinstance(data, PreEncodedThing), { 'reason': "the only class that can be mencoded are PreEncodedThing classes", 'data': data, }
     result.write(data.getvalue())
 
 def encode_io(data, result):

@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: CommStrat.py,v 1.8 2002/12/02 21:20:44 myers_carpenter Exp $"
+__revision__ = "$Id: CommStrat.py,v 1.9 2002/12/17 05:35:02 zooko Exp $"
 
 # Python standard library modules
 import exceptions, string, types
@@ -436,10 +436,8 @@ def dict_to_strategy(dict, mtm, broker_id=None, commstratseqno=None):
     """
     assert (broker_id is None) or (idlib.is_sloppy_id(broker_id)), "precondition: `broker_id' must be an id or None." + " -- " + "broker_id: %s :: %s" % (hr(broker_id), hr(type(broker_id)))
 
-    if not ((dict.get('comm strategy type') == "TCP") or (dict.get('comm strategy type') == "relay") or (dict.get('comm strategy type') == "Relay") or (dict.get('comm strategy type') == "crypto") or (dict.get('comm strategy type') == "Crypto") or (dict.get('comm strategy type') == "pickup")) or (dict.get('comm strategy type') == "Pickup"):
-        raise UnsupportedTypeError, "`dict' must be either a TCP, Relay, Crypto or Pickup." + " -- " + "dict: [%s]" % hr(dict)
-
-    MojoMessage.checkTemplate(dict, COMM_STRAT_TEMPL)
+    if not (dict.get('comm strategy type') in ("TCP", "relay", "Relay", "crypto", "Crypto", "pickup", "Pickup",)):
+        raise UnsupportedTypeError, "dict must be either a TCP, Relay, Crypto or Pickup." + " -- " + "dict: %s" % hr(dict)
 
     dictbroker_id = dict.get('broker id')
     if (broker_id is not None) and (dictbroker_id is not None):
@@ -448,24 +446,40 @@ def dict_to_strategy(dict, mtm, broker_id=None, commstratseqno=None):
         broker_id = dictbroker_id
 
     if dict.get('comm strat sequence num') is not None:
+        try:
+            DataTypes.check_template(dict.get('comm strat sequence num'), DataTypes.INTEGER)
+        except DataTypes.BadFormatError, le:
+            raise DataTypes.BadFormatError, { 'cause': le, 'explanation': "comm strat sequence number is not an INTEGER", 'comm strat sequence number': dict.get('comm strat sequence num'), 'dict': dict, }
         commstratseqno = dict.get('comm strat sequence num')
 
     cst = dict['comm strategy type']
     if cst == "TCP":
-        MojoMessage.checkTemplate(dict, TCP_COMM_STRAT_TEMPL)
+        try:
+            DataTypes.check_template(dict, TCP_COMM_STRAT_TEMPL)
+        except DataTypes.BadFormatError, le:
+            raise DataTypes.BadFormatError, { 'cause': le, 'explanation': "dict is not a TCP_COMM_STRAT_TEMPL", 'dict': dict, }
         return TCP(mtm._ch._tcpch, broker_id, host=dict['IP address'], port=int(dict['port number']), commstratseqno=commstratseqno)
 
     if (cst == "Relay") or (cst == "relay"):
-        MojoMessage.checkTemplate(dict, RELAY_COMM_STRAT_TEMPL)
+        try:
+            DataTypes.check_template(dict, RELAY_COMM_STRAT_TEMPL)
+        except DataTypes.BadFormatError, le:
+            raise DataTypes.BadFormatError, { 'cause': le, 'explanation': "dict is not a RELAY_COMM_STRAT_TEMPL", 'dict': dict, }
         return Relay(relayer_id=dict['relayer id'], mtm=mtm, broker_id=broker_id, commstratseqno=commstratseqno)
 
     if (cst == "Pickup") or (cst == "pickup"):
-        MojoMessage.checkTemplate(dict, PICKUP_COMM_STRAT_TEMPL)
+        try:
+            DataTypes.check_template(dict, PICKUP_COMM_STRAT_TEMPL)
+        except DataTypes.BadFormatError, le:
+            raise DataTypes.BadFormatError, { 'cause': le, 'explanation': "dict is not a PICKUP_COMM_STRAT_TEMPL", 'dict': dict, }
         return Pickup(broker_id=broker_id, commstratseqno=commstratseqno)
 
     if (cst == "Crypto") or (cst == "crypto"):
-        MojoMessage.checkTemplate(dict, CRYPTO_COMM_STRAT_TEMPL)
+        encodedbrokerId = dict.get('lowerstrategy', {}).get('broker id')
+        if (encodedbrokerId is not None) and not idlib.is_sloppy_id(encodedbrokerId):
+            raise DataTypes.BadFormatError, { 'explanation': "dict has an invalid broker id in lowerstrategy", "dict.get('lowerstrategy')": dict.get('lowerstrategy'), "dict.get('lowerstrategy', {}).get('broker id')": dict.get('lowerstrategy', {}).get('broker id'), 'dict': dict, }
+        try:
+            DataTypes.check_template(dict, CRYPTO_COMM_STRAT_TEMPL)
+        except DataTypes.BadFormatError, le:
+            raise DataTypes.BadFormatError, { 'cause': le, 'explanation': "dict is not a CRYPT_COMM_STRAT_TEMPL", 'dict': dict, }
         return Crypto(mencode.mencode(dict['pubkey']), dict_to_strategy(dict['lowerstrategy'], broker_id=broker_id, mtm=mtm, commstratseqno=commstratseqno), broker_id=broker_id)
-
-    raise Error, "Unknown strategy %s." % `cst`
-

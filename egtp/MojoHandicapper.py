@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: MojoHandicapper.py,v 1.7 2002/12/02 21:20:46 myers_carpenter Exp $"
+__revision__ = "$Id: MojoHandicapper.py,v 1.8 2002/12/17 05:35:02 zooko Exp $"
 
 # Python standard library modules
 import bisect
@@ -147,6 +147,37 @@ class MojoHandicapper :
                     bestcost = cost
                     best = cpid
         return best
+
+    def sort_by_preference_from_dict_of_Peers(self, counterparties, message_type, message_body):
+        """
+        Cogitates on the possibility of sending each peer in counterparties the
+        given message and returns a list sorted by order of preference of which
+        counterparties to try to use. Disqualified counterparties are not
+        included in the list at all.
+
+        @param counterparties: a dict of 
+            key: counterparty_id, value: service_info_dict, where
+            service_info_dict contains a key 'Peer Object' whose value is an
+            instance of Peer.Peer.  It is okay to be an empty dict.
+
+        @return: a list of Peer.Peer instances sorted into descending order of preference
+
+        @precondition: `counterparties' must be a dict.: type(counterparties) is types.DictType: "counterparties: %s :: %s" % (hr(counterparties), hr(type(counterparties)),)
+        @precondition: `message_type' must be a string.: type(message_type) == types.StringType
+        """
+        assert type(counterparties) is types.DictType, "precondition: `counterparties' must be a dict." + " -- " + "counterparties: %s :: %s" % (hr(counterparties), hr(type(counterparties)),)
+        assert type(message_type) == types.StringType, "precondition: `message_type' must be a string."
+
+        # debug.mojolog.write("sort_by_preference_from_dict_of_Peers(counterparties: %s, message_type:%s, message_body: %s)\n", args=(counterparties, message_type, message_body,), v=2, vs="MojoHandicapper")
+
+        # contains (cost, Peer Object,)
+        workinglist = []
+        for counterpartyid, contactinfo in counterparties.items():
+            cost = self._compute_handicap(counterpartyid, contactinfo, message_type=message_type, message_body=message_body)
+            if cost is not DISQUALIFIED :
+                workinglist.append((cost, contactinfo['Peer Object'],))
+        workinglist.sort()
+        return map(lambda x: x[1], workinglist)
 
     def sort_by_preference_from_dict(self, counterparties, message_type, message_body):
         """
