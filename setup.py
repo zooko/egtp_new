@@ -90,7 +90,7 @@ email us so we can put instructions here.
                 os.unlink('pyutil')
             os.symlink(os.path.join(my_build_dir, 'pyutil'), 'pyutil')
         else:
-            system_print_interrupt("%s setup.py install --lib-dir=%s" % (sys.executable, self.base_dir))
+            system_print_interrupt("%s setup.py install --install-lib=%s" % (sys.executable, self.base_dir))
 
     def check_libbase32(self):
         if self.no_update:
@@ -110,7 +110,7 @@ email us so we can put instructions here.
                 os.unlink('base32')
             os.symlink(os.path.join(my_build_dir, 'base32'), 'base32')
         else:
-            system_print_interrupt("%s setup.py install --lib-dir=%s" % (sys.executable, self.base_dir))
+            system_print_interrupt("%s setup.py install --install-lib=%s" % (sys.executable, self.base_dir))
 
     def check_cryptopp(self):
         def _get_cryptopp():
