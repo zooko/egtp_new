@@ -107,13 +107,20 @@ or for Debian unstable do 'apt-get install libcrypto++-dev'
     def build_extension(self, ext):
         fullname = self.get_ext_fullname(ext.name)
         print fullname
+
+        # Skip win_entropy if platform is not windows.
+        if (sys.platform != 'win32') and (fullname == 'egtp.crypto.win_entropy'):
+                print "Skipping " + fullname + " since its only for win32."
+                return            
+
+        # Deal with cryptopp and its need for C++
         if fullname == 'egtp.crypto.evilcryptopp':
             save_compiler = self.compiler
             self.compiler.compiler = ['g++']
             self.compiler.linker_exe = ['g++']
             self.compiler.compiler_so = ['g++']
             self.compiler.linker_so = ['g++', '-shared']
-
+            
         tmp = distutils.command.build_ext.build_ext.build_extension(self, ext)
         if fullname == 'egtp.crypto.evilcryptopp':
             self.compiler = save_compiler
@@ -201,12 +208,20 @@ The module bsddb3 (http://pybsddb.sourceforge.net/) must be installed.
         if not os.path.isfile('crypto42.zip'):
             get_cryptopp()
 
-        m = md5.new()
-        m.update(file('crypto42.zip', 'rb').read())
-        if m.hexdigest().upper() != 'C1700E6E15F3189801E7EA47EEE83078':
-            print "File 'crypto42.zip' is incomplete or corrupt"
-            get_cryptopp()
+        def is_corrupt():
+            # must open this file 'rb' the binary is necessary for windows.
+            m = md5.new(file('crypto42.zip', 'rb').read())
+            if m.hexdigest().upper() != 'C1700E6E15F3189801E7EA47EEE83078':
+                print "File 'crypto42.zip' is incomplete or corrupt"
+                return 1
+            return 0
 
+        if is_corrupt():
+            get_cryptopp()
+            if is_corrupt():
+                print "We have tried to download a clean version, and it failed too. Please submit a bug report."
+                return
+            
         if os.path.isfile('crypto42.zip') and not os.path.isdir('cryptopp-4.2'):
             print "Building crypto++..."
             os.system('unzip -d crypto++-4.2 -a crypto42.zip')
@@ -250,7 +265,7 @@ setup (
     author          = 'Mnet Project',
     author_email    = 'mnet-devel@lists.sourceforge.net',
     licence         = 'LGPL',
-    packages        = ['egtp', 'egtp.crypto', 'egtp.mencode'],
+    packages        = ['egtp', 'egtp.crypto', 'egtp.crypto.win_entropy', 'egtp.mencode'],
     cmdclass        = {
         'build_ext':    build_ext,
         'test':         test,
@@ -261,6 +276,12 @@ setup (
             'egtp.mencode._c_mencode_help', 
             sources = [
                 os.path.join('egtp', 'mencode', '_c_mencode_help.c'),
+            ] 
+        ),
+        Extension (
+            'egtp.crypto.win_entropy', 
+            sources = [
+                   os.path.join('egtp', 'crypto', 'win_entropy', 'win_entropy.c'),
             ] 
         ),
         Extension (
